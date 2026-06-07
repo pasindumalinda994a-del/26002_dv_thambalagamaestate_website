@@ -1,17 +1,20 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
 
-const BG_SRC = "/main%20images/Start%20Experience%20BG.JPG";
+const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo.svg";
 const CLOUD_LEFT_SRC = "/secondary%20images/Cloude%20Left.png";
 const CLOUD_RIGHT_SRC = "/secondary%20images/Cloude%20Right.png";
 
 export function StartExperience() {
+  const lenis = useLenis();
   const [entered, setEntered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -23,9 +26,15 @@ export function StartExperience() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (entered) return;
+    if (entered) {
+      document.body.style.overflow = "";
+      lenis?.start();
+      ScrollTrigger.refresh();
+      return;
+    }
 
     document.body.style.overflow = "hidden";
+    lenis?.stop();
 
     gsap.set(cloudLeftRef.current, { transformOrigin: "left center" });
     gsap.set(cloudRightRef.current, { transformOrigin: "right center" });
@@ -33,8 +42,9 @@ export function StartExperience() {
 
     return () => {
       document.body.style.overflow = "";
+      lenis?.start();
     };
-  }, [entered]);
+  }, [entered, lenis]);
 
   const handleEnter = () => {
     if (isAnimating || entered) return;
