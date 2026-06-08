@@ -18,13 +18,10 @@ export function HeroSection() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!sectionRef.current?.nextElementSibling) return;
-
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       gsap.set(videoWrapRef.current, { transformOrigin: "center center" });
-      gsap.set(sectionRef.current!.nextElementSibling, { y: "100vh" });
 
       gsap
         .timeline({
@@ -43,11 +40,6 @@ export function HeroSection() {
           ease: "none",
           duration: 1,
         })
-        .to(
-          sectionRef.current!.nextElementSibling,
-          { y: 0, ease: "none", duration: 0.5 },
-          ">",
-        )
         .to(
           h1Ref.current,
           {
