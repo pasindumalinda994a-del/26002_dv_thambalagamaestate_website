@@ -61,7 +61,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       aria-label="Hero"
-      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden"
+      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
       <div
         ref={videoWrapRef}

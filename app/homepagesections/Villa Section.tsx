@@ -44,7 +44,7 @@ function VillaBackground({
       <div
         ref={overlayRef}
         aria-hidden
-        className="absolute inset-0 bg-forest-green opacity-0 will-change-[opacity]"
+        className="absolute inset-0 bg-deep-forest opacity-0 will-change-[opacity]"
       />
     </>
   );

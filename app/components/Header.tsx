@@ -1,9 +1,11 @@
 "use client";
 
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { Button } from "./SolidButton";
+import { useEffect, useState } from "react";
+import { Button, type ButtonVariant } from "./SolidButton";
 
 const LOGO_SRC = "/Logo/Thambalagama%20Logo.svg";
 
@@ -18,18 +20,22 @@ type HeaderProps = {
   variant?: "default" | "hero";
 };
 
-function MobileMenuIcon({ open }: { open: boolean }) {
+function MobileMenuIcon({ open, onCream }: { open: boolean; onCream: boolean }) {
+  const barColor = onCream ? "bg-forest-green" : "bg-cream";
+
   return (
     <span className="relative flex h-5 w-7 items-center justify-center" aria-hidden>
       <span
         className={[
-          "absolute block h-0.5 w-7 rounded-full bg-cream transition-transform duration-200",
+          "absolute block h-0.5 w-7 rounded-full transition-[transform,background-color] duration-200",
+          barColor,
           open ? "translate-y-0 rotate-45" : "-translate-y-[5px]",
         ].join(" ")}
       />
       <span
         className={[
-          "absolute block h-0.5 w-7 rounded-full bg-cream transition-transform duration-200",
+          "absolute block h-0.5 w-7 rounded-full transition-[transform,background-color] duration-200",
+          barColor,
           open ? "translate-y-0 -rotate-45" : "translate-y-[5px]",
         ].join(" ")}
       />
@@ -39,9 +45,36 @@ function MobileMenuIcon({ open }: { open: boolean }) {
 
 export function Header({ variant = "default" }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [onCreamBg, setOnCreamBg] = useState(false);
   const isHero = variant === "hero";
 
+  useEffect(() => {
+    if (!isHero) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const heroSection = document.querySelector<HTMLElement>('[aria-label="Hero"]');
+    if (!heroSection) return;
+
+    const trigger = ScrollTrigger.create({
+      trigger: heroSection,
+      start: "top top",
+      end: "+=100%",
+      onUpdate: (self) => {
+        setOnCreamBg(self.progress > 0);
+      },
+      onLeave: () => setOnCreamBg(false),
+      onEnterBack: () => setOnCreamBg(false),
+    });
+
+    return () => trigger.kill();
+  }, [isHero]);
+
   const closeMenu = () => setMenuOpen(false);
+  const buttonVariant: ButtonVariant = onCreamBg ? "onCream" : "onDark";
+  const navTextClass =
+    isHero && !onCreamBg ? "text-cream" : "text-forest-green";
 
   return (
     <>
@@ -65,7 +98,7 @@ export function Header({ variant = "default" }: HeaderProps) {
           onClick={() => setMenuOpen((open) => !open)}
           className="flex items-center justify-center p-1"
         >
-          <MobileMenuIcon open={menuOpen} />
+          <MobileMenuIcon open={menuOpen} onCream={onCreamBg} />
         </button>
       </header>
 
@@ -91,7 +124,7 @@ export function Header({ variant = "default" }: HeaderProps) {
               onClick={closeMenu}
               className="flex items-center justify-center p-1"
             >
-              <MobileMenuIcon open />
+              <MobileMenuIcon open onCream={onCreamBg} />
             </button>
           </div>
 
@@ -110,7 +143,9 @@ export function Header({ variant = "default" }: HeaderProps) {
               </Link>
             ))}
 
-            <Button href="/book">Check Availability</Button>
+            <Button href="/book" variant={buttonVariant}>
+              Check Availability
+            </Button>
           </nav>
         </div>
       ) : null}
@@ -130,8 +165,8 @@ export function Header({ variant = "default" }: HeaderProps) {
         <nav
           aria-label="Main navigation"
           className={[
-            "flex items-center justify-center gap-[clamp(1rem,2.5vw+0.5rem,4rem)] font-secondary text-[clamp(0.75rem,0.5vw+0.65rem,0.875rem)] font-medium uppercase tracking-[0.2px]",
-            isHero ? "text-cream" : "text-forest-green",
+            "flex items-center justify-center gap-[clamp(1rem,2.5vw+0.5rem,4rem)] font-secondary text-[clamp(0.75rem,0.5vw+0.65rem,0.875rem)] font-medium uppercase tracking-[0.2px] transition-colors duration-300",
+            navTextClass,
           ].join(" ")}
         >
           {NAV_LINKS.map(({ href, label }) => (
@@ -146,7 +181,9 @@ export function Header({ variant = "default" }: HeaderProps) {
         </nav>
 
         <div className="justify-self-end">
-          <Button href="/book">Check Availability</Button>
+          <Button href="/book" variant={buttonVariant}>
+            Check Availability
+          </Button>
         </div>
       </header>
     </>
