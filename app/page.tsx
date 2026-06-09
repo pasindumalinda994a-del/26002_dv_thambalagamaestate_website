@@ -1,5 +1,6 @@
 import { Header } from "./components/Header";
 import { AboutSection } from "./homepagesections/About Section";
+import { ForestSection } from "./homepagesections/Forest Section";
 import { HeroSection } from "./homepagesections/Hero Section";
 import { StartExperience } from "./homepagesections/Start Experience";
 import { VillaSection } from "./homepagesections/Villa Section";
@@ -12,6 +13,7 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <VillaSection />
+      <ForestSection />
     </main>
   );
 }
