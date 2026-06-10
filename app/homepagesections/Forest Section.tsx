@@ -45,6 +45,7 @@ const SLIDES = [
 ] as const;
 
 const SLIDE_COUNT = SLIDES.length;
+const FOREST_SCROLL_PER_TRANSITION = 150;
 const FOREST_BG_SPEED = 1.5;
 const FOREST_FG_SPEED = 0.2;
 
@@ -93,8 +94,18 @@ function slideScaleT(globalProgress: number, index: number) {
   return (globalProgress - revealStart) / step;
 }
 
+function easePower2In(t: number) {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x;
+}
+
+function easeOutSmooth(t: number) {
+  const x = Math.max(0, Math.min(1, t));
+  return 1 - Math.pow(1 - x, 2.5);
+}
+
 function scaleFromRevealT(t: number) {
-  return 1.2 - Math.max(0, Math.min(1, t)) * 0.2;
+  return 1.2 - easePower2In(t) * 0.2;
 }
 
 export function ForestSection() {
@@ -148,12 +159,12 @@ export function ForestSection() {
         if (index === 0) {
           gsap.to(imageWrap, {
             scale: 1,
-            ease: "none",
+            ease: "power2.in",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top bottom",
               end: "top top",
-              scrub: true,
+              scrub: 1,
             },
           });
         }
@@ -162,7 +173,8 @@ export function ForestSection() {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: () => `+=${(SLIDE_COUNT - 1) * 100}%`,
+        end: () =>
+          `+=${(SLIDE_COUNT - 1) * FOREST_SCROLL_PER_TRANSITION}%`,
         pin: pinRef.current,
         scrub: true,
         anticipatePin: 1,
@@ -196,9 +208,10 @@ export function ForestSection() {
       const revealComplete = rect.top <= 0;
       const progressAtFullReveal =
         viewportHeight / (viewportHeight + revealHeight);
-      const progress = revealComplete
-        ? progressAtFullReveal
-        : Math.max(0, Math.min(1, rawProgress));
+      const revealT = revealComplete
+        ? 1
+        : Math.max(0, Math.min(1, rawProgress / progressAtFullReveal));
+      const progress = easeOutSmooth(revealT) * progressAtFullReveal;
 
       const centeredProgress = (progress - 0.5) * 2;
       const travelBase = centeredProgress * 240;
@@ -247,7 +260,7 @@ export function ForestSection() {
             className="absolute inset-0 will-change-[clip-path]"
             style={{
               zIndex: slideZIndex(index),
-              clipPath: index === 0 ? CLIP_FULL : index === 1 ? CLIP_FULL : CLIP_HIDDEN,
+              clipPath: index === 0 ? CLIP_FULL : CLIP_HIDDEN,
             }}
           >
             <div
