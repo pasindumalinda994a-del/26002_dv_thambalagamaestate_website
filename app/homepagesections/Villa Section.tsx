@@ -44,7 +44,7 @@ function VillaBackground({
       <div
         ref={overlayRef}
         aria-hidden
-        className="absolute inset-0 bg-forest-green opacity-0 will-change-[opacity]"
+        className="absolute inset-0 bg-deep-forest opacity-0 will-change-[opacity]"
       />
     </>
   );
@@ -60,13 +60,13 @@ function VillaGalleryCard({
   priority?: boolean;
 }) {
   return (
-    <div className="relative mx-auto h-[82vh] w-[min(96vw,84rem)] shrink-0 overflow-hidden rounded-[clamp(24px,3vw,36px)]">
+    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-3rem),84rem)] shrink-0 overflow-hidden rounded-[clamp(20px,3vw,36px)] md:h-[82vh] md:w-[min(96vw,84rem)]">
       <Image
         src={src}
         alt={alt}
         fill
         className="object-cover"
-        sizes="96vw"
+        sizes="(max-width: 768px) calc(100vw - 3rem), 96vw"
         priority={priority}
       />
     </div>
@@ -237,7 +237,7 @@ export function VillaSection() {
         >
           <div
             ref={galleryStripRef}
-            className="flex flex-col items-center gap-[10vh]"
+            className="flex flex-col items-center gap-[8vh] md:gap-[10vh]"
           >
             {VILLA_GALLERY_IMAGES.map((image, index) => (
               <VillaGalleryCard
