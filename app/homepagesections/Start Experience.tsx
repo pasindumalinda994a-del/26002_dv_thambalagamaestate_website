@@ -9,7 +9,7 @@ import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
 
 const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
-const LOGO_SRC = "/Logo/Thambalagama%20Logo.svg";
+const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 const CLOUD_LEFT_SRC = "/secondary%20images/Cloude%20Left.png";
 const CLOUD_RIGHT_SRC = "/secondary%20images/Cloude%20Right.png";
 
@@ -160,8 +160,8 @@ export function StartExperience() {
         <Image
           src={LOGO_SRC}
           alt="Thambalagama Estate"
-          width={169}
-          height={105}
+          width={699}
+          height={685}
           priority
           className="h-auto w-[clamp(140px,10vw,220px)]"
         />

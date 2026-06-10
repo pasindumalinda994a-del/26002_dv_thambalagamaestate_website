@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, type ButtonVariant } from "./SolidButton";
 
-const LOGO_SRC = "/Logo/Thambalagama%20Logo.svg";
+const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 
 const NAV_LINKS = [
   { href: "/", label: "Sanctuary" },
@@ -83,8 +83,8 @@ export function Header({ variant = "default" }: HeaderProps) {
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
-            width={169}
-            height={105}
+            width={699}
+            height={685}
             className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
             priority
           />
@@ -112,8 +112,8 @@ export function Header({ variant = "default" }: HeaderProps) {
               <Image
                 src={LOGO_SRC}
                 alt="Thambalagama Estate"
-                width={169}
-                height={105}
+                width={699}
+                height={685}
                 className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
               />
             </Link>
@@ -155,8 +155,8 @@ export function Header({ variant = "default" }: HeaderProps) {
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
-            width={169}
-            height={105}
+            width={699}
+            height={685}
             className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
             priority
           />
