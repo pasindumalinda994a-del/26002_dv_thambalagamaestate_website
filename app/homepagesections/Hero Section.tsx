@@ -7,7 +7,7 @@ import { GlassyButton } from "../components/GlassyButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 
-const VIDEO_SRC = "/videos/Hero%20Section%20Bg.mp4";
+const VIDEO_SRC = "/videos/Hero%20Section%20Bg2.mp4";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
