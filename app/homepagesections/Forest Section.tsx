@@ -2,11 +2,13 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
+import { getStackRevealDistance } from "./stackScroll";
 
 const CLIP_FULL = "polygon(0 0, 100% 0, 100% 100%, 0 100%)";
 const CLIP_HIDDEN = "polygon(0 0, 0 0, 0 100%, 0 100%)";
@@ -45,6 +47,7 @@ const SLIDES = [
 ] as const;
 
 const SLIDE_COUNT = SLIDES.length;
+const FOREST_SCROLL_PER_TRANSITION = 150;
 const FOREST_BG_SPEED = 1.5;
 const FOREST_FG_SPEED = 0.2;
 
@@ -93,11 +96,35 @@ function slideScaleT(globalProgress: number, index: number) {
   return (globalProgress - revealStart) / step;
 }
 
-function scaleFromRevealT(t: number) {
-  return 1.2 - Math.max(0, Math.min(1, t)) * 0.2;
+function easePower2In(t: number) {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x;
 }
 
-export function ForestSection() {
+function easeOutSmooth(t: number) {
+  const x = Math.max(0, Math.min(1, t));
+  return 1 - Math.pow(1 - x, 2.5);
+}
+
+function scaleFromRevealT(t: number) {
+  return 1.2 - easePower2In(t) * 0.2;
+}
+
+function getSlideScrollDistance() {
+  return (
+    (SLIDE_COUNT - 1) * (FOREST_SCROLL_PER_TRANSITION / 100) * window.innerHeight
+  );
+}
+
+type ForestSectionProps = {
+  overlayTargetRef?: RefObject<HTMLElement | null>;
+  overlayReady?: boolean;
+};
+
+export function ForestSection({
+  overlayTargetRef,
+  overlayReady = true,
+}: ForestSectionProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const progressFillRef = useRef<HTMLDivElement>(null);
@@ -105,8 +132,12 @@ export function ForestSection() {
   const slideBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const slideImageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const slideContentRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const headingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+  const headingTweens = useRef<(gsap.core.Tween | null)[]>([]);
+  const headingSplits = useRef<(SplitText | null)[]>([]);
+  const revealedSlides = useRef(new Set<number>());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -120,7 +151,16 @@ export function ForestSection() {
       return;
     }
 
-    gsap.registerPlugin(ScrollTrigger);
+    if (overlayTargetRef && !overlayReady) return;
+
+    gsap.registerPlugin(ScrollTrigger, SplitText);
+
+    const revertManualHeadingReveals = () => {
+      headingTweens.current.forEach((tween) => tween?.kill());
+      headingTweens.current = [];
+      headingSplits.current.forEach((split) => split?.revert());
+      headingSplits.current = [];
+    };
 
     const updateSlides = (progress: number) => {
       progressFillRef.current?.style.setProperty("width", `${progress * 100}%`);
@@ -137,6 +177,16 @@ export function ForestSection() {
           scale: scaleFromRevealT(slideScaleT(progress, index)),
         });
       });
+
+      SLIDES.forEach((_, index) => {
+        if (index === 0) return;
+
+        const imageFullyRevealed = slideScaleT(progress, index) >= 1;
+        if (imageFullyRevealed && !revealedSlides.current.has(index)) {
+          revealedSlides.current.add(index);
+          headingTweens.current[index]?.play();
+        }
+      });
     };
 
     const ctx = gsap.context(() => {
@@ -148,12 +198,12 @@ export function ForestSection() {
         if (index === 0) {
           gsap.to(imageWrap, {
             scale: 1,
-            ease: "none",
+            ease: "power2.in",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top bottom",
               end: "top top",
-              scrub: true,
+              scrub: 1,
             },
           });
         }
@@ -162,19 +212,77 @@ export function ForestSection() {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: () => `+=${(SLIDE_COUNT - 1) * 100}%`,
+        end: () => `+=${getSlideScrollDistance() + getStackRevealDistance()}`,
         pin: pinRef.current,
+        pinSpacing: true,
         scrub: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => updateSlides(self.progress),
+        onUpdate: (self) => {
+          const slideDistance = getSlideScrollDistance();
+          const overlay = getStackRevealDistance();
+          const total = slideDistance + overlay;
+          const slidePortion = total > 0 ? slideDistance / total : 1;
+          const slideProgress = Math.min(1, self.progress / slidePortion);
+          updateSlides(slideProgress);
+        },
       });
 
       updateSlides(0);
     }, sectionRef);
 
-    return () => ctx.revert();
-  }, []);
+    revertManualHeadingReveals();
+    revealedSlides.current.clear();
+
+    [1, 2].forEach((index) => {
+      const element = headingRefs.current[index];
+      if (!element) return;
+
+      let split: SplitText | undefined;
+      let tween: gsap.core.Tween | undefined;
+
+      split = SplitText.create(element, {
+        type: "lines,chars",
+        mask: "lines",
+        autoSplit: true,
+        linesClass: "h2-line",
+        charsClass: "inline-block",
+        onSplit(self) {
+          gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
+          gsap.set(self.chars, { y: 200 });
+
+          tween = gsap.to(self.chars, {
+            y: 0,
+            duration: 1.5,
+            ease: "power4.out",
+            stagger: 0.05,
+            delay: 0.2,
+            paused: true,
+          });
+        },
+      });
+
+      headingTweens.current[index] = tween ?? null;
+      headingSplits.current[index] = split ?? null;
+    });
+
+    const overlayEl = overlayTargetRef?.current;
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    if (overlayEl) resizeObserver.observe(overlayEl);
+
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+      revertManualHeadingReveals();
+      revealedSlides.current.clear();
+      ctx.revert();
+    };
+  }, [overlayTargetRef, overlayReady]);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -196,9 +304,10 @@ export function ForestSection() {
       const revealComplete = rect.top <= 0;
       const progressAtFullReveal =
         viewportHeight / (viewportHeight + revealHeight);
-      const progress = revealComplete
-        ? progressAtFullReveal
-        : Math.max(0, Math.min(1, rawProgress));
+      const revealT = revealComplete
+        ? 1
+        : Math.max(0, Math.min(1, rawProgress / progressAtFullReveal));
+      const progress = easeOutSmooth(revealT) * progressAtFullReveal;
 
       const centeredProgress = (progress - 0.5) * 2;
       const travelBase = centeredProgress * 240;
@@ -236,8 +345,8 @@ export function ForestSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} aria-label="Forest" className="relative">
-      <div ref={pinRef} className="relative h-screen overflow-hidden">
+    <section ref={sectionRef} aria-label="Forest" className="relative z-[1]">
+      <div ref={pinRef} className="relative z-[1] h-screen overflow-hidden">
         {SLIDES.map((slide, index) => (
           <div
             key={slide.bg}
@@ -247,7 +356,7 @@ export function ForestSection() {
             className="absolute inset-0 will-change-[clip-path]"
             style={{
               zIndex: slideZIndex(index),
-              clipPath: index === 0 ? CLIP_FULL : index === 1 ? CLIP_FULL : CLIP_HIDDEN,
+              clipPath: index === 0 ? CLIP_FULL : CLIP_HIDDEN,
             }}
           >
             <div
@@ -281,7 +390,17 @@ export function ForestSection() {
               className="absolute inset-0 will-change-transform px-[clamp(1.25rem,4vw,2rem)]"
             >
               <div className="absolute top-1/2 max-w-7xl -translate-y-1/2 space-y-6">
-                <H2 className="max-w-6xl uppercase text-cream">{slide.heading}</H2>
+                <H2
+                  ref={(node) => {
+                    headingRefs.current[index] = node;
+                  }}
+                  animate={index !== 0 ? false : undefined}
+                  triggerRef={index === 0 ? sectionRef : undefined}
+                  triggerStart={index === 0 ? "top 82%" : undefined}
+                  className="max-w-6xl uppercase text-cream"
+                >
+                  {slide.heading}
+                </H2>
                 <Paragraph className="max-w-4xl text-cream/90">{slide.body}</Paragraph>
                 {"cta" in slide && slide.cta ? (
                   <GlassyButton href={slide.cta.href}>{slide.cta.label}</GlassyButton>
