@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 @font-face {
   font-family: "Sora Carnel";
