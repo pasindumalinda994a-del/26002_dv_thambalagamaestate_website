@@ -3,14 +3,11 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import mapboxgl from "mapbox-gl";
-import Image from "next/image";
 import Link from "next/link";
 import { forwardRef, useEffect, useRef } from "react";
 import { H2 } from "../components/H2";
-import { Paragraph } from "../components/Paragraph";
 
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
-const CARD_IMAGE_SRC = "/main%20images/Villa%20Image%201.webp";
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
 const ESTATE_LNG = 80.403;
 const ESTATE_LAT = 6.383;
@@ -25,31 +22,11 @@ const MARKER_CENTER_DOT_R = 7;
 const MARKER_PULSE_DURATION = 2.8;
 const MARKER_PULSE_EASE = "power2.out";
 
-const LOCATION_DETAILS = [
-  "The Border: Inside the buffer zone.",
-  "The Gate: 7 km to Lankagama gate.",
+const LOCATION_ROWS = [
+  { place: "Sinharaja Border", distance: "Direct Access" },
+  { place: "Lankagama Gate", distance: "7 km (15-min drive)" },
+  { place: "Colombo", distance: "X.X Hours" },
 ] as const;
-
-function PointingHandIcon() {
-  return (
-    <svg
-      width={20}
-      height={20}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className="mt-0.5 shrink-0 text-cream/80"
-    >
-      <path
-        d="M7 11V7.5C7 6.11929 8.11929 5 9.5 5C10.3284 5 11 5.67157 11 6.5V11M11 11V6.5C11 5.11929 12.1193 4 13.5 4C14.3284 4 15 4.67157 15 5.5V11M15 11V7C15 5.89543 15.8954 5 17 5C18.1046 5 19 5.89543 19 7V13.5C19 17.0899 16.0899 20 12.5 20H10.5C7.46243 20 5 17.5376 5 14.5V12.5C5 11.6716 5.67157 11 6.5 11H7"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function ExternalLinkIcon() {
   return (
@@ -317,55 +294,50 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
         aria-hidden
       />
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-start px-[clamp(1.25rem,4vw,2rem)] pb-[clamp(1.25rem,4vw,2rem)] pt-[clamp(5rem,12vw,7rem)] md:pt-0">
-        <article className="pointer-events-auto flex h-[571px] w-[461px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-deep-forest/55 shadow-[0_24px_60px_rgba(0,0,0,0.35)] ring-1 ring-cream/10 backdrop-blur-xl max-md:h-auto max-md:w-full max-md:max-w-[clamp(300px,90vw,400px)]">
-          <div className="relative min-h-0 w-full flex-1 overflow-hidden max-md:aspect-4/3 max-md:flex-none">
-            <Image
-              src={CARD_IMAGE_SRC}
-              alt="Thambalagama Estate building"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 26vw"
-            />
-          </div>
-
-          <div className="flex shrink-0 flex-col space-y-5 px-[clamp(1.25rem,2.5vw,1.75rem)] py-[clamp(1.25rem,2.5vw,1.75rem)]">
-            <div className="space-y-2">
-              <H2
-                ready={ready}
-                triggerRef={sectionRef}
-                triggerStart="center 82%"
-                className="text-cream"
-              >
-                THE LOCATION
-              </H2>
-              <Paragraph className="text-[clamp(15px,1vw+12px,18px)] text-cream/90">
-                Where the Map Ends.
-              </Paragraph>
-            </div>
-
-            <ul className="space-y-3">
-              {LOCATION_DETAILS.map((detail) => (
-                <li
-                  key={detail}
-                  className="flex items-start gap-3 font-secondary text-[clamp(14px,0.8vw+12px,16px)] leading-[140%] tracking-[0.3px] text-cream/85"
-                >
-                  <PointingHandIcon />
-                  <span>{detail}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Link
-              href={DIRECTIONS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-fit items-center justify-center gap-2 self-start rounded-full bg-cream px-[18px] py-[12px] font-secondary text-sm font-medium uppercase tracking-[0.2px] text-forest-green shadow-[0_4px_10px_0] shadow-black/8 transition-opacity hover:opacity-90"
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end px-[clamp(1.25rem,4vw,2rem)] pb-[clamp(1.25rem,4vw,2rem)]">
+        <article className="pointer-events-auto flex w-[461px] shrink-0 flex-col gap-6 bg-cream px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.5rem,2.5vw,2rem)] shadow-[0_24px_60px_rgba(0,0,0,0.2)] max-md:w-full max-md:max-w-[400px]">
+          <div className="space-y-2">
+            <p className="font-secondary text-xs font-medium uppercase tracking-[0.15em] text-olive">
+              Location
+            </p>
+            <H2
+              ready={ready}
+              triggerRef={sectionRef}
+              triggerStart="center 82%"
+              className="text-forest-green"
             >
-              Get Directions
-              <ExternalLinkIcon />
-            </Link>
+              On the Edge of the Wild.
+            </H2>
           </div>
+
+          <ul className="flex flex-col">
+            {LOCATION_ROWS.map((row, index) => (
+              <li
+                key={row.place}
+                className={[
+                  "flex items-center justify-between gap-4 py-4 font-secondary text-[clamp(14px,0.8vw+12px,16px)] leading-[140%] tracking-[0.3px]",
+                  index < LOCATION_ROWS.length - 1
+                    ? "border-b border-dashed border-forest-green/30"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <span className="font-medium text-forest-green">{row.place}</span>
+                <span className="shrink-0 text-olive">{row.distance}</span>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href={DIRECTIONS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit items-center justify-center gap-2 self-end rounded-full bg-forest-green px-[18px] py-[12px] font-secondary text-sm font-medium uppercase tracking-[0.2px] text-cream shadow-[0_4px_10px_0] shadow-black/8 transition-opacity hover:opacity-90"
+          >
+            Get Directions
+            <ExternalLinkIcon />
+          </Link>
         </article>
       </div>
     </section>

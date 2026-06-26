@@ -2,7 +2,9 @@
 
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { CTASection } from "./CTASection";
 import { ExperienceSection } from "./Experience Section";
+import { FooterSection } from "./Footer Section";
 import { ForestSection } from "./Forest Section";
 import { LocationSection } from "./LocationSection";
 
@@ -53,6 +55,8 @@ export function ForestExperienceLocationStack() {
         overlayReady={locationReady}
       />
       <LocationSection ref={locationRef} ready={locationReady} />
+      <CTASection ready={locationReady} />
+      <FooterSection />
     </div>
   );
 }

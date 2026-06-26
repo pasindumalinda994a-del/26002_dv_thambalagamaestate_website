@@ -55,10 +55,16 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
           charsClass: "inline-block",
           onSplit(self) {
             gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
-            gsap.set(self.chars, { y: 200 });
+            gsap.set(self.chars, {
+              y: 200,
+              filter: "blur(14px)",
+              opacity: 0.2,
+            });
 
             return gsap.to(self.chars, {
               y: 0,
+              filter: "blur(0px)",
+              opacity: 1,
               duration: 0.8,
               ease: "power4.out",
               stagger,
