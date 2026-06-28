@@ -128,7 +128,7 @@ export function StartExperience() {
       <div
         ref={cloudLeftRef}
         aria-hidden
-        className="pointer-events-none absolute top-[24%] -left-8 z-1 aspect-483/340 w-[clamp(320px,38vw,483px)] -translate-y-1/2 will-change-transform md:top-1/3 md:left-0"
+        className="pointer-events-none absolute top-[24%] -left-8 z-1 aspect-483/340 w-[320px] max-w-[90vw] -translate-y-1/2 will-change-transform md:top-1/3 md:left-0 md:w-[483px]"
       >
         <Image
           src={CLOUD_LEFT_SRC}
@@ -142,7 +142,7 @@ export function StartExperience() {
       <div
         ref={cloudRightRef}
         aria-hidden
-        className="pointer-events-none absolute -right-12 bottom-[14%] z-1 aspect-423/261 w-[clamp(300px,32vw,423px)] will-change-transform md:bottom-auto md:right-0 md:top-2/3 md:-translate-y-1/2"
+        className="pointer-events-none absolute -right-12 bottom-[14%] z-1 aspect-423/261 w-[300px] max-w-[85vw] will-change-transform md:bottom-auto md:right-0 md:top-2/3 md:w-[423px] md:-translate-y-1/2"
       >
         <Image
           src={CLOUD_RIGHT_SRC}
@@ -155,7 +155,7 @@ export function StartExperience() {
 
       <div
         ref={contentRef}
-        className="relative z-10 flex flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)] px-6"
+        className="relative z-10 flex flex-col items-center gap-6 px-6 md:gap-10"
       >
         <Image
           src={LOGO_SRC}
@@ -163,7 +163,7 @@ export function StartExperience() {
           width={699}
           height={685}
           priority
-          className="h-auto w-[clamp(140px,10vw,220px)]"
+          className="h-auto w-[140px] md:w-[220px]"
         />
 
         <Paragraph className="text-center text-cream">

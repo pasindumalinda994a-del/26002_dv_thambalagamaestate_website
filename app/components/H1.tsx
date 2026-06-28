@@ -43,7 +43,7 @@ export const H1 = forwardRef<HTMLHeadingElement, H1Props>(
             gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
             gsap.set(self.chars, {
               y: 200,
-              filter: "blur(14px)",
+              filter: "blur(20px)",
               opacity: 0.2,
             });
 
@@ -74,7 +74,7 @@ export const H1 = forwardRef<HTMLHeadingElement, H1Props>(
           else if (ref) ref.current = element;
         }}
         className={[
-          "font-primary text-[clamp(36px,5vw+20px,76px)] font-normal leading-[130%] tracking-[0.2px]",
+          "font-primary text-[clamp(36px,9.23vw,76px)] font-normal leading-[130%] tracking-[0.2px]",
           className,
         ]
           .filter(Boolean)

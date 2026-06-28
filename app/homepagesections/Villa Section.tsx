@@ -60,7 +60,7 @@ function VillaGalleryCard({
   priority?: boolean;
 }) {
   return (
-    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-3rem),84rem)] shrink-0 overflow-hidden rounded-[clamp(20px,3vw,36px)] md:h-[82vh] md:w-[min(96vw,84rem)]">
+    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-3rem),84rem)] shrink-0 overflow-hidden rounded-[20px] md:h-[82vh] md:w-[min(96vw,84rem)] md:rounded-[36px]">
       <Image
         src={src}
         alt={alt}
@@ -254,19 +254,21 @@ export function VillaSection() {
           ref={contentRef}
           className="absolute inset-0 z-10 will-change-transform"
         >
-          <div className="relative z-10 flex min-h-screen flex-col items-start justify-end gap-6 px-[clamp(1.25rem,4vw,2rem)] pb-12 md:pb-16">
+          <div className="relative z-10 flex min-h-screen flex-col items-start justify-end pl-4 pb-[78px] md:pl-8 md:pb-[94px]">
             <H2 className="max-w-6xl uppercase text-cream">
               Crafted for comfort,
               <br />
               surrounded by the wild.
             </H2>
 
-            <Paragraph className="max-w-lg text-cream">
+            <Paragraph className="mt-2 max-w-lg text-cream md:mt-4">
               Expansive private living spaces opening out to a 360-degree panoramic
               view.
             </Paragraph>
 
-            <GlassyButton href="/bungalow">Tour the bungalow</GlassyButton>
+            <GlassyButton className="mt-10" href="/bungalow">
+              Tour the bungalow
+            </GlassyButton>
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@ const NAV_LINKS = [
 ] as const;
 
 const FOOTER_LINK_TYPOGRAPHY =
-  "font-secondary text-[30px] font-bold uppercase leading-[130%] tracking-[0.2px] transition-opacity hover:opacity-80";
+  "font-secondary text-[clamp(24px,6.15vw,30px)] font-bold md:font-normal uppercase leading-[130%] tracking-[0.2px] transition-opacity hover:opacity-80";
 
 const SOCIAL_LINKS = [
   { href: "#", label: "Instagram" },
@@ -43,14 +43,14 @@ function ExternalLinkIcon() {
 export function FooterSection() {
   return (
     <footer className="flex min-h-screen flex-col bg-deep-forest text-cream">
-      <div className="flex flex-1 flex-col justify-center gap-12 px-[clamp(1.25rem,4vw,2rem)] py-[clamp(3rem,8vw,6rem)] lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-1 flex-col justify-center gap-12 px-5 py-12 md:px-8 md:py-24 lg:flex-row lg:items-center lg:justify-between">
         <Link href="/" className="shrink-0">
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
             width={699}
             height={685}
-            className="h-auto w-auto max-w-[clamp(10rem,22vw,18rem)]"
+            className="h-auto w-auto max-w-40 md:max-w-72"
           />
         </Link>
 
@@ -62,7 +62,7 @@ export function FooterSection() {
             <div key={href} className="border-b border-cream/30">
               <Link
                 href={href}
-                className={`block py-[clamp(0.75rem,2vw,1.25rem)] ${FOOTER_LINK_TYPOGRAPHY}`}
+                className={`block py-3 md:py-5 ${FOOTER_LINK_TYPOGRAPHY}`}
               >
                 {label}
               </Link>
@@ -72,7 +72,7 @@ export function FooterSection() {
           <div className="border-b border-cream/30">
             <Link
               href="/book"
-              className={`flex items-center justify-between py-[clamp(0.75rem,2vw,1.25rem)] ${FOOTER_LINK_TYPOGRAPHY}`}
+              className={`flex items-center justify-between py-3 md:py-5 ${FOOTER_LINK_TYPOGRAPHY}`}
             >
               Check Availability
               <ExternalLinkIcon />
@@ -81,10 +81,10 @@ export function FooterSection() {
         </nav>
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-cream/20 px-[clamp(1.25rem,4vw,2rem)] py-6 font-secondary text-[clamp(0.625rem,0.5vw+0.5rem,0.75rem)] font-medium uppercase tracking-[0.15em] text-cream/90 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col items-center gap-4 px-5 py-6 text-center font-secondary text-xs font-medium uppercase tracking-[0.15em] text-cream/90 md:px-8 lg:mb-[53px] lg:flex-row lg:items-center lg:justify-between lg:text-left">
         <p>© 2026 Thambalagama Estate</p>
 
-        <div className="flex flex-wrap gap-[clamp(1rem,3vw,2.5rem)]">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-10 lg:justify-start">
           {SOCIAL_LINKS.map(({ href, label }) => (
             <Link
               key={label}

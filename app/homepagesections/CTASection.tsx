@@ -9,21 +9,27 @@ import { GlassyButton } from "../components/GlassyButton";
 const BG_SRC = "/main%20images/CTA%20Section%20Bg.png";
 
 const HEADLINE_CLASS =
-  "w-full font-primary text-[36px] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
+  "w-full font-primary text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
 
 const WHEEL_ACTIVE = { rotationX: 0, y: 0, z: 0, opacity: 1 };
-const WHEEL_ENTER = { rotationX: 90, y: 100, z: -150, opacity: 0 };
-const WHEEL_EXIT = { rotationX: -90, y: -100, z: -150, opacity: 0 };
+const WHEEL_ENTER = { rotationX: 60, y: 100, z: -120, opacity: 0 };
+const WHEEL_EXIT = { rotationX: -60, y: -100, z: -120, opacity: 0 };
 
 const CTA_HEADLINES: ReactNode[] = [
   <>
-    <span className="font-secondary font-light">Zero</span>{" "}
-    <span className="font-secondary font-bold">
+    <span className="font-secondary font-light italic">Zero</span>{" "}
+    <span className="font-primary">
       shared spaces or distractions.
     </span>
   </>,
-  <>One group. The entire estate.</>,
-  <>Silence as the only luxury.</>,
+  <>
+    <span className="font-primary">Absolute,</span>{" "}
+    <span className="font-secondary font-light italic">uninterrupted privacy.</span>
+  </>,
+  <>
+    <span className="font-secondary font-light italic">Pure</span>{" "}
+    <span className="font-primary">connection to the canopy.</span>
+  </>,
 ];
 
 type CTASectionProps = {
@@ -176,7 +182,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)] px-6 text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-6 text-center md:gap-10">
         <div className="flex w-full flex-col items-center gap-2">
           <p className="font-secondary text-[16px] font-normal uppercase leading-[150%] tracking-[0.2px] text-cream">
             The Estate Promise

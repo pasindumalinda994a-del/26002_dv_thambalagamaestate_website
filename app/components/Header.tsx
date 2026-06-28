@@ -130,7 +130,7 @@ export function Header({ variant = "default" }: HeaderProps) {
 
           <nav
             aria-label="Main navigation"
-            className="flex flex-1 flex-col items-center justify-center gap-[clamp(1.5rem,4vw,2rem)] px-[clamp(1.25rem,4vw,2rem)] font-secondary text-base font-medium uppercase tracking-[0.2px] text-cream"
+            className="flex flex-1 flex-col items-center justify-center gap-8 px-[clamp(1.25rem,4vw,2rem)] font-secondary text-base font-medium uppercase tracking-[0.2px] text-cream"
           >
             {NAV_LINKS.map(({ href, label }) => (
               <Link
@@ -165,7 +165,7 @@ export function Header({ variant = "default" }: HeaderProps) {
         <nav
           aria-label="Main navigation"
           className={[
-            "flex items-center justify-center gap-[clamp(1rem,2.5vw+0.5rem,4rem)] font-secondary text-[clamp(0.75rem,0.5vw+0.65rem,0.875rem)] font-medium uppercase tracking-[0.2px] transition-colors duration-300",
+            "flex items-center justify-center gap-16 font-secondary text-sm font-medium uppercase tracking-[0.2px] transition-colors duration-300",
             navTextClass,
           ].join(" ")}
         >

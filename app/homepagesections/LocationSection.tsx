@@ -5,8 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import mapboxgl from "mapbox-gl";
 import Link from "next/link";
 import { forwardRef, useEffect, useRef } from "react";
-import { H2 } from "../components/H2";
-
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
 const ESTATE_LNG = 80.403;
@@ -120,12 +118,12 @@ function createMarkerElement(): {
 } {
   const root = document.createElement("div");
   root.style.cssText =
-    "pointer-events:none;display:flex;width:clamp(220px,22vw,320px);flex-direction:column;align-items:center;gap:0.65rem;text-align:center;";
+    "pointer-events:none;display:flex;width:320px;max-width:90vw;min-width:220px;flex-direction:column;align-items:center;gap:0.65rem;text-align:center;";
 
   const logo = document.createElement("img");
   logo.src = LOGO_SRC;
   logo.alt = "";
-  logo.style.cssText = "height:auto;width:clamp(3.25rem,5vw,4.25rem);";
+  logo.style.cssText = "height:auto;width:4.25rem;max-width:100%;";
   root.appendChild(logo);
 
   const label = document.createElement("p");
@@ -294,20 +292,15 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
         aria-hidden
       />
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end px-[clamp(1.25rem,4vw,2rem)] pb-[clamp(1.25rem,4vw,2rem)]">
-        <article className="pointer-events-auto flex w-[461px] shrink-0 flex-col gap-6 bg-cream px-[clamp(1.5rem,2.5vw,2rem)] py-[clamp(1.5rem,2.5vw,2rem)] shadow-[0_24px_60px_rgba(0,0,0,0.2)] max-md:w-full max-md:max-w-[400px]">
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end px-5 pb-5 md:px-8 md:pb-8">
+        <article className="pointer-events-auto flex w-[380px] shrink-0 flex-col gap-6 bg-cream pt-[12px] px-[12px] pb-[24px] shadow-[0_24px_60px_rgba(0,0,0,0.2)] max-md:w-full max-md:max-w-[400px]">
           <div className="space-y-2">
-            <p className="font-secondary text-xs font-medium uppercase tracking-[0.15em] text-olive">
+            <p className="font-secondary text-[14px] font-semibold uppercase leading-[150%] tracking-[0.2px] text-olive">
               Location
             </p>
-            <H2
-              ready={ready}
-              triggerRef={sectionRef}
-              triggerStart="center 82%"
-              className="text-forest-green"
-            >
+            <h2 className="font-secondary text-[20px] font-bold leading-[150%] tracking-[0.2px] text-forest-green">
               On the Edge of the Wild.
-            </H2>
+            </h2>
           </div>
 
           <ul className="flex flex-col">
@@ -315,16 +308,16 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               <li
                 key={row.place}
                 className={[
-                  "flex items-center justify-between gap-4 py-4 font-secondary text-[clamp(14px,0.8vw+12px,16px)] leading-[140%] tracking-[0.3px]",
-                  index < LOCATION_ROWS.length - 1
-                    ? "border-b border-dashed border-forest-green/30"
-                    : "",
+                  "flex items-center justify-between gap-4 py-4 font-secondary text-[14px] font-semibold leading-[150%] tracking-[0.2px]",
+                  "border-dashed border-forest-green/30",
+                  index === 0 ? "border-t" : "",
+                  index < LOCATION_ROWS.length - 1 ? "border-b" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
               >
-                <span className="font-medium text-forest-green">{row.place}</span>
-                <span className="shrink-0 text-olive">{row.distance}</span>
+                <span className="text-forest-green">{row.place}</span>
+                <span className="shrink-0 text-[#149B0F]">{row.distance}</span>
               </li>
             ))}
           </ul>

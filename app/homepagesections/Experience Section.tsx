@@ -54,7 +54,7 @@ function ExperienceImageCaption({
   return (
     <div
       className={[
-        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-[clamp(1rem,2.5vw,1.5rem)] transition-opacity duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]",
+        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-4 transition-opacity duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] md:p-6",
         showOnHover ? "opacity-0 group-hover:opacity-100" : "opacity-100",
       ].join(" ")}
     >
@@ -287,7 +287,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           className="pointer-events-none absolute inset-0 z-20 bg-black will-change-[opacity]"
         />
 
-        <div className="relative z-10 shrink-0 px-[clamp(1.25rem,4vw,2rem)] py-[clamp(3rem,8vw,5rem)]">
+        <div className="relative z-10 shrink-0 px-5 py-12 md:px-8 md:py-20">
           <div className="space-y-6">
             <H2
               ready={overlayReady}
@@ -307,7 +307,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           </div>
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-end px-[clamp(1.25rem,4vw,2rem)] pb-[clamp(2.5rem,6vw,4rem)] md:items-center">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-end px-5 pb-10 md:items-center md:px-8 md:pb-16">
           <ExperienceMobileCarousel slides={EXPERIENCE_IMAGES} />
 
           <div
