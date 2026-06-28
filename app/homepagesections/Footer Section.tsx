@@ -11,7 +11,7 @@ const NAV_LINKS = [
 ] as const;
 
 const FOOTER_LINK_TYPOGRAPHY =
-  "font-secondary text-[clamp(24px,6.15vw,30px)] font-bold md:font-normal uppercase leading-[130%] tracking-[0.2px] transition-opacity hover:opacity-80";
+  "font-secondary text-[clamp(24px,6.15vw,30px)] font-bold uppercase leading-[130%] tracking-[0.2px] transition-opacity duration-300 group-hover/nav:opacity-[36%] hover:opacity-100";
 
 const SOCIAL_LINKS = [
   { href: "#", label: "Instagram" },
@@ -56,13 +56,13 @@ export function FooterSection() {
 
         <nav
           aria-label="Footer navigation"
-          className="w-full lg:max-w-[min(52rem,55vw)]"
+          className="group/nav w-full lg:max-w-[min(52rem,55vw)]"
         >
           {NAV_LINKS.map(({ href, label }) => (
             <div key={href} className="border-b border-cream/30">
               <Link
                 href={href}
-                className={`block py-3 md:py-5 ${FOOTER_LINK_TYPOGRAPHY}`}
+                className={`block py-2 md:py-3 ${FOOTER_LINK_TYPOGRAPHY}`}
               >
                 {label}
               </Link>
@@ -72,7 +72,7 @@ export function FooterSection() {
           <div className="border-b border-cream/30">
             <Link
               href="/book"
-              className={`flex items-center justify-between py-3 md:py-5 ${FOOTER_LINK_TYPOGRAPHY}`}
+              className={`flex items-center justify-between py-2 md:py-3 ${FOOTER_LINK_TYPOGRAPHY}`}
             >
               Check Availability
               <ExternalLinkIcon />
