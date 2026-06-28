@@ -55,10 +55,16 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
           charsClass: "inline-block",
           onSplit(self) {
             gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
-            gsap.set(self.chars, { y: 200 });
+            gsap.set(self.chars, {
+              y: 200,
+              filter: "blur(20px)",
+              opacity: 0.2,
+            });
 
             return gsap.to(self.chars, {
               y: 0,
+              filter: "blur(0px)",
+              opacity: 1,
               duration: 0.8,
               ease: "power4.out",
               stagger,
@@ -92,7 +98,7 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
           else if (ref) ref.current = element;
         }}
         className={[
-          "font-primary text-[clamp(30px,5vw+20px,54px)] font-normal leading-[130%] tracking-[0.2px]",
+          "font-primary text-[clamp(24px,6.15vw,54px)] font-normal leading-[130%] tracking-[0.2px]",
           className,
         ]
           .filter(Boolean)

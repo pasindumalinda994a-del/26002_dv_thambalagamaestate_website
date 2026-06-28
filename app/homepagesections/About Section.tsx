@@ -8,7 +8,6 @@ const ABOUT_COPY =
   "We aren't a hotel. We are a private estate where the only luxury is the silence of the forest. Reserved for one group at a time.";
 
 const ABOUT_WORDS = ABOUT_COPY.split(" ");
-const LETTER_REVEAL_DURATION = 0.2;
 
 export function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -39,9 +38,9 @@ export function AboutSection() {
         .to(letters, {
           opacity: 1,
           ease: "none",
-          duration: LETTER_REVEAL_DURATION,
+          duration: 0.2,
           stagger: {
-            each: LETTER_REVEAL_DURATION,
+            each: 0.2,
           },
         });
     }, sectionRef);
@@ -59,7 +58,7 @@ export function AboutSection() {
     >
       <h2
         ref={headingRef}
-        className="mx-auto max-w-4xl px-6 text-center font-primary text-[clamp(36px,2.25vw+28.8px,54px)] font-normal leading-[130%] tracking-[0.5px] text-cream"
+        className="mx-auto max-w-4xl px-6 text-center font-primary text-[clamp(36px,9.23vw,54px)] font-normal leading-[130%] tracking-[0.5px] text-cream"
       >
         {ABOUT_WORDS.map((word, wordIndex) => (
           <span key={wordIndex} className="inline-block">

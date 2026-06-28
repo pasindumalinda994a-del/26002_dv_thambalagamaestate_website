@@ -9,7 +9,7 @@ export const Paragraph = forwardRef<HTMLParagraphElement, ParagraphProps>(
       <p
         ref={ref}
         className={[
-          "font-secondary text-[clamp(16px,1.25vw+2px,20px)] font-regular leading-[130%] tracking-[0.5px]",
+          "font-secondary text-[clamp(16px,4.17vw,20px)] font-regular leading-[130%] tracking-[0.5px]",
           className,
         ]
           .filter(Boolean)

@@ -79,17 +79,20 @@ export function HeroSection() {
         <div aria-hidden className="absolute inset-0 bg-black/29" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)] px-6 text-center">
+      <div className="relative z-10 flex flex-col items-center px-6 text-center">
         <H1
           ref={h1Ref}
-          className="max-w-5xl overflow-hidden uppercase text-cream"
+          className="mb-10 max-w-5xl overflow-hidden uppercase text-cream md:mb-20"
         >
           The edge of the
           <br />
           Sinharaja rainforest.
         </H1>
 
-        <Paragraph ref={pRef} className="max-w-xl overflow-hidden text-cream">
+        <Paragraph
+          ref={pRef}
+          className="mb-10 max-w-xl overflow-hidden text-cream md:mb-20"
+        >
           A fully private 18-guest reserve on the Sinharaja buffer zone. Where
           the rainforest belongs only to you.
         </Paragraph>

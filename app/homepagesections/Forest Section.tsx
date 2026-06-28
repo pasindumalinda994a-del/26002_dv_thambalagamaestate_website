@@ -387,7 +387,7 @@ export function ForestSection({
               ref={(node) => {
                 slideContentRefs.current[index] = node;
               }}
-              className="absolute inset-0 will-change-transform px-[clamp(1.25rem,4vw,2rem)]"
+              className="absolute inset-0 will-change-transform px-5 md:px-8"
             >
               <div className="absolute top-1/2 max-w-7xl -translate-y-1/2 space-y-6">
                 <H2
@@ -411,7 +411,7 @@ export function ForestSection({
         ))}
 
         <div
-          className="absolute inset-x-0 bottom-8 z-20 px-[clamp(1.25rem,4vw,2rem)]"
+          className="absolute inset-x-0 bottom-8 z-20 px-5 md:px-8"
           aria-hidden
         >
           <div className="relative h-px w-full bg-white/20">

@@ -27,16 +27,43 @@ const EXPERIENCE_IMAGES = [
   {
     src: "/main%20images/Experience%20Image%204.jpg",
     alt: "Silky waterfall cascading over mossy rocks in the forest",
+    caption:
+      "Secluded cascades and natural pools, reserved entirely for estate guests.",
   },
   {
     src: "/main%20images/Experience%20Image%205.jpg",
     alt: "Curated estate dining spread with rice and local dishes",
+    caption:
+      "Curated menus shaped around local harvests and your own preferences.",
   },
   {
     src: "/main%20images/Experience%20Image%206.jpg",
     alt: "Wildlife photographer with a telephoto lens in the jungle",
+    caption:
+      "Guided forest walks for birders, photographers, and quiet observation.",
   },
 ] as const;
+
+function ExperienceImageCaption({
+  caption,
+  showOnHover = true,
+}: {
+  caption: string;
+  showOnHover?: boolean;
+}) {
+  return (
+    <div
+      className={[
+        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-4 transition-opacity duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] md:p-6",
+        showOnHover ? "opacity-0 group-hover:opacity-100" : "opacity-100",
+      ].join(" ")}
+    >
+      <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
+        {caption}
+      </Paragraph>
+    </div>
+  );
+}
 
 function ExperienceMobileCarousel({
   slides,
@@ -93,7 +120,7 @@ function ExperienceMobileCarousel({
           <div
             key={index}
             aria-hidden={index !== activeIndex}
-            className="relative aspect-4/4 w-full shrink-0 snap-center snap-always overflow-hidden"
+            className="group relative aspect-4/4 w-full shrink-0 snap-center snap-always overflow-hidden"
           >
             <Image
               src={slide.src}
@@ -103,6 +130,7 @@ function ExperienceMobileCarousel({
               sizes="100vw"
               priority={index === 0}
             />
+            <ExperienceImageCaption caption={slide.caption} showOnHover={false} />
           </div>
         ))}
       </div>
@@ -259,7 +287,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           className="pointer-events-none absolute inset-0 z-20 bg-black will-change-[opacity]"
         />
 
-        <div className="relative z-10 shrink-0 px-[clamp(1.25rem,4vw,2rem)] py-[clamp(3rem,8vw,5rem)]">
+        <div className="relative z-10 shrink-0 px-5 py-12 md:px-8 md:py-20">
           <div className="space-y-6">
             <H2
               ready={overlayReady}
@@ -279,7 +307,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           </div>
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-end px-[clamp(1.25rem,4vw,2rem)] pb-[clamp(2.5rem,6vw,4rem)] md:items-center">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-end px-5 pb-10 md:items-center md:px-8 md:pb-16">
           <ExperienceMobileCarousel slides={EXPERIENCE_IMAGES} />
 
           <div
@@ -293,7 +321,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                   panelRefs.current[index] = el;
                 }}
                 aria-hidden
-                className="experience-panel relative h-full min-w-0 overflow-hidden"
+                className="experience-panel group relative h-full min-w-0 overflow-hidden"
               >
                 <Image
                   src={image.src}
@@ -302,6 +330,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                   className="object-cover"
                   sizes="33vw"
                 />
+                <ExperienceImageCaption caption={image.caption} />
               </div>
             ))}
           </div>
