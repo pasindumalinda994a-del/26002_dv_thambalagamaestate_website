@@ -179,6 +179,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
             className="object-cover"
             onLoad={() => ScrollTrigger.refresh()}
           />
+          <div aria-hidden className="absolute inset-0 bg-black/29" />
         </div>
       </div>
 
