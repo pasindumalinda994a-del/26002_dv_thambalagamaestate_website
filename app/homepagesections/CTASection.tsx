@@ -6,7 +6,7 @@ import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 
-const BG_SRC = "/main%20images/CTA%20Section%20Bg.png";
+const BG_SRC = "/main%20images/CTA%20Section%20Bg.webp";
 
 const HEADLINE_CLASS =
   "w-full font-primary text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
