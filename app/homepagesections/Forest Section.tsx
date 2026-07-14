@@ -8,6 +8,7 @@ import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
+import { getStableViewportHeight } from "@/lib/viewport";
 
 const SLIDES = [
   {
@@ -103,7 +104,7 @@ function scaleFromRevealT(t: number) {
 
 function getSlideScrollDistance() {
   return (
-    (SLIDES.length - 1) * (150 / 100) * window.innerHeight
+    (SLIDES.length - 1) * (150 / 100) * getStableViewportHeight()
   );
 }
 
@@ -396,7 +397,7 @@ export function ForestSection({
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: () => `+=${getSlideScrollDistance() + window.innerHeight}`,
+        end: () => `+=${getSlideScrollDistance() + getStableViewportHeight()}`,
         pin: pinRef.current,
         pinSpacing: true,
         scrub: true,
@@ -404,7 +405,7 @@ export function ForestSection({
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           const slideDistance = getSlideScrollDistance();
-          const overlay = window.innerHeight;
+          const overlay = getStableViewportHeight();
           const total = slideDistance + overlay;
           const slidePortion = total > 0 ? slideDistance / total : 1;
           const slideProgress = Math.min(1, self.progress / slidePortion);
@@ -480,7 +481,7 @@ export function ForestSection({
       }
 
       const rect = sectionRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      const viewportHeight = getStableViewportHeight();
       const revealHeight = viewportHeight;
 
       const rawProgress =
@@ -530,7 +531,7 @@ export function ForestSection({
 
   return (
     <section ref={sectionRef} aria-label="Forest" className="relative z-[1]">
-      <div ref={pinRef} className="relative z-[1] h-screen overflow-hidden">
+      <div ref={pinRef} className="relative z-[1] h-svh overflow-hidden">
         {SLIDES.map((slide, index) => (
           <div
             key={slide.bg}

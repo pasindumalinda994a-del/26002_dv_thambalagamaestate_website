@@ -15,6 +15,7 @@ import {
 import { Button } from "../components/SolidButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
+import { getStableViewportHeight } from "@/lib/viewport";
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
@@ -196,7 +197,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "bottom bottom",
-            end: () => `+=${window.innerHeight}`,
+            end: () => `+=${getStableViewportHeight()}`,
             pin: sectionRef.current,
             pinSpacing: true,
             scrub: true,
@@ -277,7 +278,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative -mt-[100svh] z-30 flex min-h-screen flex-col overflow-hidden bg-cream"
+        className="relative -mt-[100svh] z-30 flex min-h-svh flex-col overflow-hidden bg-cream"
       >
         <div
           ref={darkOverlayRef}

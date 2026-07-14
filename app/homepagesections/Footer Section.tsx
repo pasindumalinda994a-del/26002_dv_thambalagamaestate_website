@@ -42,7 +42,7 @@ function ExternalLinkIcon() {
 
 export function FooterSection() {
   return (
-    <footer className="flex min-h-screen flex-col bg-deep-forest text-cream">
+    <footer className="flex min-h-svh flex-col bg-deep-forest text-cream">
       <div className="flex flex-1 flex-col justify-center gap-12 px-5 py-12 md:px-8 md:py-24 lg:flex-row lg:items-center lg:justify-between">
         <Link href="/" className="shrink-0">
           <Image

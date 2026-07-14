@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { GlassyButton } from "../components/GlassyButton";
+import { getStableViewportHeight } from "@/lib/viewport";
 
 const BG_SRC = "/main%20images/CTA%20Section%20Bg.webp";
 
@@ -93,7 +94,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => `+=${window.innerHeight * transitionCount}`,
+            end: () => `+=${getStableViewportHeight() * transitionCount}`,
             pin: section,
             pinSpacing: true,
             scrub: 1,
@@ -128,7 +129,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
               trigger: section,
               start: () =>
                 ScrollTrigger.getById("cta-headlines")?.end ?? "top top",
-              end: () => `+=${window.innerHeight}`,
+              end: () => `+=${getStableViewportHeight()}`,
               scrub: 1,
               invalidateOnRefresh: true,
             },
@@ -164,7 +165,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
     <section
       ref={sectionRef}
       aria-label="Call to action"
-      className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-deep-forest"
+      className="relative z-[32] flex min-h-svh items-center justify-center overflow-hidden bg-deep-forest"
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <div

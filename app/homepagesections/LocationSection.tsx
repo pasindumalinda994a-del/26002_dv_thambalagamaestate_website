@@ -290,7 +290,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     <section
       ref={setSectionRef}
       aria-label="Location"
-      className="relative -mt-[100svh] z-[31] h-screen w-full overflow-hidden bg-deep-forest"
+      className="relative -mt-[100svh] z-[31] h-svh w-full overflow-hidden bg-deep-forest"
     >
       <div
         ref={mapContainerRef}

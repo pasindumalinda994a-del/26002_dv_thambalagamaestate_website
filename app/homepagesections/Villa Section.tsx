@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
+import { getStableViewportHeight } from "@/lib/viewport";
 
 const BG_SRC = "/main%20images/Vila%20Section%20BG.webp";
 const VILLA_BG_SPEED = 1.5;
@@ -115,7 +116,7 @@ export function VillaSection() {
           start: "top top",
           end: () => {
             const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
-            return `+=${stripHeight + window.innerHeight}`;
+            return `+=${stripHeight + getStableViewportHeight()}`;
           },
           scrub: true,
           invalidateOnRefresh: true,
@@ -135,7 +136,7 @@ export function VillaSection() {
       if (!galleryStripRef.current || !spacerRef.current) return;
 
       const stripHeight = galleryStripRef.current.offsetHeight;
-      const viewportHeight = window.innerHeight;
+      const viewportHeight = getStableViewportHeight();
       galleryScrollDistanceRef.current = stripHeight + viewportHeight;
       spacerRef.current.style.height = `${galleryScrollDistanceRef.current}px`;
       ScrollTrigger.refresh();
@@ -148,7 +149,7 @@ export function VillaSection() {
       }
 
       const rect = sectionRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      const viewportHeight = getStableViewportHeight();
       const revealHeight = viewportHeight;
 
       const rawProgress =
@@ -223,7 +224,7 @@ export function VillaSection() {
 
   return (
     <section ref={sectionRef} aria-label="Villa" className="relative">
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div className="sticky top-0 h-svh overflow-hidden">
         <div ref={bgRef} className="absolute inset-0 z-0 will-change-transform">
           <VillaBackground
             imageRef={bgImageRef}
@@ -254,7 +255,7 @@ export function VillaSection() {
           ref={contentRef}
           className="absolute inset-0 z-10 will-change-transform"
         >
-          <div className="relative z-10 flex min-h-screen flex-col items-start justify-end pl-4 pb-[78px] md:pl-8 md:pb-[94px]">
+          <div className="relative z-10 flex min-h-svh flex-col items-start justify-end pl-4 pb-[78px] md:pl-8 md:pb-[94px]">
             <H2 className="max-w-6xl uppercase text-cream">
               Crafted for comfort,
               <br />

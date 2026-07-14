@@ -54,7 +54,7 @@ export function AboutSection() {
     <section
       ref={sectionRef}
       aria-label="About"
-      className="relative flex min-h-screen items-center justify-center bg-deep-forest"
+      className="relative flex min-h-svh items-center justify-center bg-deep-forest"
     >
       <h2
         ref={headingRef}
