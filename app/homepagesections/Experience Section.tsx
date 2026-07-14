@@ -15,8 +15,7 @@ import {
 import { Button } from "../components/SolidButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import { getStackRevealDistance } from "./stackScroll";
-
+import { getStableViewportHeight } from "@/lib/viewport";
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
@@ -25,19 +24,19 @@ const HOVER_EASE = "power3.inOut";
 
 const EXPERIENCE_IMAGES = [
   {
-    src: "/main%20images/Experience%20Image%204.jpg",
+    src: "/main%20images/Experience%20Image%204.webp",
     alt: "Silky waterfall cascading over mossy rocks in the forest",
     caption:
       "Secluded cascades and natural pools, reserved entirely for estate guests.",
   },
   {
-    src: "/main%20images/Experience%20Image%205.jpg",
+    src: "/main%20images/Experience%20Image%205.webp",
     alt: "Curated estate dining spread with rice and local dishes",
     caption:
       "Curated menus shaped around local harvests and your own preferences.",
   },
   {
-    src: "/main%20images/Experience%20Image%206.jpg",
+    src: "/main%20images/Experience%20Image%206.webp",
     alt: "Wildlife photographer with a telephoto lens in the jungle",
     caption:
       "Guided forest walks for birders, photographers, and quiet observation.",
@@ -198,7 +197,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "bottom bottom",
-            end: () => `+=${getStackRevealDistance()}`,
+            end: () => `+=${getStableViewportHeight()}`,
             pin: sectionRef.current,
             pinSpacing: true,
             scrub: true,
@@ -279,7 +278,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative -mt-[100svh] z-30 flex min-h-screen flex-col overflow-hidden bg-cream"
+        className="relative -mt-[100svh] z-30 flex min-h-svh flex-col overflow-hidden bg-cream"
       >
         <div
           ref={darkOverlayRef}

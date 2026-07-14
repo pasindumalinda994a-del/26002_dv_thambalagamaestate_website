@@ -7,6 +7,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { LENIS_OPTIONS } from "@/lib/lenis-config";
 
 gsap.registerPlugin(ScrollTrigger);
+// Prevent mobile URL-bar show/hide from resizing pinned sections mid-scroll.
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 function LenisGSAPConnector() {
   const lenis = useLenis();

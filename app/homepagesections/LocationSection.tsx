@@ -2,7 +2,6 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import mapboxgl from "mapbox-gl";
 import Link from "next/link";
 import { forwardRef, useEffect, useRef } from "react";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
@@ -149,7 +148,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
   function LocationSection({ ready = true }, ref) {
   const sectionRef = useRef<HTMLElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapRef = useRef<import("mapbox-gl").Map | null>(null);
 
   const setSectionRef = (node: HTMLElement | null) => {
     sectionRef.current = node;
@@ -179,8 +178,8 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     if (!container || mapRef.current) return;
 
     let cancelled = false;
-    let map: mapboxgl.Map | null = null;
-    let marker: mapboxgl.Marker | null = null;
+    let map: import("mapbox-gl").Map | null = null;
+    let marker: import("mapbox-gl").Marker | null = null;
     let markerPulseTween: gsap.core.Timeline | null = null;
     let sizeObserver: ResizeObserver | null = null;
     let visibilityObserver: IntersectionObserver | null = null;
@@ -189,7 +188,14 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
       map?.resize();
     };
 
-    const initMap = () => {
+    const initMap = async () => {
+      if (cancelled || mapRef.current || !hasMapContainerSize(container)) {
+        return;
+      }
+
+      const mapboxgl = (await import("mapbox-gl")).default;
+      await import("mapbox-gl/dist/mapbox-gl.css");
+
       if (cancelled || mapRef.current || !hasMapContainerSize(container)) {
         return;
       }
@@ -226,7 +232,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
         .addTo(map);
 
       map.on("load", handleResize);
-      map.on("error", (event) => {
+      map.on("error", (event: import("mapbox-gl").ErrorEvent) => {
         if (process.env.NODE_ENV === "development") {
           console.error("LocationSection map error:", event.error);
         }
@@ -255,13 +261,13 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     };
 
     if (hasMapContainerSize(container)) {
-      initMap();
+      void initMap();
     } else {
       sizeObserver = new ResizeObserver(() => {
         if (hasMapContainerSize(container)) {
           sizeObserver?.disconnect();
           sizeObserver = null;
-          initMap();
+          void initMap();
         }
       });
       sizeObserver.observe(container);
@@ -284,7 +290,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     <section
       ref={setSectionRef}
       aria-label="Location"
-      className="relative -mt-[100svh] z-[31] h-screen w-full overflow-hidden bg-deep-forest"
+      className="relative -mt-[100svh] z-[31] h-svh w-full overflow-hidden bg-deep-forest"
     >
       <div
         ref={mapContainerRef}
