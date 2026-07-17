@@ -1,11 +1,10 @@
 "use client";
 
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Button, type ButtonVariant } from "./SolidButton";
+import { useState } from "react";
+import { useBooking } from "./booking/BookingProvider";
+import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
 
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 
@@ -16,26 +15,18 @@ const NAV_LINKS = [
   { href: "/contact", label: "Gallery" },
 ] as const;
 
-type HeaderProps = {
-  variant?: "default" | "hero";
-};
-
-function MobileMenuIcon({ open, onCream }: { open: boolean; onCream: boolean }) {
-  const barColor = onCream ? "bg-forest-green" : "bg-cream";
-
+function MenuIcon({ open }: { open: boolean }) {
   return (
     <span className="relative flex h-5 w-7 items-center justify-center" aria-hidden>
       <span
         className={[
-          "absolute block h-0.5 w-7 rounded-full transition-[transform,background-color] duration-200",
-          barColor,
+          "absolute block h-0.5 w-7 rounded-full bg-cream transition-transform duration-200",
           open ? "translate-y-0 rotate-45" : "-translate-y-[5px]",
         ].join(" ")}
       />
       <span
         className={[
-          "absolute block h-0.5 w-7 rounded-full transition-[transform,background-color] duration-200",
-          barColor,
+          "absolute block h-0.5 w-7 rounded-full bg-cream transition-transform duration-200",
           open ? "translate-y-0 -rotate-45" : "translate-y-[5px]",
         ].join(" ")}
       />
@@ -43,149 +34,65 @@ function MobileMenuIcon({ open, onCream }: { open: boolean; onCream: boolean }) 
   );
 }
 
-export function Header({ variant = "default" }: HeaderProps) {
+export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [onCreamBg, setOnCreamBg] = useState(false);
-  const isHero = variant === "hero";
-
-  useEffect(() => {
-    if (!isHero) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const heroSection = document.querySelector<HTMLElement>('[aria-label="Hero"]');
-    if (!heroSection) return;
-
-    const trigger = ScrollTrigger.create({
-      trigger: heroSection,
-      start: "top top",
-      end: "+=100%",
-      onUpdate: (self) => {
-        setOnCreamBg(self.progress > 0);
-      },
-      onLeave: () => setOnCreamBg(false),
-      onEnterBack: () => setOnCreamBg(false),
-    });
-
-    return () => trigger.kill();
-  }, [isHero]);
-
+  const { open: openBooking } = useBooking();
   const closeMenu = () => setMenuOpen(false);
-  const buttonVariant: ButtonVariant = onCreamBg ? "onCream" : "onDark";
-  const navTextClass =
-    isHero && !onCreamBg ? "text-cream" : "text-forest-green";
+
+  const handleAvailability = () => {
+    closeMenu();
+    openBooking();
+  };
+
+  const headerBarClassName =
+    "flex w-auto items-center justify-between bg-deep-forest px-5 py-3 md:w-fit md:justify-center md:gap-16 md:px-8";
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-[500] flex w-full items-center justify-between bg-[#000000]/6 px-[clamp(1.25rem,4vw,2rem)] py-3 shadow-[inset_0_-1px_0_0] shadow-cream/24 backdrop-blur-[10px] md:hidden">
-        <Link href="/" onClick={closeMenu}>
+      <header
+        className={[
+          "fixed top-[16px] left-[16px] right-[16px] z-[502] md:left-1/2 md:right-auto md:-translate-x-1/2",
+          headerBarClassName,
+        ].join(" ")}
+      >
+        <Link href="/" onClick={closeMenu} className="shrink-0">
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
             width={699}
             height={685}
-            className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
+            className="h-auto w-auto max-h-8"
             priority
           />
         </Link>
 
         <button
           type="button"
+          onClick={handleAvailability}
+          className="hidden items-center gap-2 font-secondary text-[14px] font-medium uppercase tracking-[0.2px] text-cream transition-opacity hover:opacity-80 md:inline-flex"
+        >
+          Check Availability
+          <span aria-hidden>→</span>
+        </button>
+
+        <button
+          type="button"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
+          aria-controls="main-navigation"
           onClick={() => setMenuOpen((open) => !open)}
-          className="flex items-center justify-center p-1"
+          className="flex shrink-0 items-center justify-center p-1"
         >
-          <MobileMenuIcon open={menuOpen} onCream={onCreamBg} />
+          <MenuIcon open={menuOpen} />
         </button>
       </header>
 
-      {menuOpen ? (
-        <div
-          id="mobile-navigation"
-          className="fixed inset-0 z-[501] flex flex-col bg-[#000000]/6 shadow-[inset_0_-1px_0_0] shadow-cream/24 backdrop-blur-[10px] md:hidden"
-        >
-          <div className="flex items-center justify-between px-[clamp(1.25rem,4vw,2rem)] py-3">
-            <Link href="/" onClick={closeMenu}>
-              <Image
-                src={LOGO_SRC}
-                alt="Thambalagama Estate"
-                width={699}
-                height={685}
-                className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
-              />
-            </Link>
-
-            <button
-              type="button"
-              aria-label="Close menu"
-              onClick={closeMenu}
-              className="flex items-center justify-center p-1"
-            >
-              <MobileMenuIcon open onCream={onCreamBg} />
-            </button>
-          </div>
-
-          <nav
-            aria-label="Main navigation"
-            className="flex flex-1 flex-col items-center justify-center gap-8 px-[clamp(1.25rem,4vw,2rem)] font-secondary text-base font-medium uppercase tracking-[0.2px] text-cream"
-          >
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={closeMenu}
-                className="transition-opacity hover:opacity-80"
-              >
-                {label}
-              </Link>
-            ))}
-
-            <Button href="/book" variant={buttonVariant}>
-              Check Availability
-            </Button>
-          </nav>
-        </div>
-      ) : null}
-
-      <header className="fixed inset-x-0 top-0 z-[500] hidden w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(1rem,2.5vw,2rem)] bg-[#000000]/6 px-[clamp(1.25rem,4vw,2rem)] py-3 shadow-[inset_0_-1px_0_0] shadow-cream/24 backdrop-blur-[10px] md:grid">
-        <Link href="/" className="justify-self-start">
-          <Image
-            src={LOGO_SRC}
-            alt="Thambalagama Estate"
-            width={699}
-            height={685}
-            className="h-auto w-auto max-h-[clamp(1.75rem,4vw,2rem)]"
-            priority
-          />
-        </Link>
-
-        <nav
-          aria-label="Main navigation"
-          className={[
-            "flex items-center justify-center gap-16 font-secondary text-sm font-medium uppercase tracking-[0.2px] transition-colors duration-300",
-            navTextClass,
-          ].join(" ")}
-        >
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="transition-opacity hover:opacity-80"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="justify-self-end">
-          <Button href="/book" variant={buttonVariant}>
-            Check Availability
-          </Button>
-        </div>
-      </header>
+      <HeaderMenuDrawer
+        open={menuOpen}
+        onClose={closeMenu}
+        onCheckAvailability={handleAvailability}
+        navLinks={NAV_LINKS}
+      />
     </>
   );
 }

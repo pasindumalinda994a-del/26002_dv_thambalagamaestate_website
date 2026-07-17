@@ -58,7 +58,7 @@ export function AboutSection() {
     >
       <h2
         ref={headingRef}
-        className="mx-auto max-w-4xl px-6 text-center font-primary text-[clamp(36px,9.23vw,54px)] font-normal leading-[130%] tracking-[0.5px] text-cream"
+        className="mx-auto max-w-4xl px-6 text-center font-space-grotesk text-[clamp(36px,9.23vw,54px)] font-normal leading-[130%] tracking-[0.5px] text-cream"
       >
         {ABOUT_WORDS.map((word, wordIndex) => (
           <span key={wordIndex} className="inline-block">

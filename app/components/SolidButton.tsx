@@ -6,6 +6,8 @@ export type ButtonVariant = "onDark" | "onCream";
 export type ButtonProps = ComponentProps<"button"> & {
   href?: string;
   variant?: ButtonVariant;
+  target?: string;
+  rel?: string;
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -34,7 +36,7 @@ const arrowIcon = (
 
 function buttonClasses(variant: ButtonVariant, className?: string) {
   return [
-    "inline-flex items-center justify-center gap-2 rounded-full",
+    "inline-flex items-center justify-center gap-2",
     "px-[18px] py-[12px]",
     variantClasses[variant],
     "font-secondary text-sm font-medium uppercase tracking-[0.2px]",
@@ -52,11 +54,18 @@ export function Button({
   type = "button",
   href,
   variant = "onDark",
+  target,
+  rel,
   ...props
 }: ButtonProps) {
   if (href) {
     return (
-      <Link href={href} className={buttonClasses(variant, className)}>
+      <Link
+        href={href}
+        target={target}
+        rel={rel}
+        className={buttonClasses(variant, className)}
+      >
         {children}
         {arrowIcon}
       </Link>

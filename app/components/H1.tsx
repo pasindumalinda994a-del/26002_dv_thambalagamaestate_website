@@ -74,7 +74,7 @@ export const H1 = forwardRef<HTMLHeadingElement, H1Props>(
           else if (ref) ref.current = element;
         }}
         className={[
-          "font-primary text-[clamp(36px,9.23vw,76px)] font-normal leading-[130%] tracking-[0.2px]",
+          "font-space-grotesk text-[clamp(36px,9.23vw,76px)] font-medium leading-[130%] tracking-[0.2px]",
           className,
         ]
           .filter(Boolean)

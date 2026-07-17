@@ -102,15 +102,28 @@ function scaleFromRevealT(t: number) {
   return 1.2 - easePower2In(t) * 0.2;
 }
 
+const HEADING_ENTER_Y = 200;
+const HEADING_EXIT_Y = -200;
+const HEADING_BLUR = 20;
+const HEADING_DIM_OPACITY = 0.2;
+/** Next heading enter begins once its bg slide is this far through reveal. */
+const HEADING_ENTER_BG_REVEAL = 0.55;
+/** Fraction of an enter/exit phase reserved for char stagger spread. */
+const HEADING_STAGGER_SPAN = 0.28;
+const SLIDE_SCROLL_VH = 280;
+const BODY_ENTER_DURATION = 1.1;
+const BODY_EXIT_DURATION = 0.8;
+const BODY_ENTER_STAGGER = 0.18;
+
 function getSlideScrollDistance() {
   return (
-    (SLIDES.length - 1) * (150 / 100) * getStableViewportHeight()
+    (SLIDES.length - 1) * (SLIDE_SCROLL_VH / 100) * getStableViewportHeight()
   );
 }
 
 function shouldRevealContent(progress: number, index: number) {
   if (index === 0) return false;
-  return slideClipT(progress, index - 1) <= 0.5;
+  return slideClipT(progress, index - 1) <= 1 - HEADING_ENTER_BG_REVEAL;
 }
 
 function targetContentIndex(progress: number) {
@@ -118,6 +131,109 @@ function targetContentIndex(progress: number) {
     if (shouldRevealContent(progress, i)) return i;
   }
   return 0;
+}
+
+type HeadingPhase = {
+  mode: "pre" | "enter" | "hold" | "exit" | "post";
+  t: number;
+};
+
+/**
+ * Maps pinned slide progress → enter / hold / exit for each heading.
+ * Enter starts once the matching bg slide is mostly revealed; exit aligns with
+ * the next heading's enter window.
+ */
+function headingPhase(progress: number, index: number): HeadingPhase {
+  const step = 1 / (SLIDES.length - 1);
+  const last = SLIDES.length - 1;
+
+  if (index === 0) {
+    const exitStart = step * HEADING_ENTER_BG_REVEAL;
+    const exitEnd = step;
+    if (progress <= 0) return { mode: "hold", t: 1 };
+    if (progress < exitStart) return { mode: "hold", t: 1 };
+    if (progress >= exitEnd) return { mode: "post", t: 1 };
+    return {
+      mode: "exit",
+      t: (progress - exitStart) / (exitEnd - exitStart),
+    };
+  }
+
+  const enterStart = step * (index - 1 + HEADING_ENTER_BG_REVEAL);
+  const enterEnd = step * index;
+
+  if (progress < enterStart) return { mode: "pre", t: 0 };
+  if (progress < enterEnd) {
+    return {
+      mode: "enter",
+      t: (progress - enterStart) / (enterEnd - enterStart),
+    };
+  }
+
+  if (index === last) return { mode: "hold", t: 1 };
+
+  const exitStart = step * (index + HEADING_ENTER_BG_REVEAL);
+  const exitEnd = step * (index + 1);
+
+  if (progress < exitStart) return { mode: "hold", t: 1 };
+  if (progress < exitEnd) {
+    return {
+      mode: "exit",
+      t: (progress - exitStart) / (exitEnd - exitStart),
+    };
+  }
+  return { mode: "post", t: 1 };
+}
+
+function staggeredPhaseT(
+  phaseT: number,
+  charIndex: number,
+  charCount: number,
+): number {
+  const n = Math.max(1, charCount);
+  const charStart = (charIndex / n) * HEADING_STAGGER_SPAN;
+  const charDuration = 1 - HEADING_STAGGER_SPAN;
+  if (charDuration <= 0) return phaseT >= 1 ? 1 : 0;
+  return Math.max(0, Math.min(1, (phaseT - charStart) / charDuration));
+}
+
+function headingCharState(
+  phase: HeadingPhase,
+  charIndex: number,
+  charCount: number,
+) {
+  switch (phase.mode) {
+    case "pre":
+      return {
+        y: HEADING_ENTER_Y,
+        filter: `blur(${HEADING_BLUR}px)`,
+        opacity: HEADING_DIM_OPACITY,
+      };
+    case "post":
+      return {
+        y: HEADING_EXIT_Y,
+        filter: `blur(${HEADING_BLUR}px)`,
+        opacity: HEADING_DIM_OPACITY,
+      };
+    case "hold":
+      return { y: 0, filter: "blur(0px)", opacity: 1 };
+    case "enter": {
+      const t = staggeredPhaseT(phase.t, charIndex, charCount);
+      return {
+        y: HEADING_ENTER_Y * (1 - t),
+        filter: `blur(${HEADING_BLUR * (1 - t)}px)`,
+        opacity: HEADING_DIM_OPACITY + (1 - HEADING_DIM_OPACITY) * t,
+      };
+    }
+    case "exit": {
+      const t = staggeredPhaseT(phase.t, charIndex, charCount);
+      return {
+        y: HEADING_EXIT_Y * t,
+        filter: `blur(${HEADING_BLUR * t}px)`,
+        opacity: 1 - (1 - HEADING_DIM_OPACITY) * t,
+      };
+    }
+  }
 }
 
 function collectSecondaryTargets(
@@ -153,16 +269,15 @@ export function ForestSection({
   const headingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const bodyRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const ctaWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const headingTweens = useRef<(gsap.core.Tween | null)[]>([]);
   const headingSplits = useRef<(SplitText | null)[]>([]);
   const contentTweens = useRef<(gsap.core.Animation | null)[]>([]);
   const revealedSlides = useRef(new Set<number>());
   const slide0Revealed = useRef(false);
-  const slide0EnterComplete = useRef(false);
   const transitioning = useRef(false);
   const lastTargetContent = useRef(0);
   const activeContentIndex = useRef(0);
   const slideProgressRef = useRef(0);
+  const introProgressRef = useRef(0);
 
   useLayoutEffect(() => {
     const reducedMotion = window.matchMedia(
@@ -189,7 +304,7 @@ export function ForestSection({
       });
       ctaWrapRefs.current.forEach((cta, index) => {
         if (!cta) return;
-        cta.style.opacity = "0";
+        cta.style.opacity = index === 0 ? "1" : "0";
       });
       return;
     }
@@ -200,46 +315,38 @@ export function ForestSection({
       collectSecondaryTargets(bodyRefs.current, ctaWrapRefs.current, index);
 
     const revertContentAnimations = () => {
-      headingTweens.current.forEach((tween) => tween?.kill());
-      headingTweens.current = [];
       headingSplits.current.forEach((split) => split?.revert());
       headingSplits.current = [];
       contentTweens.current.forEach((tween) => tween?.kill());
       contentTweens.current = [];
     };
 
-    const resetHeading = (index: number) => {
-      headingTweens.current[index]?.kill();
-      headingTweens.current[index] = null;
-      const chars = headingSplits.current[index]?.chars;
-      if (chars) gsap.set(chars, { y: 200 });
-    };
-
-    const playHeadingReveal = (index: number, onComplete?: () => void) => {
+    const applyHeadingChars = (index: number, phase: HeadingPhase) => {
       const split = headingSplits.current[index];
-      if (!split) {
-        onComplete?.();
-        return;
-      }
-      const chars = split.chars;
-      if (!chars?.length) {
-        onComplete?.();
-        return;
-      }
+      const chars = split?.chars;
+      if (!chars?.length) return;
 
-      headingTweens.current[index]?.kill();
-      if (split.masks) {
+      if (split?.masks) {
         gsap.set(split.masks, { height: "1.15em", overflow: "clip" });
       }
-      gsap.set(chars, { y: 200 });
 
-      headingTweens.current[index] = gsap.to(chars, {
-        y: 0,
-        duration: 1.5,
-        ease: "power4.out",
-        stagger: 0.05,
-        delay: 0.2,
-        onComplete,
+      const count = chars.length;
+      chars.forEach((char, charIndex) => {
+        gsap.set(char, headingCharState(phase, charIndex, count));
+      });
+    };
+
+    const updateHeadingChars = (progress: number) => {
+      SLIDES.forEach((_, index) => {
+        if (index === 0 && !slide0Revealed.current && progress <= 0) {
+          // Intro scrub owns slide 0 enter until the section is pinned.
+          applyHeadingChars(0, {
+            mode: "enter",
+            t: introProgressRef.current,
+          });
+          return;
+        }
+        applyHeadingChars(index, headingPhase(progress, index));
       });
     };
 
@@ -253,6 +360,7 @@ export function ForestSection({
       } else {
         playContentEnter(0);
       }
+      updateHeadingChars(slideProgressRef.current);
     };
 
     const playContentEnter = (index: number) => {
@@ -262,31 +370,26 @@ export function ForestSection({
       contentTweens.current[index]?.kill();
 
       const secondary = getSecondary(index);
-      gsap.set(secondary, { opacity: 0 });
       gsap.set(group, { opacity: 1, pointerEvents: "auto" });
 
       revealedSlides.current.add(index);
       activeContentIndex.current = index;
       lastTargetContent.current = index;
 
-      if (index === 0) slide0EnterComplete.current = false;
-
-      playHeadingReveal(index, () => {
-        if (index === 0) slide0EnterComplete.current = true;
-      });
-
       const tween = gsap.timeline();
       if (secondary.length > 0) {
+        const introComplete = index === 0 && introProgressRef.current >= 1;
+        gsap.set(secondary, { opacity: introComplete ? 1 : 0 });
         tween.fromTo(
           secondary,
-          { opacity: 0 },
+          { opacity: introComplete ? 1 : 0 },
           {
             opacity: 1,
-            duration: 0.6,
-            stagger: 0.12,
+            duration: BODY_ENTER_DURATION,
+            stagger: BODY_ENTER_STAGGER,
             ease: "power2.out",
           },
-          0.35,
+          0,
         );
       }
 
@@ -301,18 +404,22 @@ export function ForestSection({
       }
 
       contentTweens.current[index]?.kill();
-      resetHeading(index);
 
       const secondary = getSecondary(index);
-      contentTweens.current[index] = gsap.to(group, {
+      if (secondary.length === 0) {
+        gsap.set(group, { pointerEvents: "none" });
+        revealedSlides.current.delete(index);
+        onComplete?.();
+        return;
+      }
+
+      contentTweens.current[index] = gsap.to(secondary, {
         opacity: 0,
-        duration: 0.45,
+        duration: BODY_EXIT_DURATION,
         ease: "power2.in",
         onComplete: () => {
           gsap.set(group, { pointerEvents: "none" });
-          gsap.set(secondary, { opacity: 0 });
           revealedSlides.current.delete(index);
-          if (index === 0) slide0EnterComplete.current = false;
           onComplete?.();
         },
       });
@@ -355,16 +462,11 @@ export function ForestSection({
         });
       });
 
+      updateHeadingChars(progress);
+
       const target = targetContentIndex(progress);
       if (target !== lastTargetContent.current && !transitioning.current) {
         if (target > 0 && !slide0Revealed.current) return;
-        if (
-          target > 0 &&
-          revealedSlides.current.has(0) &&
-          !slide0EnterComplete.current
-        ) {
-          return;
-        }
         transitionToContent(target);
       }
     };
@@ -385,8 +487,21 @@ export function ForestSection({
               end: "top top",
               scrub: 1,
               invalidateOnRefresh: true,
+              onUpdate(self) {
+                introProgressRef.current = self.progress;
+                if (!slide0Revealed.current || slideProgressRef.current <= 0) {
+                  applyHeadingChars(0, {
+                    mode: "enter",
+                    t: self.progress,
+                  });
+                      gsap.set(getSecondary(0), {
+                        opacity: self.progress,
+                      });
+                }
+              },
               onLeave: () => revealSlide0Content(),
               onRefresh(self) {
+                introProgressRef.current = self.progress;
                 if (self.progress >= 1) revealSlide0Content();
               },
             },
@@ -419,10 +534,10 @@ export function ForestSection({
     revertContentAnimations();
     revealedSlides.current.clear();
     slide0Revealed.current = false;
-    slide0EnterComplete.current = false;
     transitioning.current = false;
     lastTargetContent.current = 0;
     activeContentIndex.current = 0;
+    introProgressRef.current = 0;
 
     SLIDES.forEach((_, index) => {
       const element = headingRefs.current[index];
@@ -437,16 +552,30 @@ export function ForestSection({
         charsClass: "inline-block",
         onSplit(self) {
           gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
-          gsap.set(self.chars, { y: 200 });
+          headingSplits.current[index] = self;
+          if (index === 0 && !slide0Revealed.current) {
+            applyHeadingChars(0, {
+              mode: "enter",
+              t: introProgressRef.current,
+            });
+          } else {
+            applyHeadingChars(
+              index,
+              headingPhase(slideProgressRef.current, index),
+            );
+          }
         },
       });
 
       headingSplits.current[index] = split ?? null;
 
       const secondary = getSecondary(index);
-      gsap.set(group, { opacity: 0, pointerEvents: "none" });
+      // Groups stay visible so scrubbed headings aren't faded; body/CTA use opacity.
+      gsap.set(group, { opacity: 1, pointerEvents: "none" });
       gsap.set(secondary, { opacity: 0 });
     });
+
+    updateHeadingChars(0);
 
     const overlayEl = overlayTargetRef?.current;
     const resizeObserver = new ResizeObserver(() => {
@@ -463,7 +592,6 @@ export function ForestSection({
       revertContentAnimations();
       revealedSlides.current.clear();
       slide0Revealed.current = false;
-      slide0EnterComplete.current = false;
       transitioning.current = false;
       ctx.revert();
     };
@@ -585,7 +713,7 @@ export function ForestSection({
               }}
               className="absolute top-1/2 right-0 left-0 max-w-7xl -translate-y-1/2 text-left"
               style={{
-                opacity: 0,
+                opacity: 1,
                 pointerEvents: "none",
               }}
             >

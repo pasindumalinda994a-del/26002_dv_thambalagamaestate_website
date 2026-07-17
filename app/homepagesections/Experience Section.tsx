@@ -167,6 +167,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
     const darkOverlayRef = useRef<HTMLDivElement>(null);
     const gridRef = useRef<HTMLDivElement>(null);
     const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const imageWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     const setSectionRef = (node: HTMLElement | null) => {
       sectionRef.current = node;
@@ -236,12 +237,26 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
       const grid = gridRef.current;
       const panels = panelRefs.current.filter(Boolean) as HTMLDivElement[];
-      if (!grid || panels.length === 0) return;
+      const imageWraps = imageWrapRefs.current.filter(
+        Boolean,
+      ) as HTMLDivElement[];
+      if (!grid || panels.length === 0 || imageWraps.length !== panels.length)
+        return;
 
       const tweenDefaults = {
         duration: HOVER_DURATION,
         ease: HOVER_EASE,
         overwrite: "auto" as const,
+      };
+
+      const syncImageWidths = () => {
+        const maxGrowSum =
+          HOVER_GROW + SHRINK_GROW * (panels.length - 1);
+        const imageWrapWidth =
+          (grid.clientWidth * HOVER_GROW) / maxGrowSum;
+        imageWraps.forEach((wrap) => {
+          wrap.style.width = `${imageWrapWidth}px`;
+        });
       };
 
       const animateToHovered = (index: number) => {
@@ -258,6 +273,10 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         });
       };
 
+      syncImageWidths();
+      const resizeObserver = new ResizeObserver(syncImageWidths);
+      resizeObserver.observe(grid);
+
       const ctx = gsap.context(() => {
         gsap.set(panels, {
           flexGrow: REST_GROW,
@@ -271,7 +290,10 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         grid.addEventListener("mouseleave", animateToRest);
       }, grid);
 
-      return () => ctx.revert();
+      return () => {
+        resizeObserver.disconnect();
+        ctx.revert();
+      };
     }, []);
 
     return (
@@ -322,13 +344,20 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                 aria-hidden
                 className="experience-panel group relative h-full min-w-0 overflow-hidden"
               >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                  sizes="33vw"
-                />
+                <div
+                  ref={(el) => {
+                    imageWrapRefs.current[index] = el;
+                  }}
+                  className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2"
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                    sizes="33vw"
+                  />
+                </div>
                 <ExperienceImageCaption caption={image.caption} />
               </div>
             ))}
