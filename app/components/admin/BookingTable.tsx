@@ -17,16 +17,22 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
       <table className="min-w-full border-collapse text-left">
         <thead>
           <tr className="border-b border-forest-green/15 bg-cream/60">
-            {["Guest", "Dates", "Guests", "Purpose", "Status", "Submitted"].map(
-              (label) => (
-                <th
-                  key={label}
-                  className="px-4 py-3 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/55"
-                >
-                  {label}
-                </th>
-              ),
-            )}
+            {[
+              "Guest",
+              "Dates",
+              "Guests",
+              "Purpose",
+              "Status",
+              "Submitted",
+              "",
+            ].map((label, index) => (
+              <th
+                key={label || `actions-${index}`}
+                className="px-4 py-3 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/55"
+              >
+                {label}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -64,11 +70,14 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
                 />
               </td>
               <td className="px-4 py-3.5 font-secondary text-[12px] text-forest-green/70 whitespace-nowrap">
+                {formatSubmitted(booking.createdAt)}
+              </td>
+              <td className="px-4 py-3.5 text-right">
                 <Link
                   href={`/admin/bookings/${booking.id}`}
-                  className="hover:text-forest-green"
+                  className="inline-block border border-forest-green/25 px-3 py-1.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream"
                 >
-                  {formatSubmitted(booking.createdAt)}
+                  View
                 </Link>
               </td>
             </tr>
