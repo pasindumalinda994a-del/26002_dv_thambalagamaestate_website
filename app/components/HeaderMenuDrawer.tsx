@@ -1,41 +1,18 @@
 "use client";
 
-import gsap from "gsap";
 import { useLenis } from "lenis/react";
 import Link from "next/link";
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import type { RefObject } from "react";
 
 export type NavLink = {
   href: string;
   label: string;
 };
 
-const overlayHidden = {
-  opacity: 0,
-  backdropFilter: "blur(0px)",
-  WebkitBackdropFilter: "blur(0px)",
-};
-
-const overlayVisible = {
-  opacity: 0.4,
-  backdropFilter: "blur(10px)",
-  WebkitBackdropFilter: "blur(10px)",
-};
-
-const panelHidden = {
-  opacity: 0,
-  y: 24,
-};
-
-const panelVisible = {
-  opacity: 1,
-  y: 0,
+export type DrawerAnimRefs = {
+  panel: RefObject<HTMLElement | null>;
 };
 
 export function HeaderMenuDrawer({
@@ -43,100 +20,27 @@ export function HeaderMenuDrawer({
   onClose,
   onCheckAvailability,
   navLinks,
+  animRefs,
+  onReady,
 }: {
   open: boolean;
   onClose: () => void;
   onCheckAvailability: () => void;
   navLinks: readonly NavLink[];
+  animRefs: DrawerAnimRefs;
+  onReady?: () => void;
 }) {
   const lenis = useLenis();
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    if (open) setMounted(true);
-  }, [open]);
+  useLayoutEffect(() => {
+    setMounted(true);
+  }, []);
 
   useLayoutEffect(() => {
-    if (!mounted) return;
-
-    const overlay = overlayRef.current;
-    const panel = panelRef.current;
-    if (!overlay || !panel) return;
-
-    tlRef.current?.kill();
-
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const focusFirstLink = () => {
-      requestAnimationFrame(() => {
-        firstLinkRef.current?.focus();
-      });
-    };
-
-    if (open) {
-      if (reduceMotion) {
-        gsap.set(overlay, overlayVisible);
-        gsap.set(panel, panelVisible);
-        focusFirstLink();
-        return;
-      }
-
-      gsap.set(overlay, overlayHidden);
-      gsap.set(panel, panelHidden);
-
-      const tl = gsap.timeline({
-        onComplete: focusFirstLink,
-      });
-      tlRef.current = tl;
-      tl.to(
-        overlay,
-        { ...overlayVisible, duration: 0.85, ease: "power2.out" },
-        0,
-      );
-      tl.to(
-        panel,
-        { ...panelVisible, duration: 0.55, ease: "power3.out" },
-        0.08,
-      );
-
-      return () => {
-        tl.kill();
-      };
-    }
-
-    if (reduceMotion) {
-      gsap.set(overlay, overlayHidden);
-      gsap.set(panel, panelHidden);
-      // Defer unmount so React finishes this layout pass first
-      queueMicrotask(() => setMounted(false));
-      return;
-    }
-
-    const tl = gsap.timeline({
-      onComplete: () => setMounted(false),
-    });
-    tlRef.current = tl;
-    tl.to(
-      panel,
-      { ...panelHidden, duration: 0.35, ease: "power2.in" },
-      0,
-    );
-    tl.to(
-      overlay,
-      { ...overlayHidden, duration: 0.5, ease: "power2.inOut" },
-      0.05,
-    );
-
-    return () => {
-      tl.kill();
-    };
-  }, [open, mounted]);
+    if (mounted) onReady?.();
+  }, [mounted, onReady]);
 
   useEffect(() => {
     if (!open) return;
@@ -165,54 +69,75 @@ export function HeaderMenuDrawer({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!open) return;
+    requestAnimationFrame(() => firstLinkRef.current?.focus());
+  }, [open]);
+
   if (!mounted) return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[501]"
-      role="presentation"
+      className="pointer-events-none fixed inset-0 z-[501]"
       aria-hidden={!open}
     >
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 bg-black"
-        onClick={onClose}
-      />
+      {/* Under header: top-4 + ~4rem header height + 16px gap */}
+      <div className="absolute inset-0 flex items-start justify-center px-5 pt-[calc(1rem+4rem+1rem)]">
+        <nav
+          ref={animRefs.panel}
+          id="main-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Main navigation"
+          data-lenis-prevent
+          className="w-full max-w-[480px] bg-deep-forest px-12 py-20"
+          style={{
+            opacity: 0,
+            pointerEvents: open ? "auto" : "none",
+          }}
+        >
+          <p
+            data-menu-item
+            className="mb-4 font-secondary text-[11px] font-medium uppercase tracking-[0.18em] text-cream/50"
+          >
+            Menu
+          </p>
 
-      <nav
-        ref={panelRef}
-        id="main-navigation"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Main navigation"
-        data-lenis-prevent
-        className="absolute inset-0 flex flex-col bg-deep-forest will-change-transform"
-      >
-        <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 font-secondary text-base font-medium uppercase tracking-[0.2px] text-cream">
-          {navLinks.map(({ href, label }, index) => (
-            <Link
-              key={href}
-              ref={index === 0 ? firstLinkRef : undefined}
-              href={href}
-              onClick={onClose}
-              className="transition-opacity hover:opacity-80"
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
+          <ul className="flex flex-col gap-2.5">
+            {navLinks.map(({ href, label }, index) => (
+              <li key={href} data-menu-item>
+                <Link
+                  ref={index === 0 ? firstLinkRef : undefined}
+                  href={href}
+                  onClick={onClose}
+                  className="font-secondary text-[22px] font-semibold uppercase leading-none tracking-[0.04em] text-cream transition-opacity hover:opacity-80"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
-        <div className="flex shrink-0 justify-center px-4 pb-10 md:hidden">
           <button
+            data-menu-item
             type="button"
             onClick={onCheckAvailability}
-            className="inline-flex items-center gap-2 font-secondary text-[14px] font-medium uppercase tracking-[0.2px] text-cream transition-opacity hover:opacity-80"
+            className="mt-8 flex w-full items-center justify-center gap-2 bg-cream px-4 py-3.5 font-secondary text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-forest transition-opacity hover:opacity-90"
           >
             Check Availability
             <span aria-hidden>→</span>
           </button>
-        </div>
-      </nav>
+
+          <Link
+            data-menu-item
+            href="/admin/login"
+            onClick={onClose}
+            className="mt-4 flex w-full items-center justify-center font-secondary text-[12px] font-medium uppercase tracking-[0.12em] text-cream/60 transition-opacity hover:text-cream hover:opacity-100"
+          >
+            Dashboard Login
+          </Link>
+        </nav>
+      </div>
     </div>,
     document.body,
   );

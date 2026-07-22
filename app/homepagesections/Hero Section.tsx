@@ -58,7 +58,6 @@ export function HeroSection() {
         })
         .to(videoWrapRef.current, {
           scale: 0.6,
-          borderRadius: 25,
           ease: "none",
           duration: 1,
         })
@@ -87,7 +86,7 @@ export function HeroSection() {
     >
       <div
         ref={videoWrapRef}
-        className="absolute inset-0 overflow-hidden will-change-[transform,border-radius]"
+        className="absolute inset-0 overflow-hidden will-change-transform"
       >
         {useVideo ? (
           <video
