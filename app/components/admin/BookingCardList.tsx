@@ -41,7 +41,7 @@ export function BookingCardList({ bookings }: { bookings: Booking[] }) {
                 </div>
                 <Link
                   href={`/admin/bookings/${booking.id}`}
-                  className="shrink-0 font-secondary text-[11px] font-medium uppercase tracking-[0.12em] text-forest-green/55 underline-offset-2 hover:text-forest-green hover:underline"
+                  className="shrink-0 border border-forest-green/25 px-3 py-1.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream"
                 >
                   View
                 </Link>
