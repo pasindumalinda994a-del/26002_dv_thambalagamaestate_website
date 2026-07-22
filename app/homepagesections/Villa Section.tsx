@@ -61,7 +61,7 @@ function VillaGalleryCard({
   priority?: boolean;
 }) {
   return (
-    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden rounded-[20px] md:h-[82vh] md:w-[min(96vw,84rem)] md:rounded-[36px]">
+    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:h-[82vh] md:w-[min(96vw,84rem)]">
       <Image
         src={src}
         alt={alt}

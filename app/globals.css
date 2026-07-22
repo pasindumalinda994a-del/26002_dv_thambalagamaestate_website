@@ -27,6 +27,8 @@
   --color-foreground: var(--foreground);
   --font-primary: "Sora Carnel", ui-serif, Georgia, serif;
   --font-secondary: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-roboto: var(--font-roboto-face), "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-space-grotesk: var(--font-space-grotesk-face), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-primary);
 
   --color-olive: #606c38;
@@ -35,6 +37,7 @@
   --color-forest-green: #283618;
   --color-deep-forest: #18200e;
   --color-chestnut: #bc6c25;
+  --color-sage-muted: #7c7f78;
 }
 
 @media (prefers-color-scheme: dark) {

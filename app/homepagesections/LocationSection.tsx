@@ -2,8 +2,8 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Link from "next/link";
 import { forwardRef, useEffect, useRef } from "react";
+import { Button } from "../components/SolidButton";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
 const ESTATE_LNG = 80.403;
@@ -24,27 +24,6 @@ const LOCATION_ROWS = [
   { place: "Lankagama Gate", distance: "7 km (15-min drive)" },
   { place: "Colombo", distance: "X.X Hours" },
 ] as const;
-
-function ExternalLinkIcon() {
-  return (
-    <svg
-      width={18}
-      height={18}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className="shrink-0"
-    >
-      <path
-        d="M14 5H19V10M19 5L10 14M19 14V19H5V5H10"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function createMarkerPinElement(): {
   pin: HTMLDivElement;
@@ -304,7 +283,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
             <p className="font-secondary text-[14px] font-semibold uppercase leading-[150%] tracking-[0.2px] text-olive">
               Location
             </p>
-            <h2 className="font-secondary text-[20px] font-bold leading-[150%] tracking-[0.2px] text-forest-green">
+            <h2 className="font-space-grotesk text-[20px] font-bold leading-[150%] tracking-[0.2px] text-forest-green">
               On the Edge of the Wild.
             </h2>
           </div>
@@ -328,15 +307,15 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
             ))}
           </ul>
 
-          <Link
+          <Button
             href={DIRECTIONS_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-fit items-center justify-center gap-2 self-end rounded-full bg-forest-green px-[18px] py-[12px] font-secondary text-sm font-medium uppercase tracking-[0.2px] text-cream shadow-[0_4px_10px_0] shadow-black/8 transition-opacity hover:opacity-90"
+            variant="onCream"
+            className="w-fit self-end"
           >
             Get Directions
-            <ExternalLinkIcon />
-          </Link>
+          </Button>
         </article>
       </div>
     </section>

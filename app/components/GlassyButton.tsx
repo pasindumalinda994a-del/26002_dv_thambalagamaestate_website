@@ -36,7 +36,7 @@ export function GlassyButton({
       <Link
         href={href}
         className={[
-          "inline-flex items-center justify-center gap-2 rounded-full",
+          "inline-flex items-center justify-center gap-2",
           "px-[18px] py-[12px]",
           "bg-cream/16 text-cream",
           "font-secondary text-sm font-medium uppercase tracking-[0.2px]",
@@ -59,7 +59,7 @@ export function GlassyButton({
     <button
       type={type}
       className={[
-        "inline-flex items-center justify-center gap-2 rounded-full",
+        "inline-flex items-center justify-center gap-2",
         "px-[18px] py-[12px]",
         "bg-cream/16 text-cream",
         "font-secondary text-sm font-medium uppercase tracking-[0.2px]",

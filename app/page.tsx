@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <main className="flex min-h-full flex-1 flex-col">
       {/* <StartExperience /> */}
-      <Header variant="hero" />
+      <Header />
       <HeroSection />
       <AboutSection />
       <VillaSection />

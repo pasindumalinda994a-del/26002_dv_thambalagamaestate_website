@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useBooking } from "../components/booking/BookingProvider";
 
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
 
@@ -41,6 +44,8 @@ function ExternalLinkIcon() {
 }
 
 export function FooterSection() {
+  const { open: openBooking } = useBooking();
+
   return (
     <footer className="flex min-h-svh flex-col bg-deep-forest text-cream">
       <div className="flex flex-1 flex-col justify-center gap-12 px-5 py-12 md:px-8 md:py-24 lg:flex-row lg:items-center lg:justify-between">
@@ -70,13 +75,14 @@ export function FooterSection() {
           ))}
 
           <div className="border-b border-cream/30">
-            <Link
-              href="/book"
-              className={`flex items-center justify-between py-2 md:py-3 ${FOOTER_LINK_TYPOGRAPHY}`}
+            <button
+              type="button"
+              onClick={openBooking}
+              className={`flex w-full items-center justify-between py-2 text-left md:py-3 ${FOOTER_LINK_TYPOGRAPHY}`}
             >
               Check Availability
               <ExternalLinkIcon />
-            </Link>
+            </button>
           </div>
         </nav>
       </div>

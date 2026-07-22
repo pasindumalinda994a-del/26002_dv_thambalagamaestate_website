@@ -4,13 +4,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
+import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
 import { getStableViewportHeight } from "@/lib/viewport";
 
 const BG_SRC = "/main%20images/CTA%20Section%20Bg.webp";
 
 const HEADLINE_CLASS =
-  "w-full font-primary text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
+  "w-full font-space-grotesk text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
 
 const WHEEL_ACTIVE = { rotationX: 0, y: 0, z: 0, opacity: 1 };
 const WHEEL_ENTER = { rotationX: 60, y: 100, z: -120, opacity: 0 };
@@ -18,18 +19,18 @@ const WHEEL_EXIT = { rotationX: -60, y: -100, z: -120, opacity: 0 };
 
 const CTA_HEADLINES: ReactNode[] = [
   <>
-    <span className="font-secondary font-light italic">Zero</span>{" "}
-    <span className="font-primary">
+    <span className="font-space-grotesk font-light italic">Zero</span>{" "}
+    <span className="font-space-grotesk">
       shared spaces or distractions.
     </span>
   </>,
   <>
-    <span className="font-primary">Absolute,</span>{" "}
-    <span className="font-secondary font-light italic">uninterrupted privacy.</span>
+    <span className="font-space-grotesk">Absolute,</span>{" "}
+    <span className="font-space-grotesk font-light italic">uninterrupted privacy.</span>
   </>,
   <>
-    <span className="font-secondary font-light italic">Pure</span>{" "}
-    <span className="font-primary">connection to the canopy.</span>
+    <span className="font-space-grotesk font-light italic">Pure</span>{" "}
+    <span className="font-space-grotesk">connection to the canopy.</span>
   </>,
 ];
 
@@ -42,6 +43,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
   const bgContainerRef = useRef<HTMLDivElement>(null);
   const headlineRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const headlineWheelRef = useRef<HTMLDivElement>(null);
+  const { open: openBooking } = useBooking();
 
   useLayoutEffect(() => {
     if (!ready) return;
@@ -215,7 +217,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
           </div>
         </div>
 
-        <GlassyButton href="/book">Check Availability</GlassyButton>
+        <GlassyButton onClick={openBooking}>Check Availability</GlassyButton>
       </div>
     </section>
   );

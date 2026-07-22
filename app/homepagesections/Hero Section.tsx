@@ -4,7 +4,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { GlassyButton } from "../components/GlassyButton";
+import { useBooking } from "../components/booking/BookingProvider";
+import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 
@@ -35,6 +36,7 @@ export function HeroSection() {
   const pRef = useRef<HTMLParagraphElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const useVideo = useHeroVideoEnabled();
+  const { open: openBooking } = useBooking();
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -56,7 +58,6 @@ export function HeroSection() {
         })
         .to(videoWrapRef.current, {
           scale: 0.6,
-          borderRadius: 25,
           ease: "none",
           duration: 1,
         })
@@ -85,7 +86,7 @@ export function HeroSection() {
     >
       <div
         ref={videoWrapRef}
-        className="absolute inset-0 overflow-hidden will-change-[transform,border-radius]"
+        className="absolute inset-0 overflow-hidden will-change-transform"
       >
         {useVideo ? (
           <video
@@ -131,7 +132,7 @@ export function HeroSection() {
         </Paragraph>
 
         <div ref={buttonRef}>
-          <GlassyButton href="/book">Check Availability</GlassyButton>
+          <Button onClick={openBooking}>Check Availability</Button>
         </div>
       </div>
     </section>
