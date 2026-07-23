@@ -9,6 +9,7 @@ import {
   updateGalleryImageAction,
   uploadGalleryImageAction,
 } from "@/app/actions/gallery";
+import { validateGalleryFile } from "@/lib/gallery/schema";
 import { STATIC_GALLERY_IMAGES } from "@/lib/gallery/static-images";
 import { galleryPublicSrc } from "@/lib/gallery/types";
 
@@ -37,6 +38,24 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
     router.refresh();
   }
 
+  function onFileChange() {
+    setError(null);
+    setMessage(null);
+
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+
+    const fileCheck = validateGalleryFile({
+      type: file.type,
+      size: file.size,
+      name: file.name,
+    });
+    if (!fileCheck.ok) {
+      setError(fileCheck.error);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   function onUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -45,6 +64,16 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
     const file = fileRef.current?.files?.[0];
     if (!file) {
       setError("Choose an image to upload");
+      return;
+    }
+
+    const fileCheck = validateGalleryFile({
+      type: file.type,
+      size: file.size,
+      name: file.name,
+    });
+    if (!fileCheck.ok) {
+      setError(fileCheck.error);
       return;
     }
 
@@ -174,8 +203,12 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
               ref={fileRef}
               type="file"
               accept="image/webp,image/jpeg,image/png,.webp,.jpg,.jpeg,.png"
+              onChange={onFileChange}
               className="w-full border border-forest-green/25 bg-cream px-3 py-2.5 font-secondary text-sm text-forest-green file:mr-3 file:border-0 file:bg-transparent file:font-secondary file:text-sm file:font-semibold file:text-forest-green"
             />
+            <span className="mt-1.5 block font-secondary text-[12px] text-forest-green/50">
+              WebP, JPEG, or PNG · max 5MB
+            </span>
           </label>
           <label className="block">
             <span className="mb-1.5 block font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/50">
