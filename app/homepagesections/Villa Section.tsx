@@ -116,7 +116,7 @@ export function VillaSection() {
           start: "top top",
           end: () => {
             const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
-            return `+=${stripHeight + getStableViewportHeight()}`;
+            return `+=${(stripHeight + getStableViewportHeight()) * 0.2}`;
           },
           scrub: true,
           invalidateOnRefresh: true,
