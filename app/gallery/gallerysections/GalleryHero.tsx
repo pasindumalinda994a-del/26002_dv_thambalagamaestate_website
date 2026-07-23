@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { H1 } from "../../components/H1";
+import { ScrollDownHint } from "../../components/ScrollDownHint";
 import type { GalleryDisplayImage } from "@/lib/gallery/types";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -130,6 +131,7 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
   const spotlightRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   const items: GalleryImage[] = images.map((img) => ({
     ...img,
@@ -141,8 +143,9 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
     const spotlight = spotlightRef.current;
     const overlay = overlayRef.current;
     const headline = headlineRef.current;
+    const scrollHint = scrollHintRef.current;
 
-    if (!track || !spotlight || !overlay || !headline) {
+    if (!track || !spotlight || !overlay || !headline || !scrollHint) {
       return;
     }
 
@@ -160,6 +163,7 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
       gsap.set(imageEls, { scale: 1 });
       gsap.set(rows, { x: 0 });
       gsap.set(overlay, { opacity: 1 });
+      gsap.set(scrollHint, { opacity: 1 });
       track.style.height = "auto";
       return;
     }
@@ -306,6 +310,9 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
             opacity: lerp(1, 0, fadeOut),
             scale: lerp(1, 0.96, fadeOut),
           });
+          gsap.set(scrollHint, {
+            opacity: lerp(1, 0, fadeOut),
+          });
         },
       });
     }, rootRef);
@@ -351,6 +358,13 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
             >
               {HEADLINE}
             </H1>
+          </div>
+
+          <div
+            ref={scrollHintRef}
+            className="absolute inset-x-0 bottom-6 z-10 flex justify-center md:bottom-10"
+          >
+            <ScrollDownHint />
           </div>
         </div>
       </div>

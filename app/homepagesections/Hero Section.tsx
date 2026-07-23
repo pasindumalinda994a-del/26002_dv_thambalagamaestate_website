@@ -8,6 +8,7 @@ import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
+import { ScrollDownHint } from "../components/ScrollDownHint";
 
 const VIDEO_SRC = "/videos/Hero%20Section%20Bg2.mp4";
 const POSTER_SRC = "/main%20images/Hero%20Poster.webp";
@@ -35,6 +36,7 @@ export function HeroSection() {
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const pRef = useRef<HTMLParagraphElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
   const useVideo = useHeroVideoEnabled();
   const { open: openBooking } = useBooking();
 
@@ -72,7 +74,8 @@ export function HeroSection() {
           0,
         )
         .to(pRef.current, { opacity: 0, ease: "none" }, 0)
-        .to(buttonRef.current, { opacity: 0, ease: "none" }, 0);
+        .to(buttonRef.current, { opacity: 0, ease: "none" }, 0)
+        .to(scrollHintRef.current, { opacity: 0, ease: "none" }, 0);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -113,7 +116,7 @@ export function HeroSection() {
         <div aria-hidden className="absolute inset-0 bg-black/29" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
+      <div className="relative z-10 flex flex-col items-center px-6 pb-20 text-center md:pb-24">
         <H1
           ref={h1Ref}
           className="mb-10 max-w-5xl overflow-hidden uppercase text-cream md:mb-20"
@@ -134,6 +137,13 @@ export function HeroSection() {
         <div ref={buttonRef}>
           <Button onClick={openBooking}>Check Availability</Button>
         </div>
+      </div>
+
+      <div
+        ref={scrollHintRef}
+        className="absolute inset-x-0 bottom-6 z-10 flex justify-center md:bottom-10"
+      >
+        <ScrollDownHint />
       </div>
     </section>
   );
