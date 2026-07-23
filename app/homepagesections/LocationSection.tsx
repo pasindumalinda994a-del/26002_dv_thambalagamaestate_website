@@ -4,7 +4,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { forwardRef, useEffect, useRef } from "react";
 import { Button } from "../components/SolidButton";
-const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
+const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
+const LOGO_TAN = "#dda15e"; // --color-tan
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
 const ESTATE_LNG = 80.403;
 const ESTATE_LAT = 6.383;
@@ -98,10 +99,25 @@ function createMarkerElement(): {
   root.style.cssText =
     "pointer-events:none;display:flex;width:320px;max-width:90vw;min-width:220px;flex-direction:column;align-items:center;gap:0.65rem;text-align:center;";
 
-  const logo = document.createElement("img");
-  logo.src = LOGO_SRC;
-  logo.alt = "";
-  logo.style.cssText = "height:auto;width:4.25rem;max-width:100%;";
+  const logo = document.createElement("div");
+  logo.setAttribute("role", "img");
+  logo.setAttribute("aria-label", "Thambalagama Estate");
+  logo.style.cssText = [
+    "width:4.25rem",
+    "max-width:100%",
+    "aspect-ratio:361/381",
+    `background-color:${LOGO_TAN}`,
+    `-webkit-mask-image:url(${LOGO_SRC})`,
+    `mask-image:url(${LOGO_SRC})`,
+    "-webkit-mask-size:contain",
+    "mask-size:contain",
+    "-webkit-mask-repeat:no-repeat",
+    "mask-repeat:no-repeat",
+    "-webkit-mask-position:center",
+    "mask-position:center",
+    "-webkit-mask-source-type:luminance",
+    "mask-mode:luminance",
+  ].join(";");
   root.appendChild(logo);
 
   const label = document.createElement("p");

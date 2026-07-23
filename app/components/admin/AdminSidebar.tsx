@@ -56,19 +56,23 @@ type AdminSidebarProps = {
 function SidebarNav({
   counts,
   activeStatus,
+  pathname,
   onNavigate,
 }: {
   counts: Record<BookingStatus | "all", number>;
   activeStatus: BookingStatus | "all" | null;
+  pathname: string;
   onNavigate?: () => void;
 }) {
+  const galleryActive = pathname === "/admin/gallery";
+
   return (
     <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
       <p className="mb-3 px-3 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/50">
         Bookings
       </p>
       {NAV_ITEMS.map((item) => {
-        const isActive = activeStatus === item.value;
+        const isActive = !galleryActive && activeStatus === item.value;
         return (
           <Link
             key={item.value}
@@ -93,6 +97,22 @@ function SidebarNav({
           </Link>
         );
       })}
+
+      <p className="mb-3 mt-6 px-3 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/50">
+        Site
+      </p>
+      <Link
+        href="/admin/gallery"
+        onClick={onNavigate}
+        className={[
+          "flex items-center justify-between px-3 py-2.5 font-secondary text-[13px] font-medium transition-colors",
+          galleryActive
+            ? "bg-forest-green text-cream"
+            : "text-forest-green hover:bg-cream/80",
+        ].join(" ")}
+      >
+        <span>Gallery</span>
+      </Link>
     </nav>
   );
 }
@@ -182,6 +202,7 @@ export function AdminSidebar({
         <SidebarNav
           counts={counts}
           activeStatus={activeStatus}
+          pathname={pathname}
           onNavigate={handleNavigate}
         />
 
@@ -207,6 +228,7 @@ export function useAdminMobileNav() {
   const pageTitle = useMemo(() => {
     if (pathname === "/admin") return "Bookings";
     if (pathname.startsWith("/admin/bookings/")) return "Booking detail";
+    if (pathname === "/admin/gallery") return "Gallery";
     return "Admin";
   }, [pathname]);
 
