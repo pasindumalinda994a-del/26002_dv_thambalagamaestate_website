@@ -4,17 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useBooking } from "../components/booking/BookingProvider";
 
-const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
+const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 
 const NAV_LINKS = [
   { href: "/", label: "Sanctuary" },
   { href: "/about", label: "Forest" },
   { href: "/experiences", label: "Experience" },
-  { href: "/contact", label: "Gallery" },
+  { href: "/gallery", label: "Gallery" },
 ] as const;
 
 const FOOTER_LINK_TYPOGRAPHY =
-  "font-secondary text-[clamp(24px,6.15vw,30px)] font-bold uppercase leading-[130%] tracking-[0.2px] transition-opacity duration-300 group-hover/nav:opacity-[36%] hover:opacity-100";
+  "font-space-grotesk text-[clamp(24px,6.15vw,30px)] font-bold uppercase leading-[130%] tracking-[0.2px] transition-opacity duration-300 group-hover/nav:opacity-[36%] hover:opacity-100";
 
 const SOCIAL_LINKS = [
   { href: "#", label: "Instagram" },
@@ -53,8 +53,8 @@ export function FooterSection() {
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
-            width={699}
-            height={685}
+            width={361}
+            height={381}
             className="h-auto w-auto max-w-40 md:max-w-72"
           />
         </Link>
@@ -74,7 +74,7 @@ export function FooterSection() {
             </div>
           ))}
 
-          <div className="border-b border-cream/30">
+          <div>
             <button
               type="button"
               onClick={openBooking}

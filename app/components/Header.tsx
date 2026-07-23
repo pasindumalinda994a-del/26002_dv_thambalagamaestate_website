@@ -7,7 +7,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useBooking } from "./booking/BookingProvider";
 import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
 
-const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
+const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 const COLLAPSED_WIDTH = 64;
 const COLLAPSED_PAD_X = 8;
 const MENU_BTN_WIDTH = 40; // size-10
@@ -17,7 +17,7 @@ const NAV_LINKS = [
   { href: "/", label: "Sanctuary" },
   { href: "/about", label: "Forest" },
   { href: "/experiences", label: "Experience" },
-  { href: "/contact", label: "Gallery" },
+  { href: "/gallery", label: "Gallery" },
 ] as const;
 
 function isVisible(el: HTMLElement | null): el is HTMLElement {
@@ -403,8 +403,8 @@ export function Header() {
           <Image
             src={LOGO_SRC}
             alt="Thambalagama Estate"
-            width={699}
-            height={685}
+            width={361}
+            height={381}
             className="h-auto w-auto max-h-8"
             priority
           />

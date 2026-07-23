@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "node scripts/copy-mapbox-worker.js"
+    "postinstall": "node scripts/copy-mapbox-worker.js",
+    "seed:gallery": "node scripts/seed-gallery.js",
+    "seed:gallery": "node scripts/seed-gallery.js"
   },
   "dependencies": {
     "gsap": "^3.15.0",
