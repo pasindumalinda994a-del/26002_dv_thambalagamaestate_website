@@ -7,7 +7,6 @@ import {
   deleteGalleryImageAction,
   moveGalleryImageAction,
   updateGalleryImageAction,
-  uploadGalleryImageAction,
 } from "@/app/actions/gallery";
 import { validateGalleryFile } from "@/lib/gallery/schema";
 import { STATIC_GALLERY_IMAGES } from "@/lib/gallery/static-images";
@@ -21,6 +20,69 @@ export type GalleryManagerItem = {
   order: number;
 };
 
+type UploadResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+function uploadGalleryImageWithProgress(
+  formData: FormData,
+  onProgress: (percent: number) => void,
+): Promise<UploadResult> {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/gallery");
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable || event.total <= 0) return;
+      const percent = Math.min(
+        100,
+        Math.round((event.loaded / event.total) * 100),
+      );
+      onProgress(percent);
+    };
+
+    xhr.upload.onload = () => {
+      onProgress(100);
+    };
+
+    xhr.onload = () => {
+      let payload: { ok?: boolean; error?: string } | null = null;
+      try {
+        payload = JSON.parse(xhr.responseText) as {
+          ok?: boolean;
+          error?: string;
+        };
+      } catch {
+        payload = null;
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300 && payload?.ok) {
+        resolve({ ok: true });
+        return;
+      }
+
+      resolve({
+        ok: false,
+        error:
+          payload?.error ??
+          (xhr.status === 401
+            ? "Unauthorized"
+            : "Could not upload image"),
+      });
+    };
+
+    xhr.onerror = () => {
+      resolve({ ok: false, error: "Could not upload image" });
+    };
+
+    xhr.onabort = () => {
+      resolve({ ok: false, error: "Upload cancelled" });
+    };
+
+    xhr.send(formData);
+  });
+}
+
 export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -28,7 +90,14 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
   const [alt, setAlt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadPhase, setUploadPhase] = useState<"upload" | "saving">(
+    "upload",
+  );
   const [pending, startTransition] = useTransition();
+
+  const busy = pending || uploading;
 
   useEffect(() => {
     setItems(images);
@@ -56,7 +125,7 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
     }
   }
 
-  function onUpload(e: React.FormEvent<HTMLFormElement>) {
+  async function onUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setMessage(null);
@@ -81,17 +150,28 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
     formData.set("file", file);
     if (alt.trim()) formData.set("alt", alt.trim());
 
-    startTransition(async () => {
-      const result = await uploadGalleryImageAction(formData);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setAlt("");
-      if (fileRef.current) fileRef.current.value = "";
-      setMessage("Image uploaded");
-      refresh();
+    setUploading(true);
+    setUploadProgress(0);
+    setUploadPhase("upload");
+
+    const result = await uploadGalleryImageWithProgress(formData, (percent) => {
+      setUploadProgress(percent);
+      if (percent >= 100) setUploadPhase("saving");
     });
+
+    setUploading(false);
+    setUploadProgress(0);
+    setUploadPhase("upload");
+
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
+    setAlt("");
+    if (fileRef.current) fileRef.current.value = "";
+    setMessage("Image uploaded");
+    refresh();
   }
 
   function onSaveAlt(id: string, nextAlt: string) {
@@ -204,7 +284,8 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
               type="file"
               accept="image/webp,image/jpeg,image/png,.webp,.jpg,.jpeg,.png"
               onChange={onFileChange}
-              className="w-full border border-forest-green/25 bg-cream px-3 py-2.5 font-secondary text-sm text-forest-green file:mr-3 file:border-0 file:bg-transparent file:font-secondary file:text-sm file:font-semibold file:text-forest-green"
+              disabled={uploading}
+              className="w-full border border-forest-green/25 bg-cream px-3 py-2.5 font-secondary text-sm text-forest-green file:mr-3 file:border-0 file:bg-transparent file:font-secondary file:text-sm file:font-semibold file:text-forest-green disabled:opacity-50"
             />
             <span className="mt-1.5 block font-secondary text-[12px] text-forest-green/50">
               WebP, JPEG, or PNG · max 5MB
@@ -220,15 +301,43 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
               onChange={(e) => setAlt(e.target.value)}
               placeholder="Describe the image"
               maxLength={200}
-              className="w-full border border-forest-green/25 bg-cream px-3 py-2.5 font-secondary text-sm text-forest-green outline-none focus:border-forest-green"
+              disabled={uploading}
+              className="w-full border border-forest-green/25 bg-cream px-3 py-2.5 font-secondary text-sm text-forest-green outline-none focus:border-forest-green disabled:opacity-50"
             />
           </label>
+          {uploading ? (
+            <div className="space-y-2" aria-live="polite">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/60">
+                  {uploadPhase === "saving"
+                    ? "Saving image…"
+                    : "Uploading…"}
+                </span>
+                <span className="font-secondary text-[12px] tabular-nums text-forest-green">
+                  {uploadProgress}%
+                </span>
+              </div>
+              <div
+                className="h-1.5 w-full overflow-hidden bg-forest-green/10"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={uploadProgress}
+                aria-label="Upload progress"
+              >
+                <div
+                  className="h-full bg-forest-green transition-[width] duration-150 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          ) : null}
           <button
             type="submit"
-            disabled={pending}
+            disabled={busy}
             className="w-fit border border-forest-green bg-forest-green px-5 py-2.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-transparent hover:text-forest-green disabled:opacity-50"
           >
-            {pending ? "Uploading…" : "Upload"}
+            {uploading ? "Uploading…" : "Upload"}
           </button>
         </form>
       </section>
@@ -273,7 +382,7 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
                 position={index + 1}
                 index={index}
                 total={items.length}
-                disabled={pending}
+                disabled={busy}
                 onSaveAlt={onSaveAlt}
                 onMoveUp={() => onMove(img.id, "up")}
                 onMoveDown={() => onMove(img.id, "down")}
