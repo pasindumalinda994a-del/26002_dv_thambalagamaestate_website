@@ -4,48 +4,48 @@ import type { GalleryDisplayImage } from "./types";
 export const STATIC_GALLERY_IMAGES: GalleryDisplayImage[] = [
   {
     id: "static-0",
-    src: "/main%20images/Villa%20Image%201.webp",
-    alt: "Villa interior view",
+    src: "/main%20images/Gallery%20Image%207.webp",
+    alt: "Gallery image 7",
   },
   {
     id: "static-1",
-    src: "/main%20images/Forest%20Section%20Bg%201.webp",
-    alt: "Forest canopy",
+    src: "/main%20images/Gallery%20Image%201.webp",
+    alt: "Gallery image 1",
   },
   {
     id: "static-2",
-    src: "/main%20images/Experience%20Image%204.webp",
-    alt: "Estate experience",
+    src: "/main%20images/Gallery%20Image%208.webp",
+    alt: "Gallery image 8",
   },
   {
     id: "static-3",
-    src: "/main%20images/Hero%20Poster.webp",
-    alt: "Estate landscape",
+    src: "/main%20images/Gallery%20Image%205.webp",
+    alt: "Gallery image 5",
   },
   {
     // Focus cell (row 2, center) — fills the viewport at gallery start.
     id: "static-4",
-    src: "/main%20images/Vila%20Section%20BG.webp",
-    alt: "Villa exterior",
+    src: "/main%20images/Gallery%20Image%206.webp",
+    alt: "Gallery image 6",
   },
   {
     id: "static-5",
-    src: "/main%20images/Forest%20Section%20Bg%202.webp",
-    alt: "Forest path",
+    src: "/main%20images/Gallery%20Image%204.webp",
+    alt: "Gallery image 4",
   },
   {
     id: "static-6",
-    src: "/main%20images/Experience%20Image%205.webp",
-    alt: "Outdoor experience",
+    src: "/main%20images/Gallery%20Image%209.webp",
+    alt: "Gallery image 9",
   },
   {
     id: "static-7",
-    src: "/main%20images/Villa%20Image%203.webp",
-    alt: "Villa detail",
+    src: "/main%20images/Gallery%20Image%203.webp",
+    alt: "Gallery image 3",
   },
   {
     id: "static-8",
-    src: "/main%20images/CTA%20Section%20Bg.webp",
-    alt: "Canopy light",
+    src: "/main%20images/Gallery%20Image%202.webp",
+    alt: "Gallery image 2",
   },
 ];
