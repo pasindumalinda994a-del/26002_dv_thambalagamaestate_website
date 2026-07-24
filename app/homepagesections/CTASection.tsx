@@ -6,12 +6,14 @@ import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
-import { getStableViewportHeight } from "@/lib/viewport";
-
+import {
+  ensureScrollTriggerConfig,
+  refreshScrollTriggers,
+} from "@/lib/scroll-refresh";
 const BG_SRC = "/main%20images/CTA%20Section%20Bg.webp";
 
 const HEADLINE_CLASS =
-  "w-full font-space-grotesk text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream backface-hidden";
+  "w-full font-space-grotesk text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream";
 
 const WHEEL_ACTIVE = { rotationX: 0, y: 0, z: 0, opacity: 1 };
 const WHEEL_ENTER = { rotationX: 60, y: 100, z: -120, opacity: 0 };
@@ -53,7 +55,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
     const bgContainer = bgContainerRef.current;
     if (!section || !bgContainer) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+    ensureScrollTriggerConfig();
 
     const ctx = gsap.context(() => {
       gsap.set(bgContainer, {
@@ -86,7 +88,6 @@ export function CTASection({ ready = true }: CTASectionProps) {
           gsap.set(headline, {
             top: 0,
             transformOrigin: "50% 50%",
-            force3D: true,
             ...(i === 0 ? WHEEL_ACTIVE : WHEEL_ENTER),
           });
         });
@@ -96,7 +97,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => `+=${getStableViewportHeight() * transitionCount}`,
+            end: () => `+=${window.innerHeight * transitionCount}`,
             pin: section,
             pinSpacing: true,
             scrub: 1,
@@ -131,7 +132,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
               trigger: section,
               start: () =>
                 ScrollTrigger.getById("cta-headlines")?.end ?? "top top",
-              end: () => `+=${getStableViewportHeight()}`,
+              end: () => `+=${window.innerHeight}`,
               scrub: 1,
               invalidateOnRefresh: true,
             },
@@ -156,9 +157,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
       }
     }, section);
 
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
+    refreshScrollTriggers();
 
     return () => ctx.revert();
   }, [ready]);
@@ -167,12 +166,12 @@ export function CTASection({ ready = true }: CTASectionProps) {
     <section
       ref={sectionRef}
       aria-label="Call to action"
-      className="relative z-[32] flex min-h-svh items-center justify-center overflow-hidden bg-deep-forest"
+      className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-deep-forest"
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <div
           ref={bgContainerRef}
-          className="absolute inset-0 will-change-transform"
+          className="absolute inset-0"
         >
           <Image
             src={BG_SRC}
@@ -180,7 +179,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
             fill
             sizes="100vw"
             className="object-cover"
-            onLoad={() => ScrollTrigger.refresh()}
+            onLoad={() => refreshScrollTriggers()}
           />
           <div aria-hidden className="absolute inset-0 bg-black/29" />
         </div>
@@ -207,7 +206,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
                   ref={(el) => {
                     headlineRefs.current[i] = el;
                   }}
-                  className={`absolute inset-x-0 top-0 ${HEADLINE_CLASS} will-change-transform`}
+                  className={`absolute inset-x-0 top-0 ${HEADLINE_CLASS}`}
                   aria-hidden={i !== 0}
                 >
                   {content}

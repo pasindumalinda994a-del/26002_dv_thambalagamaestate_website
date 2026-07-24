@@ -1,12 +1,12 @@
 "use client";
 
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 
 const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
@@ -29,7 +29,7 @@ export function StartExperience() {
     if (entered) {
       document.body.style.overflow = "";
       lenis?.start();
-      ScrollTrigger.refresh();
+      refreshScrollTriggers();
       return;
     }
 
@@ -108,12 +108,11 @@ export function StartExperience() {
       aria-label="Start experience"
       className="fixed inset-0 z-1000 flex flex-col items-center justify-center overflow-hidden"
     >
-      <div ref={bgRef} className="absolute inset-0 will-change-transform">
+      <div ref={bgRef} className="absolute inset-0">
         <Image
           src={BG_SRC}
           alt=""
           fill
-          priority
           sizes="100vw"
           className="object-cover"
         />
@@ -122,13 +121,13 @@ export function StartExperience() {
       <div
         ref={overlayRef}
         aria-hidden
-        className="absolute inset-0 bg-black/29 will-change-transform"
+        className="absolute inset-0 bg-black/29"
       />
 
       <div
         ref={cloudLeftRef}
         aria-hidden
-        className="pointer-events-none absolute top-[24%] -left-8 z-1 aspect-483/340 w-[320px] max-w-[90vw] -translate-y-1/2 will-change-transform md:top-1/3 md:left-0 md:w-[483px]"
+        className="pointer-events-none absolute top-[24%] -left-8 z-1 aspect-483/340 w-[320px] max-w-[90vw] -translate-y-1/2 md:top-1/3 md:left-0 md:w-[483px]"
       >
         <Image
           src={CLOUD_LEFT_SRC}
@@ -142,7 +141,7 @@ export function StartExperience() {
       <div
         ref={cloudRightRef}
         aria-hidden
-        className="pointer-events-none absolute -right-12 bottom-[14%] z-1 aspect-423/261 w-[300px] max-w-[85vw] will-change-transform md:bottom-auto md:right-0 md:top-2/3 md:w-[423px] md:-translate-y-1/2"
+        className="pointer-events-none absolute -right-12 bottom-[14%] z-1 aspect-423/261 w-[300px] max-w-[85vw] md:bottom-auto md:right-0 md:top-2/3 md:w-[423px] md:-translate-y-1/2"
       >
         <Image
           src={CLOUD_RIGHT_SRC}
@@ -162,7 +161,6 @@ export function StartExperience() {
           alt="Thambalagama Estate"
           width={699}
           height={685}
-          priority
           className="h-auto w-[140px] md:w-[220px]"
         />
 

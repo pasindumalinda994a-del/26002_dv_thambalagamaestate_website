@@ -1,14 +1,8 @@
-import dynamic from "next/dynamic";
 import { AmbientAudioToggle } from "./components/AmbientAudioToggle";
 import { Header } from "./components/Header";
 import { AboutSection } from "./homepagesections/About Section";
+import { ForestExperienceLocationStack } from "./homepagesections/ForestExperienceLocationStack";
 import { HeroSection } from "./homepagesections/Hero Section";
-
-const ForestExperienceLocationStack = dynamic(() =>
-  import("./homepagesections/ForestExperienceLocationStack").then(
-    (mod) => mod.ForestExperienceLocationStack,
-  ),
-);
 // import { StartExperience } from "./homepagesections/Start Experience";
 import { VillaSection } from "./homepagesections/Villa Section";
 
