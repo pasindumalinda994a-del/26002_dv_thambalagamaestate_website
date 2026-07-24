@@ -1,8 +1,11 @@
 "use client";
 
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
+import {
+  ensureScrollTriggerConfig,
+  refreshScrollTriggers,
+} from "@/lib/scroll-refresh";
 
 const ABOUT_COPY =
   "We aren't a hotel. We are a private estate where the only luxury is the silence of the forest. Reserved for one group at a time.";
@@ -17,7 +20,7 @@ export function AboutSection() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!sectionRef.current || !headingRef.current) return;
 
-    gsap.registerPlugin(ScrollTrigger);
+    ensureScrollTriggerConfig();
 
     const ctx = gsap.context(() => {
       const letters = headingRef.current!.querySelectorAll("[data-letter]");
@@ -45,7 +48,7 @@ export function AboutSection() {
         });
     }, sectionRef);
 
-    ScrollTrigger.refresh();
+    refreshScrollTriggers();
 
     return () => ctx.revert();
   }, []);
@@ -54,7 +57,7 @@ export function AboutSection() {
     <section
       ref={sectionRef}
       aria-label="About"
-      className="relative flex min-h-svh items-center justify-center bg-deep-forest"
+      className="relative flex min-h-screen items-center justify-center bg-deep-forest"
     >
       <h2
         ref={headingRef}

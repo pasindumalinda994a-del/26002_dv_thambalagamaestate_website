@@ -1,7 +1,6 @@
 "use client";
 
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import {
   forwardRef,
@@ -15,7 +14,11 @@ import {
 import { Button } from "../components/SolidButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import { getStableViewportHeight } from "@/lib/viewport";
+import {
+  ensureScrollTriggerConfig,
+  refreshScrollTriggers,
+  refreshScrollTriggersDebounced,
+} from "@/lib/scroll-refresh";
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
@@ -127,7 +130,6 @@ function ExperienceMobileCarousel({
               fill
               className="object-cover"
               sizes="100vw"
-              priority={index === 0}
             />
             <ExperienceImageCaption caption={slide.caption} showOnHover={false} />
           </div>
@@ -186,7 +188,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       if (reducedMotion || !overlayTargetRef) return;
       if (!overlayReady) return;
 
-      gsap.registerPlugin(ScrollTrigger);
+      ensureScrollTriggerConfig();
 
       const ctx = gsap.context(() => {
         const overlay = darkOverlayRef.current;
@@ -198,7 +200,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "bottom bottom",
-            end: () => `+=${getStableViewportHeight()}`,
+            end: () => `+=${window.innerHeight}`,
             pin: sectionRef.current,
             pinSpacing: true,
             scrub: true,
@@ -217,13 +219,11 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
       const overlayEl = overlayTargetRef.current;
       const resizeObserver = new ResizeObserver(() => {
-        ScrollTrigger.refresh();
+        refreshScrollTriggersDebounced();
       });
       if (overlayEl) resizeObserver.observe(overlayEl);
 
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+      refreshScrollTriggers();
 
       return () => {
         resizeObserver.disconnect();
@@ -300,12 +300,12 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative -mt-[100svh] z-30 flex min-h-svh flex-col overflow-hidden bg-cream"
+        className="relative -mt-[100vh] z-30 flex min-h-screen flex-col overflow-hidden bg-cream"
       >
         <div
           ref={darkOverlayRef}
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 bg-black will-change-[opacity]"
+          className="pointer-events-none absolute inset-0 z-20 bg-black"
         />
 
         <div className="relative z-10 shrink-0 px-5 py-12 md:px-8 md:py-20">
