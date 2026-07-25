@@ -3,19 +3,16 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
+import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-  refreshScrollTriggersDebounced,
-} from "@/lib/scroll-refresh";
 
 const BG_SRC = "/main%20images/Vila%20Section%20BG.webp";
-const VILLA_BG_SPEED = 1.5;
-const VILLA_FG_SPEED = 0.2;
+const VILLA_BG_TRAVEL = 360; // 240 * 1.5
+const VILLA_FG_TRAVEL = 48; // 240 * 0.2
+const MOBILE_MQ = "(max-width: 767px)";
 
 const VILLA_GALLERY_IMAGES = [
   { src: "/main%20images/Villa%20Image%201.webp", alt: "Villa interior view 1" },
@@ -52,7 +49,13 @@ function VillaBackground({
   );
 }
 
-function VillaGalleryCard({ src, alt }: { src: string; alt: string }) {
+function VillaGalleryCard({
+  src,
+  alt,
+}: {
+  src: string;
+  alt: string;
+}) {
   return (
     <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:h-[82vh] md:w-[min(96vw,84rem)]">
       <Image
@@ -76,47 +79,31 @@ export function VillaSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    ensureScrollTriggerConfig();
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const mobileQuery = window.matchMedia(MOBILE_MQ);
 
     const measureGallery = () => {
-      if (!galleryStripRef.current || !spacerRef.current) return 0;
+      if (!galleryStripRef.current || !spacerRef.current) return;
 
       const stripHeight = galleryStripRef.current.offsetHeight;
       const viewportHeight = window.innerHeight;
-      const distance = stripHeight + viewportHeight;
-      spacerRef.current.style.height = `${distance}px`;
-      return distance;
+      spacerRef.current.style.height = `${stripHeight + viewportHeight}px`;
     };
 
-    const applyRevealParallax = (stProgress: number) => {
-      // Same math as previous window-scroll path (locks at center once revealed).
-      const progress = Math.min(1, stProgress) * 0.5;
-      const centeredProgress = (progress - 0.5) * 2;
-      const travelBase = centeredProgress * 240;
-
-      if (bgRef.current) {
-        bgRef.current.style.transform = `translate3d(0, ${travelBase * VILLA_BG_SPEED}px, 0)`;
-      }
-      if (contentRef.current) {
-        contentRef.current.style.transform = `translate3d(0, ${travelBase * VILLA_FG_SPEED}px, 0)`;
-      }
-    };
-
-    const applyGalleryY = (galleryProgress: number) => {
-      if (!galleryRef.current || !galleryStripRef.current) return;
-      const stripHeight = galleryStripRef.current.offsetHeight;
-      const viewportHeight = window.innerHeight;
-      const startY = viewportHeight;
-      const endY = -stripHeight;
-      const galleryY = startY + galleryProgress * (endY - startY);
-      galleryRef.current.style.transform = `translate3d(0, ${galleryY}px, 0)`;
+    const scheduleRefresh = () => {
+      measureGallery();
+      refreshScrollTriggers();
     };
 
     measureGallery();
 
     const ctx = gsap.context(() => {
+      const isMobile = mobileQuery.matches;
+
       gsap.set(bgImageRef.current, {
         transformOrigin: "center center",
         scale: 1.2,
@@ -130,20 +117,7 @@ export function VillaSection() {
           start: "top bottom",
           end: "top top",
           scrub: true,
-        },
-      });
-
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top bottom",
-        end: "top top",
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate(self) {
-          applyRevealParallax(self.progress);
-        },
-        onRefresh(self) {
-          applyRevealParallax(self.progress);
+          refreshPriority: ST_PRIORITY.villa,
         },
       });
 
@@ -161,49 +135,85 @@ export function VillaSection() {
           },
           scrub: true,
           invalidateOnRefresh: true,
+          refreshPriority: ST_PRIORITY.villa,
         },
       });
 
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: () => {
-          const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
-          return `+=${stripHeight + window.innerHeight}`;
-        },
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate(self) {
-          applyGalleryY(self.progress);
-        },
-        onRefresh(self) {
-          applyGalleryY(self.progress);
-        },
-      });
+      // Desktop-only approach parallax (no separate window scroll loop).
+      if (!isMobile) {
+        const approachTrigger = {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "top top",
+          scrub: true,
+          invalidateOnRefresh: true,
+          refreshPriority: ST_PRIORITY.villa,
+        };
 
-      applyRevealParallax(0);
-      applyGalleryY(0);
+        if (bgRef.current) {
+          gsap.fromTo(
+            bgRef.current,
+            { y: -VILLA_BG_TRAVEL },
+            { y: 0, ease: "none", scrollTrigger: approachTrigger },
+          );
+        }
+        if (contentRef.current) {
+          gsap.fromTo(
+            contentRef.current,
+            { y: -VILLA_FG_TRAVEL },
+            {
+              y: 0,
+              ease: "none",
+              scrollTrigger: { ...approachTrigger },
+            },
+          );
+        }
+      } else {
+        gsap.set([bgRef.current, contentRef.current].filter(Boolean), { y: 0 });
+      }
+
+      // Gallery scroll-through — required on all breakpoints (sticky + spacer).
+      if (galleryRef.current) {
+        gsap.fromTo(
+          galleryRef.current,
+          { y: () => window.innerHeight },
+          {
+            y: () => -(galleryStripRef.current?.offsetHeight ?? 0),
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: () => {
+                const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
+                return `+=${stripHeight + window.innerHeight}`;
+              },
+              scrub: true,
+              invalidateOnRefresh: true,
+              refreshPriority: ST_PRIORITY.villa,
+            },
+          },
+        );
+      }
     }, sectionRef);
 
     const strip = galleryStripRef.current;
     const resizeObserver =
       strip &&
       new ResizeObserver(() => {
-        measureGallery();
-        refreshScrollTriggersDebounced();
+        scheduleRefresh();
       });
     if (strip && resizeObserver) resizeObserver.observe(strip);
 
-    const onResize = () => {
-      measureGallery();
-      refreshScrollTriggersDebounced();
+    const onBreakpointChange = () => {
+      scheduleRefresh();
     };
-    window.addEventListener("resize", onResize);
+    mobileQuery.addEventListener("change", onBreakpointChange);
 
+    measureGallery();
     refreshScrollTriggers();
 
     return () => {
-      window.removeEventListener("resize", onResize);
+      mobileQuery.removeEventListener("change", onBreakpointChange);
       resizeObserver?.disconnect();
       ctx.revert();
     };
@@ -246,8 +256,8 @@ export function VillaSection() {
             </H2>
 
             <Paragraph className="mt-2 max-w-lg text-cream md:mt-4">
-              Expansive private living spaces opening out to a 360-degree panoramic
-              view.
+              Expansive private living spaces opening out to a 360-degree
+              panoramic view.
             </Paragraph>
 
             <GlassyButton className="mt-10" href="/bungalow">

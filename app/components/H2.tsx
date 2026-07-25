@@ -10,9 +10,11 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
+import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
+
+const MOBILE_MQ = "(max-width: 767px)";
 
 export type H2Props = ComponentProps<"h2"> & {
   animate?: boolean;
@@ -44,6 +46,7 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
       if (!headingRef.current || !animate || !ready) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+      const useBlur = !window.matchMedia(MOBILE_MQ).matches;
       let split: SplitText | undefined;
       const trigger = triggerRef?.current ?? headingRef.current;
 
@@ -58,14 +61,16 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
             gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
             gsap.set(self.chars, {
               y: 200,
-              filter: "blur(20px)",
               opacity: 0.2,
+              ...(useBlur
+                ? { filter: "blur(20px)" }
+                : { filter: "none" }),
             });
 
             return gsap.to(self.chars, {
               y: 0,
-              filter: "blur(0px)",
               opacity: 1,
+              ...(useBlur ? { filter: "blur(0px)" } : { filter: "none" }),
               duration: 0.8,
               ease: "power4.out",
               stagger,
@@ -75,13 +80,12 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
                 start: triggerStart,
                 once: true,
                 invalidateOnRefresh: true,
+                refreshPriority: ST_PRIORITY.h2,
               },
             });
           },
         });
       }, headingRef);
-
-      refreshScrollTriggers();
 
       return () => {
         ctx.revert();

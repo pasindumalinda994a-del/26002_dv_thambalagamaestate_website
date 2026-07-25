@@ -2,51 +2,73 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useState, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
-import { ensureScrollTriggerConfig } from "@/lib/scroll-refresh";
+import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
 const VIDEO_SRC = "/videos/Hero%20Section%20Bg2.mp4";
 const POSTER_SRC = "/main%20images/Hero%20Poster.webp";
+const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const videoWrapRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaWrapRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const pRef = useRef<HTMLParagraphElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
+  // Default to image so mobile never mounts <video>; desktop upgrades after mount.
+  const [useVideo, setUseVideo] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const sync = () => setUseVideo(!mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    ensureScrollTriggerConfig();
+    gsap.registerPlugin(ScrollTrigger);
+
+    const isMobile = window.matchMedia(MOBILE_MQ).matches;
 
     const ctx = gsap.context(() => {
-      gsap.set(videoWrapRef.current, { transformOrigin: "center center" });
+      gsap.set(mediaWrapRef.current, { transformOrigin: "center center" });
 
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "+=100%",
-            pin: true,
-            scrub: true,
-            anticipatePin: 1,
-          },
-        })
-        .to(videoWrapRef.current, {
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=100%",
+          pin: true,
+          scrub: true,
+          anticipatePin: 1,
+          refreshPriority: ST_PRIORITY.hero,
+        },
+      });
+
+      timeline.to(
+        mediaWrapRef.current,
+        {
           scale: 0.6,
           ease: "none",
           duration: 1,
-        })
-        .to(
+        },
+        0,
+      );
+
+      if (isMobile) {
+        timeline.to(h1Ref.current, { opacity: 0, ease: "none" }, 0);
+      } else {
+        timeline.to(
           h1Ref.current,
           {
             letterSpacing: "0.18em",
@@ -55,7 +77,10 @@ export function HeroSection() {
             ease: "none",
           },
           0,
-        )
+        );
+      }
+
+      timeline
         .to(pRef.current, { opacity: 0, ease: "none" }, 0)
         .to(buttonRef.current, { opacity: 0, ease: "none" }, 0)
         .to(scrollHintRef.current, { opacity: 0, ease: "none" }, 0);
@@ -64,45 +89,34 @@ export function HeroSection() {
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    const section = sectionRef.current;
-    if (!video || !section) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.some((entry) => entry.isIntersecting);
-        if (visible) {
-          void video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      },
-      { threshold: 0.05 },
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section
       ref={sectionRef}
       aria-label="Hero"
       className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
-      <div ref={videoWrapRef} className="absolute inset-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={POSTER_SRC}
-          preload="metadata"
-          className="h-full w-full object-cover"
-          src={VIDEO_SRC}
-        />
+      <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
+        {useVideo ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={POSTER_SRC}
+            preload="metadata"
+            className="h-full w-full object-cover"
+            src={VIDEO_SRC}
+          />
+        ) : (
+          <Image
+            src={POSTER_SRC}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        )}
 
         <div aria-hidden className="absolute inset-0 bg-black/29" />
       </div>

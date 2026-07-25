@@ -4,9 +4,9 @@ import gsap from "gsap";
 import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 
 const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";

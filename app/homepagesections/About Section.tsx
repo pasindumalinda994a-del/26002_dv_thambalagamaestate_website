@@ -1,11 +1,9 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-} from "@/lib/scroll-refresh";
+import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
 const ABOUT_COPY =
   "We aren't a hotel. We are a private estate where the only luxury is the silence of the forest. Reserved for one group at a time.";
@@ -20,7 +18,7 @@ export function AboutSection() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!sectionRef.current || !headingRef.current) return;
 
-    ensureScrollTriggerConfig();
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       const letters = headingRef.current!.querySelectorAll("[data-letter]");
@@ -36,6 +34,7 @@ export function AboutSection() {
             scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            refreshPriority: ST_PRIORITY.about,
           },
         })
         .to(letters, {
@@ -47,8 +46,6 @@ export function AboutSection() {
           },
         });
     }, sectionRef);
-
-    refreshScrollTriggers();
 
     return () => ctx.revert();
   }, []);

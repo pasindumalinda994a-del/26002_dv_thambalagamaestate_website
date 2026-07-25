@@ -8,7 +8,6 @@ import { LENIS_OPTIONS } from "@/lib/lenis-config";
 import { ensureScrollTriggerConfig } from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(ScrollTrigger);
-ensureScrollTriggerConfig();
 
 function LenisGSAPConnector() {
   const lenis = useLenis();
@@ -16,7 +15,6 @@ function LenisGSAPConnector() {
   useEffect(() => {
     if (!lenis) return;
 
-    ensureScrollTriggerConfig();
     lenis.on("scroll", ScrollTrigger.update);
 
     const update = (time: number) => {
@@ -24,8 +22,7 @@ function LenisGSAPConnector() {
     };
 
     gsap.ticker.add(update);
-    // Mild lag smoothing under load — avoids death-spiral on mobile frame drops.
-    gsap.ticker.lagSmoothing(500, 33);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
       lenis.off("scroll", ScrollTrigger.update);
@@ -40,6 +37,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
+    ensureScrollTriggerConfig();
     setReduceMotion(
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     );

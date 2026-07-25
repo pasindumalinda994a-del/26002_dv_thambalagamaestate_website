@@ -5,14 +5,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import { useLayoutEffect, useRef, type RefObject } from "react";
+import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
+import { useNearViewport } from "@/lib/use-near-viewport";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-  refreshScrollTriggersDebounced,
-} from "@/lib/scroll-refresh";
 
 const SLIDES = [
   {
@@ -77,6 +74,28 @@ function slideClipPath(globalProgress: number, index: number) {
   return clipPathFromProgress(t);
 }
 
+/** Mobile-only: dissolve upper layers instead of clip-path.
+ *  `MOBILE_CROSSFADE_SPAN` is the fraction of each slide step used for the fade
+ *  (1 = full step like desktop wipe; lower = snappier crossfade). */
+const MOBILE_CROSSFADE_SPAN = 0.45;
+
+function slideCrossfadeOpacity(globalProgress: number, index: number) {
+  if (index === SLIDES.length - 1) return 1;
+
+  const step = 1 / (SLIDES.length - 1);
+  const exitStart = step * index;
+  const exitEnd = step * (index + 1);
+
+  if (globalProgress <= exitStart) return 1;
+  if (globalProgress >= exitEnd) return 0;
+
+  const localT = (globalProgress - exitStart) / step;
+  const fadeT = Math.min(1, localT / MOBILE_CROSSFADE_SPAN);
+  return 1 - fadeT;
+}
+
+const MOBILE_MQ = "(max-width: 767px)";
+
 function slideZIndex(index: number) {
   return SLIDES.length - 1 - index;
 }
@@ -95,11 +114,6 @@ function slideScaleT(globalProgress: number, index: number) {
 function easePower2In(t: number) {
   const x = Math.max(0, Math.min(1, t));
   return x * x;
-}
-
-function easeOutSmooth(t: number) {
-  const x = Math.max(0, Math.min(1, t));
-  return 1 - Math.pow(1 - x, 2.5);
 }
 
 function scaleFromRevealT(t: number) {
@@ -205,27 +219,31 @@ function headingCharState(
   phase: HeadingPhase,
   charIndex: number,
   charCount: number,
+  useBlur: boolean,
 ) {
+  const filter = (px: number) =>
+    useBlur ? { filter: `blur(${px}px)` } : { filter: "none" };
+
   switch (phase.mode) {
     case "pre":
       return {
         y: HEADING_ENTER_Y,
-        filter: `blur(${HEADING_BLUR}px)`,
+        ...filter(HEADING_BLUR),
         opacity: HEADING_DIM_OPACITY,
       };
     case "post":
       return {
         y: HEADING_EXIT_Y,
-        filter: `blur(${HEADING_BLUR}px)`,
+        ...filter(HEADING_BLUR),
         opacity: HEADING_DIM_OPACITY,
       };
     case "hold":
-      return { y: 0, filter: "blur(0px)", opacity: 1 };
+      return { y: 0, ...filter(0), opacity: 1 };
     case "enter": {
       const t = staggeredPhaseT(phase.t, charIndex, charCount);
       return {
         y: HEADING_ENTER_Y * (1 - t),
-        filter: `blur(${HEADING_BLUR * (1 - t)}px)`,
+        ...filter(HEADING_BLUR * (1 - t)),
         opacity: HEADING_DIM_OPACITY + (1 - HEADING_DIM_OPACITY) * t,
       };
     }
@@ -233,7 +251,7 @@ function headingCharState(
       const t = staggeredPhaseT(phase.t, charIndex, charCount);
       return {
         y: HEADING_EXIT_Y * t,
-        filter: `blur(${HEADING_BLUR * t}px)`,
+        ...filter(HEADING_BLUR * t),
         opacity: 1 - (1 - HEADING_DIM_OPACITY) * t,
       };
     }
@@ -255,12 +273,10 @@ function collectSecondaryTargets(
 
 type ForestSectionProps = {
   overlayTargetRef?: RefObject<HTMLElement | null>;
-  overlayReady?: boolean;
 };
 
 export function ForestSection({
   overlayTargetRef,
-  overlayReady = true,
 }: ForestSectionProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -278,26 +294,33 @@ export function ForestSection({
   const revealedSlides = useRef(new Set<number>());
   const slide0Revealed = useRef(false);
   const transitioning = useRef(false);
-  const pendingContentTarget = useRef<number | null>(null);
   const lastTargetContent = useRef(0);
   const activeContentIndex = useRef(0);
   const slideProgressRef = useRef(0);
   const introProgressRef = useRef(0);
-  const lastHeadingPhaseKey = useRef<(string | null)[]>([]);
-  const lastImageScale = useRef<(number | null)[]>([]);
+  const armed = useNearViewport(sectionRef);
 
   useLayoutEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    const mobileQuery = window.matchMedia(MOBILE_MQ);
+
     if (reducedMotion) {
+      const isMobile = mobileQuery.matches;
       slideRefs.current.forEach((slide, index) => {
         if (!slide) return;
-        slide.style.clipPath =
-          index === 0
-            ? "polygon(0 0, 100% 0, 100% 100%, 0 100%)"
-            : "polygon(0 0, 0 0, 0 100%, 0 100%)";
+        if (isMobile) {
+          slide.style.clipPath = "none";
+          slide.style.opacity = index === 0 ? "1" : "0";
+        } else {
+          slide.style.opacity = "1";
+          slide.style.clipPath =
+            index === 0
+              ? "polygon(0 0, 100% 0, 100% 100%, 0 100%)"
+              : "polygon(0 0, 0 0, 0 100%, 0 100%)";
+        }
       });
       progressFillRef.current?.style.setProperty("width", "0%");
       contentGroupRefs.current.forEach((group, index) => {
@@ -316,7 +339,9 @@ export function ForestSection({
       return;
     }
 
-    ensureScrollTriggerConfig();
+    // Defer the SplitText + pin graph until the section is near the viewport.
+    if (!armed) return;
+
     gsap.registerPlugin(ScrollTrigger, SplitText);
 
     const getSecondary = (index: number) =>
@@ -329,30 +354,19 @@ export function ForestSection({
       contentTweens.current = [];
     };
 
-    const phaseKey = (phase: HeadingPhase) =>
-      `${phase.mode}:${Math.round(phase.t * 64)}`;
-
     const applyHeadingChars = (index: number, phase: HeadingPhase) => {
       const split = headingSplits.current[index];
       const chars = split?.chars;
       if (!chars?.length) return;
 
-      const key = phaseKey(phase);
-      if (lastHeadingPhaseKey.current[index] === key) return;
-      lastHeadingPhaseKey.current[index] = key;
-
       if (split?.masks) {
         gsap.set(split.masks, { height: "1.15em", overflow: "clip" });
       }
 
+      const useBlur = !mobileQuery.matches;
       const count = chars.length;
-      // Direct style writes — same motion values, less GSAP overhead per scrub frame.
       chars.forEach((char, charIndex) => {
-        const state = headingCharState(phase, charIndex, count);
-        const el = char as HTMLElement;
-        el.style.transform = `translate3d(0, ${state.y}px, 0)`;
-        el.style.filter = state.filter;
-        el.style.opacity = String(state.opacity);
+        gsap.set(char, headingCharState(phase, charIndex, count, useBlur));
       });
     };
 
@@ -446,28 +460,16 @@ export function ForestSection({
     };
 
     const transitionToContent = (target: number) => {
-      if (transitioning.current) {
-        pendingContentTarget.current = target;
-        return;
-      }
+      if (transitioning.current) return;
 
       const current = activeContentIndex.current;
-      if (current === target) {
-        lastTargetContent.current = target;
-        return;
-      }
+      if (current === target) return;
 
       transitioning.current = true;
-      lastTargetContent.current = target;
 
       const finish = () => {
         playContentEnter(target);
         transitioning.current = false;
-        const pending = pendingContentTarget.current;
-        pendingContentTarget.current = null;
-        if (pending !== null && pending !== activeContentIndex.current) {
-          transitionToContent(pending);
-        }
       };
 
       if (revealedSlides.current.has(current)) {
@@ -477,103 +479,92 @@ export function ForestSection({
       }
     };
 
-    const updateRevealParallax = (stProgress: number) => {
-      // Mirrors previous getBoundingClientRect math for intro reveal only.
-      const progress = easeOutSmooth(stProgress) * 0.5;
-      const centeredProgress = (progress - 0.5) * 2;
-      const travelBase = centeredProgress * 240;
-      const bgY = travelBase * 1.5;
-      const fgY = travelBase * 0.2;
-
-      slideBgRefs.current.forEach((bg) => {
-        if (!bg) return;
-        bg.style.transform = `translate3d(0, ${bgY}px, 0)`;
-      });
-
-      const overlay = contentOverlayRef.current;
-      if (overlay) {
-        overlay.style.transform = `translate3d(0, ${fgY}px, 0)`;
-      }
-    };
-
     const updateSlides = (progress: number) => {
       slideProgressRef.current = progress;
       progressFillRef.current?.style.setProperty("width", `${progress * 100}%`);
 
+      const isMobile = mobileQuery.matches;
+
       slideRefs.current.forEach((slide, index) => {
         if (!slide) return;
-        slide.style.clipPath = slideClipPath(progress, index);
+        if (isMobile) {
+          slide.style.clipPath = "none";
+          slide.style.opacity = String(slideCrossfadeOpacity(progress, index));
+        } else {
+          slide.style.opacity = "1";
+          slide.style.clipPath = slideClipPath(progress, index);
+        }
       });
 
       slideImageRefs.current.forEach((imageWrap, index) => {
-        if (!imageWrap || index === 0) return;
-        const scale = scaleFromRevealT(slideScaleT(progress, index));
-        if (lastImageScale.current[index] === scale) return;
-        lastImageScale.current[index] = scale;
-        imageWrap.style.transform = `scale(${scale})`;
-        imageWrap.style.transformOrigin = "center center";
+        if (!imageWrap) return;
+        if (isMobile) {
+          gsap.set(imageWrap, { transformOrigin: "center center", scale: 1 });
+          return;
+        }
+        if (index === 0) return;
+        gsap.set(imageWrap, {
+          transformOrigin: "center center",
+          scale: scaleFromRevealT(slideScaleT(progress, index)),
+        });
       });
 
       updateHeadingChars(progress);
 
       const target = targetContentIndex(progress);
-      if (target !== lastTargetContent.current) {
+      if (target !== lastTargetContent.current && !transitioning.current) {
         if (target > 0 && !slide0Revealed.current) return;
         transitionToContent(target);
       }
     };
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top bottom",
-        end: "top top",
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate(self) {
-          updateRevealParallax(self.progress);
-        },
-        onRefresh(self) {
-          updateRevealParallax(self.progress);
-        },
-      });
+      const isMobile = mobileQuery.matches;
 
       slideImageRefs.current.forEach((imageWrap, index) => {
         if (!imageWrap) return;
 
-        gsap.set(imageWrap, { transformOrigin: "center center", scale: 1.2 });
-        lastImageScale.current[index] = 1.2;
+        gsap.set(imageWrap, {
+          transformOrigin: "center center",
+          scale: isMobile ? 1 : 1.2,
+        });
 
         if (index === 0) {
-          gsap.to(imageWrap, {
-            scale: 1,
-            ease: "power2.in",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top bottom",
-              end: "top top",
-              scrub: 1,
-              invalidateOnRefresh: true,
-              onUpdate(self) {
-                introProgressRef.current = self.progress;
-                if (!slide0Revealed.current || slideProgressRef.current <= 0) {
-                  lastHeadingPhaseKey.current[0] = null;
-                  applyHeadingChars(0, {
-                    mode: "enter",
-                    t: self.progress,
-                  });
-                  gsap.set(getSecondary(0), {
-                    opacity: self.progress,
-                  });
-                }
-              },
-              onLeave: () => revealSlide0Content(),
-              onRefresh(self) {
-                introProgressRef.current = self.progress;
-                if (self.progress >= 1) revealSlide0Content();
-              },
+          const introScrollTrigger: ScrollTrigger.Vars = {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "top top",
+            scrub: 1,
+            invalidateOnRefresh: true,
+            refreshPriority: ST_PRIORITY.forest,
+            onUpdate(self: ScrollTrigger) {
+              introProgressRef.current = self.progress;
+              if (!slide0Revealed.current || slideProgressRef.current <= 0) {
+                applyHeadingChars(0, {
+                  mode: "enter",
+                  t: self.progress,
+                });
+                gsap.set(getSecondary(0), {
+                  opacity: self.progress,
+                });
+              }
             },
-          });
+            onLeave: () => revealSlide0Content(),
+            onRefresh(self: ScrollTrigger) {
+              introProgressRef.current = self.progress;
+              if (self.progress >= 1) revealSlide0Content();
+            },
+          };
+
+          if (isMobile) {
+            ScrollTrigger.create(introScrollTrigger);
+          } else {
+            gsap.to(imageWrap, {
+              scale: 1,
+              ease: "power2.in",
+              scrollTrigger: introScrollTrigger,
+            });
+          }
         }
       });
 
@@ -586,15 +577,7 @@ export function ForestSection({
         scrub: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onEnter: () => {
-          pinRef.current?.style.setProperty("will-change", "transform");
-        },
-        onLeave: () => {
-          pinRef.current?.style.removeProperty("will-change");
-        },
-        onLeaveBack: () => {
-          pinRef.current?.style.removeProperty("will-change");
-        },
+        refreshPriority: ST_PRIORITY.forest,
         onUpdate: (self) => {
           const slideDistance = getSlideScrollDistance();
           const overlay = window.innerHeight;
@@ -605,7 +588,37 @@ export function ForestSection({
         },
       });
 
-      updateRevealParallax(0);
+      // Desktop-only approach parallax — same tick as ScrollTrigger (no window scroll loop).
+      if (!isMobile) {
+        const easeReveal = (t: number) => 1 - Math.pow(1 - t, 2.5);
+        const parallaxTrigger = {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "top top",
+          scrub: true,
+          invalidateOnRefresh: true,
+          refreshPriority: ST_PRIORITY.forest,
+        };
+        const bgs = slideBgRefs.current.filter(Boolean) as HTMLDivElement[];
+        if (bgs.length > 0) {
+          gsap.fromTo(
+            bgs,
+            { y: -360 },
+            { y: 0, ease: easeReveal, scrollTrigger: parallaxTrigger },
+          );
+        }
+        if (contentOverlayRef.current) {
+          gsap.fromTo(
+            contentOverlayRef.current,
+            { y: -48 },
+            { y: 0, ease: easeReveal, scrollTrigger: { ...parallaxTrigger } },
+          );
+        }
+      } else {
+        gsap.set(slideBgRefs.current.filter(Boolean), { y: 0 });
+        gsap.set(contentOverlayRef.current, { y: 0 });
+      }
+
       updateSlides(0);
     }, sectionRef);
 
@@ -613,12 +626,9 @@ export function ForestSection({
     revealedSlides.current.clear();
     slide0Revealed.current = false;
     transitioning.current = false;
-    pendingContentTarget.current = null;
     lastTargetContent.current = 0;
     activeContentIndex.current = 0;
     introProgressRef.current = 0;
-    lastHeadingPhaseKey.current = [];
-    lastImageScale.current = [];
 
     SLIDES.forEach((_, index) => {
       const element = headingRefs.current[index];
@@ -634,7 +644,6 @@ export function ForestSection({
         onSplit(self) {
           gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
           headingSplits.current[index] = self;
-          lastHeadingPhaseKey.current[index] = null;
           if (index === 0 && !slide0Revealed.current) {
             applyHeadingChars(0, {
               mode: "enter",
@@ -659,24 +668,36 @@ export function ForestSection({
 
     updateHeadingChars(0);
 
-    const overlayEl = overlayTargetRef?.current;
-    const resizeObserver = new ResizeObserver(() => {
-      refreshScrollTriggersDebounced();
-    });
-    if (overlayEl) resizeObserver.observe(overlayEl);
-
     refreshScrollTriggers();
 
+    const onBreakpointChange = () => {
+      updateSlides(slideProgressRef.current);
+      refreshScrollTriggers();
+    };
+    mobileQuery.addEventListener("change", onBreakpointChange);
+
     return () => {
-      resizeObserver.disconnect();
+      mobileQuery.removeEventListener("change", onBreakpointChange);
       revertContentAnimations();
       revealedSlides.current.clear();
       slide0Revealed.current = false;
       transitioning.current = false;
-      pendingContentTarget.current = null;
       ctx.revert();
     };
-  }, [overlayTargetRef, overlayReady]);
+  }, [armed]);
+
+  // Overlay observer only — does not rebuild SplitText / pin graph.
+  useLayoutEffect(() => {
+    const overlayEl = overlayTargetRef?.current;
+    if (!overlayEl) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      refreshScrollTriggers(150);
+    });
+    resizeObserver.observe(overlayEl);
+
+    return () => resizeObserver.disconnect();
+  }, [overlayTargetRef]);
 
   return (
     <section ref={sectionRef} aria-label="Forest" className="relative z-[1]">
@@ -733,7 +754,8 @@ export function ForestSection({
               }}
               className="absolute top-1/2 right-0 left-0 max-w-7xl -translate-y-1/2 text-left"
               style={{
-                opacity: 1,
+                // Resting state before the (lazily armed) timeline takes over.
+                opacity: index === 0 ? 1 : 0,
                 pointerEvents: "none",
               }}
             >

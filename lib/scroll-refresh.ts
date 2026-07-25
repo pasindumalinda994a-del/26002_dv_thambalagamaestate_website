@@ -1,40 +1,42 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-let configured = false;
-let rafScheduled = false;
-let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-
 /**
  * One-time ScrollTrigger defaults for this site.
  * ignoreMobileResize avoids pin jumps when mobile browser chrome toggles.
  */
+let configured = false;
+let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * Higher refreshPriority = measured first on refresh.
+ * Keep page-order descending so pin spacers above settle before sections below.
+ */
+export const ST_PRIORITY = {
+  hero: 50,
+  about: 40,
+  villa: 30,
+  forest: 20,
+  experience: 10,
+  cta: 0,
+  h2: -5,
+} as const;
+
 export function ensureScrollTriggerConfig() {
   if (configured || typeof window === "undefined") return;
+  configured = true;
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.config({ ignoreMobileResize: true });
-  configured = true;
 }
 
-/** Coalesce many refresh callers into a single rAF refresh. */
-export function refreshScrollTriggers() {
-  if (typeof window === "undefined") return;
+/**
+ * Debounced ScrollTrigger.refresh — coalesces bursts from ResizeObservers,
+ * image loads, overlay readiness, and section mounts into one recalculation.
+ */
+export function refreshScrollTriggers(delayMs = 100) {
   ensureScrollTriggerConfig();
-  if (rafScheduled) return;
-  rafScheduled = true;
-  requestAnimationFrame(() => {
-    rafScheduled = false;
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => {
     ScrollTrigger.refresh();
-  });
-}
-
-/** Debounced refresh for resize / layout thrash. */
-export function refreshScrollTriggersDebounced(delayMs = 150) {
-  if (typeof window === "undefined") return;
-  ensureScrollTriggerConfig();
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    resizeTimer = null;
-    refreshScrollTriggers();
   }, delayMs);
 }

@@ -17,7 +17,7 @@ import type { LenisOptions } from "lenis";
  * Quick presets (lerp / wheelMultiplier):
  *   Snappy:     0.12 / 1.0
  *   Balanced:   0.10 / 1.0  (Lenis defaults)
- *   Cinematic:  0.08 / 0.75  (current — smooth without heavy scroll lag)
+ *   Cinematic:  0.07 / 0.85  (current — slower, silkier glide)
  *
  * Used by app/components/SmoothScroll.tsx, which drives Lenis via the GSAP ticker.
  */
@@ -26,12 +26,12 @@ export const LENIS_OPTIONS: LenisOptions = {
    * Linear interpolation — how fast scroll position catches up each frame (0–1).
    * Think of it as the "weight" of the page.
    *   0.05 = very floaty / film-like (can feel laggy)
-   *   0.08 = cinematic but usable with scrubbed ScrollTriggers (current)
+   *   0.07 = cinematic (current)
    *   0.10 = Lenis default / balanced
    *   0.15+ = snappy, near-native
    * When set, `duration` and `easing` below are not used for wheel scroll.
    */
-  lerp: 0.08,
+  lerp: 0.03,
 
   /**
    * Smooth mouse-wheel and trackpad input instead of jumping instantly.
@@ -42,10 +42,11 @@ export const LENIS_OPTIONS: LenisOptions = {
   /**
    * How far the page moves per wheel notch or trackpad flick.
    *   1.0 = default speed
-   *   0.75 = deliberate / premium (current)
-   *   0.55 = very slow (previous — fought scrubbed animations)
+   *   0.85 = slower, more deliberate / premium (current)
+   *   0.75 = very slow, highly controlled
+   *   1.2+ = faster than default
    */
-  wheelMultiplier: 0.75,
+  wheelMultiplier: 0.55,
 
   /**
    * Same as wheelMultiplier but for touch gestures.

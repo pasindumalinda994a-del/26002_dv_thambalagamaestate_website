@@ -1,6 +1,7 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import {
   forwardRef,
@@ -11,14 +12,11 @@ import {
   useState,
   type RefObject,
 } from "react";
+import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
+import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/SolidButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-  refreshScrollTriggersDebounced,
-} from "@/lib/scroll-refresh";
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
@@ -81,7 +79,9 @@ function ExperienceMobileCarousel({
     if (!container || container.clientWidth === 0) return;
 
     const index = Math.round(container.scrollLeft / container.clientWidth);
-    setActiveIndex(Math.min(Math.max(index, 0), slides.length - 1));
+    const next = Math.min(Math.max(index, 0), slides.length - 1);
+    // Only re-render when the slide actually changes.
+    setActiveIndex((prev) => (prev === next ? prev : next));
   }, [slides.length]);
 
   const handleScroll = useCallback(() => {
@@ -100,7 +100,7 @@ function ExperienceMobileCarousel({
       left: index * container.clientWidth,
       behavior: "smooth",
     });
-    setActiveIndex(index);
+    setActiveIndex((prev) => (prev === index ? prev : index));
   }, []);
 
   useEffect(() => {
@@ -157,19 +157,16 @@ function ExperienceMobileCarousel({
 
 type ExperienceSectionProps = {
   overlayTargetRef?: RefObject<HTMLElement | null>;
-  overlayReady?: boolean;
 };
 
 export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>(
-  function ExperienceSection(
-    { overlayTargetRef, overlayReady = true },
-    ref,
-  ) {
+  function ExperienceSection({ overlayTargetRef }, ref) {
     const sectionRef = useRef<HTMLElement>(null);
     const darkOverlayRef = useRef<HTMLDivElement>(null);
     const gridRef = useRef<HTMLDivElement>(null);
     const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const imageWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const armed = useNearViewport(sectionRef);
 
     const setSectionRef = (node: HTMLElement | null) => {
       sectionRef.current = node;
@@ -186,9 +183,9 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       ).matches;
 
       if (reducedMotion || !overlayTargetRef) return;
-      if (!overlayReady) return;
+      if (!armed) return;
 
-      ensureScrollTriggerConfig();
+      gsap.registerPlugin(ScrollTrigger);
 
       const ctx = gsap.context(() => {
         const overlay = darkOverlayRef.current;
@@ -206,6 +203,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
             scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            refreshPriority: ST_PRIORITY.experience,
           },
         });
 
@@ -219,7 +217,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
       const overlayEl = overlayTargetRef.current;
       const resizeObserver = new ResizeObserver(() => {
-        refreshScrollTriggersDebounced();
+        refreshScrollTriggers(150);
       });
       if (overlayEl) resizeObserver.observe(overlayEl);
 
@@ -229,7 +227,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         resizeObserver.disconnect();
         ctx.revert();
       };
-    }, [overlayTargetRef, overlayReady]);
+    }, [overlayTargetRef, armed]);
 
     useEffect(() => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -305,13 +303,12 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         <div
           ref={darkOverlayRef}
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 bg-black"
+          className="pointer-events-none absolute inset-0 z-20 bg-black opacity-0"
         />
 
         <div className="relative z-10 shrink-0 px-5 py-12 md:px-8 md:py-20">
           <div className="space-y-6">
             <H2
-              ready={overlayReady}
               triggerRef={sectionRef}
               triggerStart="top 82%"
               className="uppercase text-forest-green"
