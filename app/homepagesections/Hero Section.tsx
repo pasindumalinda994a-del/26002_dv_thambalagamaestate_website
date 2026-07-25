@@ -8,7 +8,6 @@ import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
-import { ensureScrollTriggerConfig } from "@/lib/scroll-refresh";
 
 const VIDEO_SRC = "/videos/Hero%20Section%20Bg2.mp4";
 const POSTER_SRC = "/main%20images/Hero%20Poster.webp";
@@ -16,7 +15,6 @@ const POSTER_SRC = "/main%20images/Hero%20Poster.webp";
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const videoWrapRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const pRef = useRef<HTMLParagraphElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -25,7 +23,7 @@ export function HeroSection() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    ensureScrollTriggerConfig();
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       gsap.set(videoWrapRef.current, { transformOrigin: "center center" });
@@ -64,36 +62,17 @@ export function HeroSection() {
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    const section = sectionRef.current;
-    if (!video || !section) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.some((entry) => entry.isIntersecting);
-        if (visible) {
-          void video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      },
-      { threshold: 0.05 },
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section
       ref={sectionRef}
       aria-label="Hero"
       className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
-      <div ref={videoWrapRef} className="absolute inset-0 overflow-hidden">
+      <div
+        ref={videoWrapRef}
+        className="absolute inset-0 overflow-hidden"
+      >
         <video
-          ref={videoRef}
           autoPlay
           muted
           loop

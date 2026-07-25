@@ -1,7 +1,7 @@
 "use client";
 
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { CTASection } from "./CTASection";
 import { ExperienceSection } from "./Experience Section";
 import { FooterSection } from "./Footer Section";
@@ -18,7 +18,7 @@ function useOverlayReady(ref: RefObject<HTMLElement | null>) {
     const markReady = () => {
       if (el.offsetHeight > 0) {
         setReady(true);
-        refreshScrollTriggers();
+        ScrollTrigger.refresh();
         return true;
       }
       return false;

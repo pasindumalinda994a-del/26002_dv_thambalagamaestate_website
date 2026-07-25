@@ -177,24 +177,16 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     let marker: import("mapbox-gl").Marker | null = null;
     let markerPulseTween: gsap.core.Timeline | null = null;
     let sizeObserver: ResizeObserver | null = null;
-    let nearObserver: IntersectionObserver | null = null;
     let visibilityObserver: IntersectionObserver | null = null;
-    let initialized = false;
 
     const handleResize = () => {
       map?.resize();
     };
 
     const initMap = async () => {
-      if (
-        cancelled ||
-        initialized ||
-        mapRef.current ||
-        !hasMapContainerSize(container)
-      ) {
+      if (cancelled || mapRef.current || !hasMapContainerSize(container)) {
         return;
       }
-      initialized = true;
 
       const mapboxgl = (await import("mapbox-gl")).default;
       await import("mapbox-gl/dist/mapbox-gl.css");
@@ -251,10 +243,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
       if (section) {
         visibilityObserver = new IntersectionObserver(
           (entries) => {
-            const visible = entries.some((entry) => entry.isIntersecting);
-            if (!map) return;
-            if (visible) {
-              map.triggerRepaint();
+            if (entries.some((entry) => entry.isIntersecting)) {
               requestAnimationFrame(handleResize);
             }
           },
@@ -266,35 +255,17 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
       requestAnimationFrame(handleResize);
     };
 
-    const tryInitWhenSized = () => {
-      if (!hasMapContainerSize(container)) {
-        sizeObserver = new ResizeObserver(() => {
-          if (hasMapContainerSize(container)) {
-            sizeObserver?.disconnect();
-            sizeObserver = null;
-            void initMap();
-          }
-        });
-        sizeObserver.observe(container);
-        return;
-      }
+    if (hasMapContainerSize(container)) {
       void initMap();
-    };
-
-    // Defer Mapbox until the section is near the viewport — saves GPU during earlier scroll.
-    if (section) {
-      nearObserver = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          nearObserver?.disconnect();
-          nearObserver = null;
-          tryInitWhenSized();
-        },
-        { rootMargin: "40% 0px", threshold: 0 },
-      );
-      nearObserver.observe(section);
     } else {
-      tryInitWhenSized();
+      sizeObserver = new ResizeObserver(() => {
+        if (hasMapContainerSize(container)) {
+          sizeObserver?.disconnect();
+          sizeObserver = null;
+          void initMap();
+        }
+      });
+      sizeObserver.observe(container);
     }
 
     return () => {
@@ -302,7 +273,6 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
       window.removeEventListener("resize", handleResize);
       ScrollTrigger.removeEventListener("refresh", handleResize);
       sizeObserver?.disconnect();
-      nearObserver?.disconnect();
       visibilityObserver?.disconnect();
       markerPulseTween?.kill();
       marker?.remove();

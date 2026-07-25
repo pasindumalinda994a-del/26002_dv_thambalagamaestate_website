@@ -10,7 +10,6 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
@@ -81,7 +80,9 @@ export const H2 = forwardRef<HTMLHeadingElement, H2Props>(
         });
       }, headingRef);
 
-      refreshScrollTriggers();
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
 
       return () => {
         ctx.revert();

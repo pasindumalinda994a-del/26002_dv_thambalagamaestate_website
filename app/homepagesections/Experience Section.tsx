@@ -1,6 +1,7 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import {
   forwardRef,
@@ -14,11 +15,6 @@ import {
 import { Button } from "../components/SolidButton";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-  refreshScrollTriggersDebounced,
-} from "@/lib/scroll-refresh";
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
@@ -188,7 +184,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       if (reducedMotion || !overlayTargetRef) return;
       if (!overlayReady) return;
 
-      ensureScrollTriggerConfig();
+      gsap.registerPlugin(ScrollTrigger);
 
       const ctx = gsap.context(() => {
         const overlay = darkOverlayRef.current;
@@ -219,11 +215,13 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
       const overlayEl = overlayTargetRef.current;
       const resizeObserver = new ResizeObserver(() => {
-        refreshScrollTriggersDebounced();
+        ScrollTrigger.refresh();
       });
       if (overlayEl) resizeObserver.observe(overlayEl);
 
-      refreshScrollTriggers();
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
 
       return () => {
         resizeObserver.disconnect();

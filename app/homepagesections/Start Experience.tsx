@@ -1,12 +1,12 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 
 const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
@@ -29,7 +29,7 @@ export function StartExperience() {
     if (entered) {
       document.body.style.overflow = "";
       lenis?.start();
-      refreshScrollTriggers();
+      ScrollTrigger.refresh();
       return;
     }
 

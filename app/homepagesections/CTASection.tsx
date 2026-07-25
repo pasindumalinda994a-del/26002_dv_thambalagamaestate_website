@@ -6,10 +6,6 @@ import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
-import {
-  ensureScrollTriggerConfig,
-  refreshScrollTriggers,
-} from "@/lib/scroll-refresh";
 const BG_SRC = "/main%20images/CTA%20Section%20Bg.webp";
 
 const HEADLINE_CLASS =
@@ -55,7 +51,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
     const bgContainer = bgContainerRef.current;
     if (!section || !bgContainer) return;
 
-    ensureScrollTriggerConfig();
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       gsap.set(bgContainer, {
@@ -157,7 +153,9 @@ export function CTASection({ ready = true }: CTASectionProps) {
       }
     }, section);
 
-    refreshScrollTriggers();
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
 
     return () => ctx.revert();
   }, [ready]);
@@ -179,7 +177,7 @@ export function CTASection({ ready = true }: CTASectionProps) {
             fill
             sizes="100vw"
             className="object-cover"
-            onLoad={() => refreshScrollTriggers()}
+            onLoad={() => ScrollTrigger.refresh()}
           />
           <div aria-hidden className="absolute inset-0 bg-black/29" />
         </div>
