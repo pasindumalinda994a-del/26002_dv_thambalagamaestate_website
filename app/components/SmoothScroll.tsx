@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ReactLenis, useLenis } from "lenis/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { LENIS_OPTIONS } from "@/lib/lenis-config";
+import { ensureScrollTriggerConfig } from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,6 +37,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
+    ensureScrollTriggerConfig();
     setReduceMotion(
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     );

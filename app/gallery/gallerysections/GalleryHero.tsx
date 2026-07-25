@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { H1 } from "../../components/H1";
 import { ScrollDownHint } from "../../components/ScrollDownHint";
 import type { GalleryDisplayImage } from "@/lib/gallery/types";
@@ -319,7 +320,7 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
 
     const refresh = () => {
       measure();
-      ScrollTrigger.refresh();
+      refreshScrollTriggers();
     };
     window.addEventListener("load", refresh);
     window.addEventListener("resize", refresh);

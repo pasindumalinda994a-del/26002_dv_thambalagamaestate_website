@@ -1,10 +1,10 @@
 "use client";
 
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
 
@@ -29,7 +29,7 @@ export function StartExperience() {
     if (entered) {
       document.body.style.overflow = "";
       lenis?.start();
-      ScrollTrigger.refresh();
+      refreshScrollTriggers();
       return;
     }
 

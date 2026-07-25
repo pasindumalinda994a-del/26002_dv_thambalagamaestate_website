@@ -1,14 +1,15 @@
 "use client";
 
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { CTASection } from "./CTASection";
 import { ExperienceSection } from "./Experience Section";
 import { FooterSection } from "./Footer Section";
 import { ForestSection } from "./Forest Section";
 import { LocationSection } from "./LocationSection";
 
-function useOverlayReady(ref: RefObject<HTMLElement | null>) {
+/** True once Location has layout size — used only to boot Mapbox safely. */
+function useMapContainerReady(ref: RefObject<HTMLElement | null>) {
   const [ready, setReady] = useState(false);
 
   useLayoutEffect(() => {
@@ -18,7 +19,7 @@ function useOverlayReady(ref: RefObject<HTMLElement | null>) {
     const markReady = () => {
       if (el.offsetHeight > 0) {
         setReady(true);
-        ScrollTrigger.refresh();
+        refreshScrollTriggers();
         return true;
       }
       return false;
@@ -40,22 +41,17 @@ function useOverlayReady(ref: RefObject<HTMLElement | null>) {
 export function ForestExperienceLocationStack() {
   const experienceRef = useRef<HTMLElement>(null);
   const locationRef = useRef<HTMLElement>(null);
-  const experienceReady = useOverlayReady(experienceRef);
-  const locationReady = useOverlayReady(locationRef);
+  const stackReady = useMapContainerReady(locationRef);
 
   return (
     <div className="relative isolate">
-      <ForestSection
-        overlayTargetRef={experienceRef}
-        overlayReady={experienceReady}
-      />
+      <ForestSection overlayTargetRef={experienceRef} />
       <ExperienceSection
         ref={experienceRef}
         overlayTargetRef={locationRef}
-        overlayReady={locationReady}
       />
-      <LocationSection ref={locationRef} ready={locationReady} />
-      <CTASection ready={locationReady} />
+      <LocationSection ref={locationRef} ready={stackReady} />
+      <CTASection />
       <FooterSection />
     </div>
   );

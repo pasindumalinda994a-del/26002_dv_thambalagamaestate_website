@@ -6,6 +6,8 @@ import { type ComponentProps, forwardRef, useEffect, useRef } from "react";
 
 gsap.registerPlugin(SplitText);
 
+const MOBILE_MQ = "(max-width: 767px)";
+
 export type H1Props = ComponentProps<"h1"> & {
   animate?: boolean;
   revealDelay?: number;
@@ -30,6 +32,7 @@ export const H1 = forwardRef<HTMLHeadingElement, H1Props>(
       if (!headingRef.current || !animate) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+      const useBlur = !window.matchMedia(MOBILE_MQ).matches;
       let split: SplitText | undefined;
 
       const ctx = gsap.context(() => {
@@ -43,14 +46,16 @@ export const H1 = forwardRef<HTMLHeadingElement, H1Props>(
             gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
             gsap.set(self.chars, {
               y: 200,
-              filter: "blur(20px)",
               opacity: 0.2,
+              ...(useBlur
+                ? { filter: "blur(20px)" }
+                : { filter: "none" }),
             });
 
             return gsap.to(self.chars, {
               y: 0,
-              filter: "blur(0px)",
               opacity: 1,
+              ...(useBlur ? { filter: "blur(0px)" } : { filter: "none" }),
               duration: 1.8,
               ease: "power4.out",
               stagger,
