@@ -33,7 +33,7 @@ type ExperienceImage = {
 
 const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
-    src: "/homeimages/waterfallexperience1.jpeg",
+    src: "/homepageimages/experience-waterfall-pools.jpeg",
     alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
     heading: (
       <>
@@ -44,7 +44,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homeimages/guidedexperience1.jpeg",
+    src: "/homepageimages/experience-guided-trails.jpeg",
     alt: "Guided trail winding through lush Sinharaja rainforest",
     heading: (
       <>
@@ -55,7 +55,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homeimages/diningexperience1.jpeg",
+    src: "/homepageimages/experience-private-dining.jpeg",
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: (
       <>
@@ -334,7 +334,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative -mt-[100vh] z-30 flex min-h-screen flex-col overflow-hidden bg-cream"
+        className="relative z-30 flex min-h-screen flex-col overflow-hidden bg-cream md:-mt-[100vh]"
       >
         <div
           ref={darkOverlayRef}

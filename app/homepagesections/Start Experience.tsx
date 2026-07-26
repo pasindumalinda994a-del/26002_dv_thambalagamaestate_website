@@ -8,10 +8,10 @@ import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { Paragraph } from "../components/Paragraph";
 
-const BG_SRC = "/main%20images/Start%20Experience%20BG.webp";
+const BG_SRC = "/homepageimages/start-experience-bg.webp";
 const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
-const CLOUD_LEFT_SRC = "/secondary%20images/Cloude%20Left.png";
-const CLOUD_RIGHT_SRC = "/secondary%20images/Cloude%20Right.png";
+const CLOUD_LEFT_SRC = "/homepageimages/start-experience-cloud-left.png";
+const CLOUD_RIGHT_SRC = "/homepageimages/start-experience-cloud-right.png";
 
 export function StartExperience() {
   const lenis = useLenis();

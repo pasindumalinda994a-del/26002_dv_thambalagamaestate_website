@@ -4,7 +4,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
-import { useLayoutEffect, useRef, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { GlassyButton } from "../components/GlassyButton";
@@ -17,7 +22,7 @@ const FOREST_CTA = {
 
 const SLIDES = [
   {
-    bg: "/homeimages/forestexperience1.jpeg",
+    bg: "/homepageimages/forest-slide-estate-bg.jpeg",
     heading: (
       <>
         An exclusive estate bordering
@@ -29,7 +34,7 @@ const SLIDES = [
     ),
   },
   {
-    bg: "/homeimages/waterfallexperience2.jpeg",
+    bg: "/homepageimages/forest-slide-waterfalls-bg.jpeg",
     heading: (
       <>
         Two private waterfalls
@@ -39,7 +44,7 @@ const SLIDES = [
     ),
   },
   {
-    bg: "/homeimages/forestimage3.jpg",
+    bg: "/homepageimages/forest-slide-trails-bg.jpg",
     heading: (
       <>
         Guided rainforest trails
@@ -51,6 +56,9 @@ const SLIDES = [
     ),
   },
 ] as const;
+
+const LAST_SLIDE_INDEX = SLIDES.length - 1;
+const MOBILE_SLIDE_DURATION = 0.9;
 
 function clipPathFromProgress(t: number) {
   const x = Math.max(0, Math.min(100, t * 100));
@@ -82,27 +90,12 @@ function slideClipPath(globalProgress: number, index: number) {
   return clipPathFromProgress(t);
 }
 
-/** Mobile-only: dissolve upper layers instead of clip-path.
- *  `MOBILE_CROSSFADE_SPAN` is the fraction of each slide step used for the fade
- *  (1 = full step like desktop wipe; lower = snappier crossfade). */
-const MOBILE_CROSSFADE_SPAN = 0.45;
-
-function slideCrossfadeOpacity(globalProgress: number, index: number) {
-  if (index === SLIDES.length - 1) return 1;
-
-  const step = 1 / (SLIDES.length - 1);
-  const exitStart = step * index;
-  const exitEnd = step * (index + 1);
-
-  if (globalProgress <= exitStart) return 1;
-  if (globalProgress >= exitEnd) return 0;
-
-  const localT = (globalProgress - exitStart) / step;
-  const fadeT = Math.min(1, localT / MOBILE_CROSSFADE_SPAN);
-  return 1 - fadeT;
-}
-
 const MOBILE_MQ = "(max-width: 767px)";
+
+function progressFromIndex(index: number) {
+  if (LAST_SLIDE_INDEX <= 0) return 0;
+  return index / LAST_SLIDE_INDEX;
+}
 
 function slideZIndex(index: number) {
   return SLIDES.length - 1 - index;
@@ -251,6 +244,43 @@ function headingCharState(
   }
 }
 
+function ArrowLeftIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+const MOBILE_ARROW_BTN =
+  "pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center border border-cream/55 bg-black/40 text-cream backdrop-blur-[10px] transition-opacity disabled:pointer-events-none disabled:opacity-30";
+
 type ForestSectionProps = {
   overlayTargetRef?: RefObject<HTMLElement | null>;
 };
@@ -271,39 +301,76 @@ export function ForestSection({
   const slide0Revealed = useRef(false);
   const slideProgressRef = useRef(0);
   const introProgressRef = useRef(0);
+  const slideIndexRef = useRef(0);
+  const isTransitioningRef = useRef(false);
+  const goToSlideRef = useRef<(index: number) => void>(() => {});
   const armed = useNearViewport(sectionRef);
+
+  const [isMobileLayout, setIsMobileLayout] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [slideNavReady, setSlideNavReady] = useState(false);
+
+  useLayoutEffect(() => {
+    const mobileQuery = window.matchMedia(MOBILE_MQ);
+    const sync = () => setIsMobileLayout(mobileQuery.matches);
+    sync();
+    mobileQuery.addEventListener("change", sync);
+    return () => mobileQuery.removeEventListener("change", sync);
+  }, []);
 
   useLayoutEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const isMobile = isMobileLayout;
 
-    const mobileQuery = window.matchMedia(MOBILE_MQ);
+    const applyStaticSlides = (index: number) => {
+      const progress = progressFromIndex(index);
+      slideProgressRef.current = progress;
+      progressFillRef.current?.style.setProperty(
+        "width",
+        `${progress * 100}%`,
+      );
+      slideRefs.current.forEach((slide, slideIndex) => {
+        if (!slide) return;
+        slide.style.opacity = "1";
+        slide.style.clipPath = slideClipPath(progress, slideIndex);
+      });
+    };
 
     if (reducedMotion) {
-      const isMobile = mobileQuery.matches;
-      slideRefs.current.forEach((slide, index) => {
-        if (!slide) return;
-        if (isMobile) {
-          slide.style.clipPath = "none";
-          slide.style.opacity = index === 0 ? "1" : "0";
-        } else {
-          slide.style.opacity = "1";
-          slide.style.clipPath =
-            index === 0
-              ? "polygon(0 0, 100% 0, 100% 100%, 0 100%)"
-              : "polygon(0 0, 0 0, 0 100%, 0 100%)";
-        }
-      });
-      progressFillRef.current?.style.setProperty("width", "0%");
+      slideIndexRef.current = 0;
+      setActiveSlide(0);
+      applyStaticSlides(0);
       if (ctaWrapRef.current) ctaWrapRef.current.style.opacity = "1";
-      return;
+
+      if (isMobile) {
+        goToSlideRef.current = (index: number) => {
+          if (index < 0 || index > LAST_SLIDE_INDEX) return;
+          if (index === slideIndexRef.current) return;
+          slideIndexRef.current = index;
+          setActiveSlide(index);
+          applyStaticSlides(index);
+        };
+        setSlideNavReady(true);
+      } else {
+        goToSlideRef.current = () => {};
+        setSlideNavReady(false);
+      }
+
+      return () => {
+        goToSlideRef.current = () => {};
+        setSlideNavReady(false);
+      };
     }
 
     // Defer the SplitText + pin graph until the section is near the viewport.
     if (!armed) return;
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
+
+    const progressProxy = { progress: 0 };
+    let slideTween: gsap.core.Tween | null = null;
 
     const revertContentAnimations = () => {
       headingSplits.current.forEach((split) => split?.revert());
@@ -319,7 +386,7 @@ export function ForestSection({
         gsap.set(split.masks, { height: "1.15em", overflow: "clip" });
       }
 
-      const useBlur = !mobileQuery.matches;
+      const useBlur = !isMobile;
       const count = chars.length;
       chars.forEach((char, charIndex) => {
         gsap.set(char, headingCharState(phase, charIndex, count, useBlur));
@@ -351,17 +418,10 @@ export function ForestSection({
       slideProgressRef.current = progress;
       progressFillRef.current?.style.setProperty("width", `${progress * 100}%`);
 
-      const isMobile = mobileQuery.matches;
-
       slideRefs.current.forEach((slide, index) => {
         if (!slide) return;
-        if (isMobile) {
-          slide.style.clipPath = "none";
-          slide.style.opacity = String(slideCrossfadeOpacity(progress, index));
-        } else {
-          slide.style.opacity = "1";
-          slide.style.clipPath = slideClipPath(progress, index);
-        }
+        slide.style.opacity = "1";
+        slide.style.clipPath = slideClipPath(progress, index);
       });
 
       slideImageRefs.current.forEach((imageWrap, index) => {
@@ -380,9 +440,31 @@ export function ForestSection({
       updateHeadingChars(progress);
     };
 
-    const ctx = gsap.context(() => {
-      const isMobile = mobileQuery.matches;
+    const goToSlide = (index: number) => {
+      if (!isMobile) return;
+      if (index < 0 || index > LAST_SLIDE_INDEX) return;
+      if (isTransitioningRef.current) return;
+      if (index === slideIndexRef.current) return;
 
+      const target = progressFromIndex(index);
+      isTransitioningRef.current = true;
+      slideTween?.kill();
+      slideTween = gsap.to(progressProxy, {
+        progress: target,
+        duration: MOBILE_SLIDE_DURATION,
+        ease: "power2.inOut",
+        onUpdate: () => updateSlides(progressProxy.progress),
+        onComplete: () => {
+          isTransitioningRef.current = false;
+          slideIndexRef.current = index;
+          setActiveSlide(index);
+        },
+      });
+    };
+
+    goToSlideRef.current = goToSlide;
+
+    const ctx = gsap.context(() => {
       slideImageRefs.current.forEach((imageWrap, index) => {
         if (!imageWrap) return;
 
@@ -391,7 +473,8 @@ export function ForestSection({
           scale: isMobile ? 1 : 1.2,
         });
 
-        if (index === 0) {
+        // Desktop intro scrub only — mobile reveals content immediately.
+        if (index === 0 && !isMobile) {
           const introScrollTrigger: ScrollTrigger.Vars = {
             trigger: sectionRef.current,
             start: "top bottom",
@@ -418,40 +501,36 @@ export function ForestSection({
             },
           };
 
-          if (isMobile) {
-            ScrollTrigger.create(introScrollTrigger);
-          } else {
-            gsap.to(imageWrap, {
-              scale: 1,
-              ease: "power2.in",
-              scrollTrigger: introScrollTrigger,
-            });
-          }
+          gsap.to(imageWrap, {
+            scale: 1,
+            ease: "power2.in",
+            scrollTrigger: introScrollTrigger,
+          });
         }
       });
 
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: () => `+=${getSlideScrollDistance() + window.innerHeight}`,
-        pin: pinRef.current,
-        pinSpacing: true,
-        scrub: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        refreshPriority: ST_PRIORITY.forest,
-        onUpdate: (self) => {
-          const slideDistance = getSlideScrollDistance();
-          const overlay = window.innerHeight;
-          const total = slideDistance + overlay;
-          const slidePortion = total > 0 ? slideDistance / total : 1;
-          const slideProgress = Math.min(1, self.progress / slidePortion);
-          updateSlides(slideProgress);
-        },
-      });
-
-      // Desktop-only approach parallax — same tick as ScrollTrigger (no window scroll loop).
       if (!isMobile) {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top top",
+          end: () => `+=${getSlideScrollDistance() + window.innerHeight}`,
+          pin: pinRef.current,
+          pinSpacing: true,
+          scrub: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: ST_PRIORITY.forest,
+          onUpdate: (self) => {
+            const slideDistance = getSlideScrollDistance();
+            const overlay = window.innerHeight;
+            const total = slideDistance + overlay;
+            const slidePortion = total > 0 ? slideDistance / total : 1;
+            const slideProgress = Math.min(1, self.progress / slidePortion);
+            updateSlides(slideProgress);
+          },
+        });
+
+        // Desktop-only approach parallax — same tick as ScrollTrigger.
         const easeReveal = (t: number) => 1 - Math.pow(1 - t, 2.5);
         const parallaxTrigger = {
           trigger: sectionRef.current,
@@ -487,6 +566,10 @@ export function ForestSection({
     revertContentAnimations();
     slide0Revealed.current = false;
     introProgressRef.current = 0;
+    slideIndexRef.current = 0;
+    isTransitioningRef.current = false;
+    progressProxy.progress = 0;
+    setActiveSlide(0);
 
     SLIDES.forEach((_, index) => {
       const element = headingRefs.current[index];
@@ -518,26 +601,31 @@ export function ForestSection({
       headingSplits.current[index] = split ?? null;
     });
 
-    // CTA fades in once on intro, then stays visible through every slide.
-    gsap.set(ctaWrapRef.current, { opacity: 0 });
-
-    updateHeadingChars(0);
+    if (isMobile) {
+      // Mobile: no pin scrub — show slide 0 immediately; arrows drive transitions.
+      gsap.set(ctaWrapRef.current, { opacity: 1 });
+      revealSlide0Content();
+      updateSlides(0);
+      setSlideNavReady(true);
+    } else {
+      // CTA fades in once on intro, then stays visible through every slide.
+      gsap.set(ctaWrapRef.current, { opacity: 0 });
+      updateHeadingChars(0);
+      setSlideNavReady(false);
+    }
 
     refreshScrollTriggers();
 
-    const onBreakpointChange = () => {
-      updateSlides(slideProgressRef.current);
-      refreshScrollTriggers();
-    };
-    mobileQuery.addEventListener("change", onBreakpointChange);
-
     return () => {
-      mobileQuery.removeEventListener("change", onBreakpointChange);
+      slideTween?.kill();
+      goToSlideRef.current = () => {};
+      setSlideNavReady(false);
       revertContentAnimations();
       slide0Revealed.current = false;
+      isTransitioningRef.current = false;
       ctx.revert();
     };
-  }, [armed]);
+  }, [armed, isMobileLayout]);
 
   // Overlay observer only — does not rebuild SplitText / pin graph.
   useLayoutEffect(() => {
@@ -551,6 +639,9 @@ export function ForestSection({
 
     return () => resizeObserver.disconnect();
   }, [overlayTargetRef]);
+
+  const canGoPrev = activeSlide > 0;
+  const canGoNext = activeSlide < LAST_SLIDE_INDEX;
 
   return (
     <section ref={sectionRef} aria-label="Forest" className="relative z-[1]">
@@ -628,6 +719,29 @@ export function ForestSection({
             </div>
           </div>
         </div>
+
+        {isMobileLayout && slideNavReady ? (
+          <div className="pointer-events-none absolute inset-y-0 inset-x-0 z-40 flex items-center justify-between px-5 md:hidden">
+            <button
+              type="button"
+              aria-label="Previous slide"
+              disabled={!canGoPrev}
+              onClick={() => goToSlideRef.current(activeSlide - 1)}
+              className={MOBILE_ARROW_BTN}
+            >
+              <ArrowLeftIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              disabled={!canGoNext}
+              onClick={() => goToSlideRef.current(activeSlide + 1)}
+              className={MOBILE_ARROW_BTN}
+            >
+              <ArrowRightIcon />
+            </button>
+          </div>
+        ) : null}
 
         <div
           className="absolute inset-x-0 bottom-8 z-30 px-5 md:px-8"

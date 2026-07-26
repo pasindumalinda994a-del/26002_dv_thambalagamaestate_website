@@ -9,7 +9,7 @@ import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
 
-const BG_SRC = "/homeimages/CTAbg1.jpeg";
+const BG_SRC = "/homepageimages/cta-bg.jpeg";
 const MOBILE_MQ = "(max-width: 767px)";
 
 const HEADLINE_CLASS =
@@ -185,7 +185,7 @@ export function CTASection() {
     <section
       ref={sectionRef}
       aria-label="Call to action"
-      className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-deep-forest"
+      className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-cream"
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <div ref={bgContainerRef} className="absolute inset-0">
