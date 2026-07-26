@@ -1,6 +1,7 @@
 "use client";
 
 import gsap from "gsap";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 type ScrollDownHintProps = {
@@ -10,7 +11,7 @@ type ScrollDownHintProps = {
 
 export function ScrollDownHint({
   className,
-  label = "Scroll to experience",
+  label = "Scroll to explore",
 }: ScrollDownHintProps) {
   const iconRef = useRef<HTMLSpanElement>(null);
 
@@ -34,32 +35,23 @@ export function ScrollDownHint({
     <div
       aria-hidden
       className={[
-        "pointer-events-none flex flex-col items-center gap-3 text-cream/65",
+        "pointer-events-none flex flex-col items-center gap-3 text-cream",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <span className="font-secondary text-[10px] font-medium uppercase tracking-[0.28em] md:text-[11px]">
+      <span className="font-secondary text-[14px] font-medium uppercase tracking-[0.14em]">
         {label}
       </span>
-      <span ref={iconRef} className="flex flex-col items-center gap-1.5">
-        <span className="h-7 w-px bg-cream/45 md:h-8" />
-        <svg
-          width={12}
-          height={8}
-          viewBox="0 0 12 8"
-          fill="none"
+      <span ref={iconRef} className="inline-flex shrink-0">
+        <Image
+          src="/Icons/bi_arrow-up.svg"
+          alt=""
+          width={38}
+          height={38}
           className="shrink-0"
-        >
-          <path
-            d="M1 1.5L6 6.5L11 1.5"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        />
       </span>
     </div>
   );

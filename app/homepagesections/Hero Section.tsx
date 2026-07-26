@@ -3,7 +3,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
@@ -11,8 +11,7 @@ import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
-const VIDEO_SRC = "/videos/Hero%20Section%20Bg2.mp4";
-const POSTER_SRC = "/main%20images/Hero%20Poster.webp";
+const HERO_BG_SRC = "/homepageimages/hero-mobile-bg1.jpeg";
 const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
@@ -23,16 +22,6 @@ export function HeroSection() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
-  // Default to image so mobile never mounts <video>; desktop upgrades after mount.
-  const [useVideo, setUseVideo] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(MOBILE_MQ);
-    const sync = () => setUseVideo(!mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -93,32 +82,20 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       aria-label="Hero"
-      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
+      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-deep-forest"
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
-        {useVideo ? (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={POSTER_SRC}
-            preload="metadata"
-            className="h-full w-full object-cover"
-            src={VIDEO_SRC}
-          />
-        ) : (
-          <Image
-            src={POSTER_SRC}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        )}
+        <Image
+          src={HERO_BG_SRC}
+          alt=""
+          fill
+          priority
+          quality={90}
+          sizes="100vw"
+          className="object-cover"
+        />
 
-        <div aria-hidden className="absolute inset-0 bg-black/29" />
+        <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center px-6 pb-20 text-center md:pb-24">

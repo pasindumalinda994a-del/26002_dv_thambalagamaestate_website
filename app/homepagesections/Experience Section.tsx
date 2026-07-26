@@ -10,6 +10,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ReactNode,
   type RefObject,
 } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
@@ -23,32 +24,56 @@ const REST_GROW = 1;
 const HOVER_DURATION = 0.7;
 const HOVER_EASE = "power3.inOut";
 
-const EXPERIENCE_IMAGES = [
+type ExperienceImage = {
+  src: string;
+  alt: string;
+  heading?: ReactNode;
+  caption?: string;
+};
+
+const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
-    src: "/main%20images/Experience%20Image%204.webp",
-    alt: "Silky waterfall cascading over mossy rocks in the forest",
-    caption:
-      "Secluded cascades and natural pools, reserved entirely for estate guests.",
+    src: "/homepageimages/experience-waterfall-pools.jpeg",
+    alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
+    heading: (
+      <>
+        Forest bathing by private
+        <br />
+        waterfalls and pools.
+      </>
+    ),
   },
   {
-    src: "/main%20images/Experience%20Image%205.webp",
-    alt: "Curated estate dining spread with rice and local dishes",
-    caption:
-      "Curated menus shaped around local harvests and your own preferences.",
+    src: "/homepageimages/experience-guided-trails.jpeg",
+    alt: "Guided trail winding through lush Sinharaja rainforest",
+    heading: (
+      <>
+        Guided trails through the
+        <br />
+        estate and Sinharaja.
+      </>
+    ),
   },
   {
-    src: "/main%20images/Experience%20Image%206.webp",
-    alt: "Wildlife photographer with a telephoto lens in the jungle",
-    caption:
-      "Guided forest walks for birders, photographers, and quiet observation.",
+    src: "/homepageimages/experience-private-dining.jpeg",
+    alt: "Private chef grilling skewers and corn over an outdoor barbecue",
+    heading: (
+      <>
+        Bespoke dining prepared by a
+        <br />
+        private chef.
+      </>
+    ),
   },
-] as const;
+];
 
 function ExperienceImageCaption({
+  heading,
   caption,
   showOnHover = true,
 }: {
-  caption: string;
+  heading?: ReactNode;
+  caption?: string;
   showOnHover?: boolean;
 }) {
   return (
@@ -58,9 +83,15 @@ function ExperienceImageCaption({
         showOnHover ? "opacity-0 group-hover:opacity-100" : "opacity-100",
       ].join(" ")}
     >
-      <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
-        {caption}
-      </Paragraph>
+      {heading ? (
+        <H2 animate={false} className="max-w-[min(48rem,96%)] uppercase text-cream">
+          {heading}
+        </H2>
+      ) : caption ? (
+        <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
+          {caption}
+        </Paragraph>
+      ) : null}
     </div>
   );
 }
@@ -68,7 +99,7 @@ function ExperienceImageCaption({
 function ExperienceMobileCarousel({
   slides,
 }: {
-  slides: typeof EXPERIENCE_IMAGES;
+  slides: ExperienceImage[];
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -130,8 +161,13 @@ function ExperienceMobileCarousel({
               fill
               className="object-cover"
               sizes="100vw"
+              quality={90}
             />
-            <ExperienceImageCaption caption={slide.caption} showOnHover={false} />
+            <ExperienceImageCaption
+              heading={slide.heading}
+              caption={slide.caption}
+              showOnHover={false}
+            />
           </div>
         ))}
       </div>
@@ -298,7 +334,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative -mt-[100vh] z-30 flex min-h-screen flex-col overflow-hidden bg-cream"
+        className="relative z-30 flex min-h-screen flex-col overflow-hidden bg-cream md:-mt-[100vh]"
       >
         <div
           ref={darkOverlayRef}
@@ -352,10 +388,14 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                     alt={image.alt}
                     fill
                     className="object-cover"
-                    sizes="33vw"
+                    sizes="(min-width: 768px) 75vw, 100vw"
+                    quality={90}
                   />
                 </div>
-                <ExperienceImageCaption caption={image.caption} />
+                <ExperienceImageCaption
+                  heading={image.heading}
+                  caption={image.caption}
+                />
               </div>
             ))}
           </div>
