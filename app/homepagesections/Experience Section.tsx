@@ -33,38 +33,35 @@ type ExperienceImage = {
 
 const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
-    src: "/main%20images/Experience%20Image%204.webp",
-    alt: "Silky waterfall cascading over mossy rocks in the forest",
+    src: "/homeimages/waterfallexperience1.jpeg",
+    alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
     heading: (
       <>
-        Bespoke dining prepared
+        Forest bathing by private
         <br />
-        by a private estate chef.
+        waterfalls and pools.
       </>
     ),
   },
   {
-    src: "/main%20images/Experience%20Image%205.webp",
-    alt: "Curated estate dining spread with rice and local dishes",
+    src: "/homeimages/guidedexperience1.jpeg",
+    alt: "Guided trail winding through lush Sinharaja rainforest",
     heading: (
       <>
-        Exclusive uninterrupted
+        Guided trails through the
         <br />
-        retreats for up to eighteen guests.
-        <br />
-        
+        estate and Sinharaja.
       </>
     ),
   },
   {
-    src: "/main%20images/Experience%20Image%206.webp",
-    alt: "Wildlife photographer with a telephoto lens in the jungle",
+    src: "/homeimages/diningexperience1.jpeg",
+    alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: (
       <>
-        Exclusive uninterrupted
+        Bespoke dining prepared by a
         <br />
-        retreats for up to eighteen guests.
-        <br />
+        private chef.
       </>
     ),
   },
@@ -164,6 +161,7 @@ function ExperienceMobileCarousel({
               fill
               className="object-cover"
               sizes="100vw"
+              quality={90}
             />
             <ExperienceImageCaption
               heading={slide.heading}
@@ -390,7 +388,8 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                     alt={image.alt}
                     fill
                     className="object-cover"
-                    sizes="33vw"
+                    sizes="(min-width: 768px) 75vw, 100vw"
+                    quality={90}
                   />
                 </div>
                 <ExperienceImageCaption

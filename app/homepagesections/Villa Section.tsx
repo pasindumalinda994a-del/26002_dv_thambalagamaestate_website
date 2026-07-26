@@ -8,7 +8,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 
-const BG_SRC = "/main%20images/SantuaryBG1.JPG";
+const BG_SRC = "/homeimages/Villabg6.jpeg";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
 const VILLA_FG_TRAVEL = 48; // 240 * 0.2
 const MOBILE_MQ = "(max-width: 767px)";
@@ -21,10 +21,10 @@ const VILLA_FEATURES = [
 ] as const;
 
 const VILLA_GALLERY_IMAGES = [
-  { src: "/main%20images/Villa%20Image%201.webp", alt: "Villa interior view 1" },
-  { src: "/main%20images/Villa%20Image%202.webp", alt: "Villa interior view 2" },
-  { src: "/main%20images/Villa%20Image%203.webp", alt: "Villa interior view 3" },
-  { src: "/main%20images/Villa%20Image%204.webp", alt: "Villa interior view 4" },
+  { src: "/homeimages/VillaGallery1.jpeg", alt: "Villa living room" },
+  { src: "/homeimages/Villagallery2.jpeg", alt: "Villa bedroom" },
+  { src: "/homeimages/VillaGallery3.jpeg", alt: "Villa dining room" },
+  { src: "/homeimages/villagallery6.jpeg", alt: "Villa bathroom" },
 ] as const;
 
 function VillaBackground({

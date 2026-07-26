@@ -17,7 +17,7 @@ const FOREST_CTA = {
 
 const SLIDES = [
   {
-    bg: "/main%20images/Forest%20Section%20Bg%201.webp",
+    bg: "/homeimages/forestexperience1.jpeg",
     heading: (
       <>
         An exclusive estate bordering
@@ -29,7 +29,7 @@ const SLIDES = [
     ),
   },
   {
-    bg: "/main%20images/Forest%20Section%20Bg%202.webp",
+    bg: "/homeimages/waterfallexperience2.jpeg",
     heading: (
       <>
         Two private waterfalls
@@ -39,7 +39,7 @@ const SLIDES = [
     ),
   },
   {
-    bg: "/main%20images/Forest%20Section%20Bg%203.webp",
+    bg: "/homeimages/forestimage3.jpg",
     heading: (
       <>
         Guided rainforest trails
