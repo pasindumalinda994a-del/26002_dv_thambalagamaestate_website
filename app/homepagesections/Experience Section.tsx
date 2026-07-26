@@ -10,6 +10,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ReactNode,
   type RefObject,
 } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
@@ -23,32 +24,59 @@ const REST_GROW = 1;
 const HOVER_DURATION = 0.7;
 const HOVER_EASE = "power3.inOut";
 
-const EXPERIENCE_IMAGES = [
+type ExperienceImage = {
+  src: string;
+  alt: string;
+  heading?: ReactNode;
+  caption?: string;
+};
+
+const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
     src: "/main%20images/Experience%20Image%204.webp",
     alt: "Silky waterfall cascading over mossy rocks in the forest",
-    caption:
-      "Secluded cascades and natural pools, reserved entirely for estate guests.",
+    heading: (
+      <>
+        Bespoke dining prepared
+        <br />
+        by a private estate chef.
+      </>
+    ),
   },
   {
     src: "/main%20images/Experience%20Image%205.webp",
     alt: "Curated estate dining spread with rice and local dishes",
-    caption:
-      "Curated menus shaped around local harvests and your own preferences.",
+    heading: (
+      <>
+        Exclusive uninterrupted
+        <br />
+        retreats for up to eighteen guests.
+        <br />
+        
+      </>
+    ),
   },
   {
     src: "/main%20images/Experience%20Image%206.webp",
     alt: "Wildlife photographer with a telephoto lens in the jungle",
-    caption:
-      "Guided forest walks for birders, photographers, and quiet observation.",
+    heading: (
+      <>
+        Exclusive uninterrupted
+        <br />
+        retreats for up to eighteen guests.
+        <br />
+      </>
+    ),
   },
-] as const;
+];
 
 function ExperienceImageCaption({
+  heading,
   caption,
   showOnHover = true,
 }: {
-  caption: string;
+  heading?: ReactNode;
+  caption?: string;
   showOnHover?: boolean;
 }) {
   return (
@@ -58,9 +86,15 @@ function ExperienceImageCaption({
         showOnHover ? "opacity-0 group-hover:opacity-100" : "opacity-100",
       ].join(" ")}
     >
-      <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
-        {caption}
-      </Paragraph>
+      {heading ? (
+        <H2 animate={false} className="max-w-[min(48rem,96%)] uppercase text-cream">
+          {heading}
+        </H2>
+      ) : caption ? (
+        <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
+          {caption}
+        </Paragraph>
+      ) : null}
     </div>
   );
 }
@@ -68,7 +102,7 @@ function ExperienceImageCaption({
 function ExperienceMobileCarousel({
   slides,
 }: {
-  slides: typeof EXPERIENCE_IMAGES;
+  slides: ExperienceImage[];
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -131,7 +165,11 @@ function ExperienceMobileCarousel({
               className="object-cover"
               sizes="100vw"
             />
-            <ExperienceImageCaption caption={slide.caption} showOnHover={false} />
+            <ExperienceImageCaption
+              heading={slide.heading}
+              caption={slide.caption}
+              showOnHover={false}
+            />
           </div>
         ))}
       </div>
@@ -355,7 +393,10 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                     sizes="33vw"
                   />
                 </div>
-                <ExperienceImageCaption caption={image.caption} />
+                <ExperienceImageCaption
+                  heading={image.heading}
+                  caption={image.caption}
+                />
               </div>
             ))}
           </div>

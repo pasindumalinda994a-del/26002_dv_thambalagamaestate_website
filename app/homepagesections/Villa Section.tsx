@@ -7,12 +7,18 @@ import { useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
-import { Paragraph } from "../components/Paragraph";
 
-const BG_SRC = "/main%20images/Vila%20Section%20BG.webp";
+const BG_SRC = "/main%20images/SantuaryBG1.JPG";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
 const VILLA_FG_TRAVEL = 48; // 240 * 0.2
 const MOBILE_MQ = "(max-width: 767px)";
+
+const VILLA_FEATURES = [
+  "Private bungalow",
+  "Rainforest views",
+  "Up to 18 guests",
+  "Sri Lanka",
+] as const;
 
 const VILLA_GALLERY_IMAGES = [
   { src: "/main%20images/Villa%20Image%201.webp", alt: "Villa interior view 1" },
@@ -220,8 +226,8 @@ export function VillaSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} aria-label="Villa" className="relative">
-      <div className="sticky top-0 h-screen overflow-hidden">
+    <section ref={sectionRef} aria-label="Villa" className="relative bg-deep-forest">
+      <div className="sticky top-0 h-screen overflow-hidden bg-deep-forest">
         <div ref={bgRef} className="absolute inset-0 z-0">
           <VillaBackground
             imageRef={bgImageRef}
@@ -248,21 +254,30 @@ export function VillaSection() {
         </div>
 
         <div ref={contentRef} className="absolute inset-0 z-10">
-          <div className="relative z-10 flex min-h-screen flex-col items-start justify-end pl-4 pb-[78px] md:pl-8 md:pb-[94px]">
-            <H2 className="max-w-6xl uppercase text-cream">
-              Crafted for comfort,
-              <br />
-              surrounded by the wild.
-            </H2>
+          <div className="relative z-10 flex min-h-screen flex-col justify-end gap-10 px-4 pb-[78px] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-[94px]">
+            <div className="flex flex-col items-start">
+              <H2 className="max-w-6xl uppercase text-cream">
+                Crafted for comfort.
+              </H2>
 
-            <Paragraph className="mt-2 max-w-lg text-cream md:mt-4">
-              Expansive private living spaces opening out to a 360-degree
-              panoramic view.
-            </Paragraph>
+              <GlassyButton className="mt-8 md:mt-10" href="/bungalow">
+                Tour the bungalow
+              </GlassyButton>
+            </div>
 
-            <GlassyButton className="mt-10" href="/bungalow">
-              Tour the bungalow
-            </GlassyButton>
+            <ul
+              aria-label="Villa highlights"
+              className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end md:gap-x-8"
+            >
+              {VILLA_FEATURES.map((feature) => (
+                <li
+                  key={feature}
+                  className="font-secondary text-xs font-medium uppercase tracking-[0.15em] text-cream md:text-[13px]"
+                >
+                  {feature}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

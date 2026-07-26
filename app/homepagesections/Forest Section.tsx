@@ -9,38 +9,46 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
-import { Paragraph } from "../components/Paragraph";
+
+const FOREST_CTA = {
+  label: "Explore the forest",
+  href: "/experiences",
+} as const;
 
 const SLIDES = [
   {
     bg: "/main%20images/Forest%20Section%20Bg%201.webp",
     heading: (
       <>
-        Sharing a border with
-        <br />a world heritage site.
+        An exclusive estate bordering
+        <br />
+        the UNESCO Sinharaja
+        <br />
+        Rainforest.
       </>
     ),
-    body:
-      "Thambalagama Estate sits directly on the boundary of the UNESCO Sinharaja Rainforest buffer zone. Located just 7 km (a brief 15-minute drive) from the iconic Lankagama gate, this is not a stay near the forest—it is a stay within its rhythm.",
   },
   {
     bg: "/main%20images/Forest%20Section%20Bg%202.webp",
     heading: (
       <>
-        Two private waterfalls.
+        Two private waterfalls
         <br />
-        One natural pool.
+        and a natural jungle pool.
       </>
     ),
-    body:
-      "Because the forest border runs alongside our grounds, nature bleeds directly into the estate. Guests enjoy completely exclusive access to two private waterfalls and a pristine, natural swimming pool fed entirely by the jungle, located steps from the bungalow.",
   },
   {
     bg: "/main%20images/Forest%20Section%20Bg%203.webp",
-    heading: "An endemic sanctuary.",
-    body:
-      "A paradise for bird watchers, wildlife photographers, and thinkers. Step directly from the balcony into guided trails uncovering over 9 hidden waterfalls and rare endemic species.",
-    cta: { label: "Explore the forest", href: "/experiences" },
+    heading: (
+      <>
+        Guided rainforest trails
+        <br />
+        uncovering rare endemic
+        <br />
+        wildlife species.
+      </>
+    ),
   },
 ] as const;
 
@@ -129,26 +137,11 @@ const HEADING_ENTER_BG_REVEAL = 0.55;
 /** Fraction of an enter/exit phase reserved for char stagger spread. */
 const HEADING_STAGGER_SPAN = 0.28;
 const SLIDE_SCROLL_VH = 280;
-const BODY_ENTER_DURATION = 1.1;
-const BODY_EXIT_DURATION = 0.8;
-const BODY_ENTER_STAGGER = 0.18;
 
 function getSlideScrollDistance() {
   return (
     (SLIDES.length - 1) * (SLIDE_SCROLL_VH / 100) * window.innerHeight
   );
-}
-
-function shouldRevealContent(progress: number, index: number) {
-  if (index === 0) return false;
-  return slideClipT(progress, index - 1) <= 1 - HEADING_ENTER_BG_REVEAL;
-}
-
-function targetContentIndex(progress: number) {
-  for (let i = SLIDES.length - 1; i >= 1; i--) {
-    if (shouldRevealContent(progress, i)) return i;
-  }
-  return 0;
 }
 
 type HeadingPhase = {
@@ -258,19 +251,6 @@ function headingCharState(
   }
 }
 
-function collectSecondaryTargets(
-  bodyRefs: (HTMLParagraphElement | null)[],
-  ctaWrapRefs: (HTMLDivElement | null)[],
-  index: number,
-) {
-  const targets: HTMLElement[] = [];
-  const body = bodyRefs[index];
-  const cta = ctaWrapRefs[index];
-  if (body) targets.push(body);
-  if (cta) targets.push(cta);
-  return targets;
-}
-
 type ForestSectionProps = {
   overlayTargetRef?: RefObject<HTMLElement | null>;
 };
@@ -285,17 +265,10 @@ export function ForestSection({
   const slideBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const slideImageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const contentOverlayRef = useRef<HTMLDivElement>(null);
-  const contentGroupRefs = useRef<(HTMLDivElement | null)[]>([]);
   const headingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
-  const bodyRefs = useRef<(HTMLParagraphElement | null)[]>([]);
-  const ctaWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const ctaWrapRef = useRef<HTMLDivElement>(null);
   const headingSplits = useRef<(SplitText | null)[]>([]);
-  const contentTweens = useRef<(gsap.core.Animation | null)[]>([]);
-  const revealedSlides = useRef(new Set<number>());
   const slide0Revealed = useRef(false);
-  const transitioning = useRef(false);
-  const lastTargetContent = useRef(0);
-  const activeContentIndex = useRef(0);
   const slideProgressRef = useRef(0);
   const introProgressRef = useRef(0);
   const armed = useNearViewport(sectionRef);
@@ -323,19 +296,7 @@ export function ForestSection({
         }
       });
       progressFillRef.current?.style.setProperty("width", "0%");
-      contentGroupRefs.current.forEach((group, index) => {
-        if (!group) return;
-        group.style.opacity = index === 0 ? "1" : "0";
-        group.style.pointerEvents = index === 0 ? "auto" : "none";
-      });
-      bodyRefs.current.forEach((body, index) => {
-        if (!body) return;
-        body.style.opacity = index === 0 ? "1" : "0";
-      });
-      ctaWrapRefs.current.forEach((cta, index) => {
-        if (!cta) return;
-        cta.style.opacity = index === 0 ? "1" : "0";
-      });
+      if (ctaWrapRef.current) ctaWrapRef.current.style.opacity = "1";
       return;
     }
 
@@ -344,14 +305,9 @@ export function ForestSection({
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
 
-    const getSecondary = (index: number) =>
-      collectSecondaryTargets(bodyRefs.current, ctaWrapRefs.current, index);
-
     const revertContentAnimations = () => {
       headingSplits.current.forEach((split) => split?.revert());
       headingSplits.current = [];
-      contentTweens.current.forEach((tween) => tween?.kill());
-      contentTweens.current = [];
     };
 
     const applyHeadingChars = (index: number, phase: HeadingPhase) => {
@@ -387,96 +343,8 @@ export function ForestSection({
     const revealSlide0Content = () => {
       if (slide0Revealed.current) return;
       slide0Revealed.current = true;
-
-      const target = targetContentIndex(slideProgressRef.current);
-      if (target > 0) {
-        transitionToContent(target);
-      } else {
-        playContentEnter(0);
-      }
+      gsap.set(ctaWrapRef.current, { opacity: 1 });
       updateHeadingChars(slideProgressRef.current);
-    };
-
-    const playContentEnter = (index: number) => {
-      const group = contentGroupRefs.current[index];
-      if (!group || revealedSlides.current.has(index)) return;
-
-      contentTweens.current[index]?.kill();
-
-      const secondary = getSecondary(index);
-      gsap.set(group, { opacity: 1, pointerEvents: "auto" });
-
-      revealedSlides.current.add(index);
-      activeContentIndex.current = index;
-      lastTargetContent.current = index;
-
-      const tween = gsap.timeline();
-      if (secondary.length > 0) {
-        const introComplete = index === 0 && introProgressRef.current >= 1;
-        gsap.set(secondary, { opacity: introComplete ? 1 : 0 });
-        tween.fromTo(
-          secondary,
-          { opacity: introComplete ? 1 : 0 },
-          {
-            opacity: 1,
-            duration: BODY_ENTER_DURATION,
-            stagger: BODY_ENTER_STAGGER,
-            ease: "power2.out",
-          },
-          0,
-        );
-      }
-
-      contentTweens.current[index] = tween;
-    };
-
-    const playContentExit = (index: number, onComplete?: () => void) => {
-      const group = contentGroupRefs.current[index];
-      if (!group || !revealedSlides.current.has(index)) {
-        onComplete?.();
-        return;
-      }
-
-      contentTweens.current[index]?.kill();
-
-      const secondary = getSecondary(index);
-      if (secondary.length === 0) {
-        gsap.set(group, { pointerEvents: "none" });
-        revealedSlides.current.delete(index);
-        onComplete?.();
-        return;
-      }
-
-      contentTweens.current[index] = gsap.to(secondary, {
-        opacity: 0,
-        duration: BODY_EXIT_DURATION,
-        ease: "power2.in",
-        onComplete: () => {
-          gsap.set(group, { pointerEvents: "none" });
-          revealedSlides.current.delete(index);
-          onComplete?.();
-        },
-      });
-    };
-
-    const transitionToContent = (target: number) => {
-      if (transitioning.current) return;
-
-      const current = activeContentIndex.current;
-      if (current === target) return;
-
-      transitioning.current = true;
-
-      const finish = () => {
-        playContentEnter(target);
-        transitioning.current = false;
-      };
-
-      if (revealedSlides.current.has(current)) {
-        playContentExit(current, finish);
-      } else {
-        finish();
-      }
     };
 
     const updateSlides = (progress: number) => {
@@ -510,12 +378,6 @@ export function ForestSection({
       });
 
       updateHeadingChars(progress);
-
-      const target = targetContentIndex(progress);
-      if (target !== lastTargetContent.current && !transitioning.current) {
-        if (target > 0 && !slide0Revealed.current) return;
-        transitionToContent(target);
-      }
     };
 
     const ctx = gsap.context(() => {
@@ -544,7 +406,7 @@ export function ForestSection({
                   mode: "enter",
                   t: self.progress,
                 });
-                gsap.set(getSecondary(0), {
+                gsap.set(ctaWrapRef.current, {
                   opacity: self.progress,
                 });
               }
@@ -623,17 +485,12 @@ export function ForestSection({
     }, sectionRef);
 
     revertContentAnimations();
-    revealedSlides.current.clear();
     slide0Revealed.current = false;
-    transitioning.current = false;
-    lastTargetContent.current = 0;
-    activeContentIndex.current = 0;
     introProgressRef.current = 0;
 
     SLIDES.forEach((_, index) => {
       const element = headingRefs.current[index];
-      const group = contentGroupRefs.current[index];
-      if (!element || !group) return;
+      if (!element) return;
 
       const split = SplitText.create(element, {
         type: "lines,chars",
@@ -659,12 +516,10 @@ export function ForestSection({
       });
 
       headingSplits.current[index] = split ?? null;
-
-      const secondary = getSecondary(index);
-      // Groups stay visible so scrubbed headings aren't faded; body/CTA use opacity.
-      gsap.set(group, { opacity: 1, pointerEvents: "none" });
-      gsap.set(secondary, { opacity: 0 });
     });
+
+    // CTA fades in once on intro, then stays visible through every slide.
+    gsap.set(ctaWrapRef.current, { opacity: 0 });
 
     updateHeadingChars(0);
 
@@ -679,9 +534,7 @@ export function ForestSection({
     return () => {
       mobileQuery.removeEventListener("change", onBreakpointChange);
       revertContentAnimations();
-      revealedSlides.current.clear();
       slide0Revealed.current = false;
-      transitioning.current = false;
       ctx.revert();
     };
   }, [armed]);
@@ -744,49 +597,36 @@ export function ForestSection({
 
         <div
           ref={contentOverlayRef}
-          className="pointer-events-none absolute inset-0 z-20 px-5 md:px-8"
+          className="pointer-events-none absolute inset-0 z-20 flex flex-col items-start justify-end px-5 pb-16 md:px-8 md:pb-20"
         >
-          {SLIDES.map((slide, index) => (
-            <div
-              key={`content-${slide.bg}`}
-              ref={(node) => {
-                contentGroupRefs.current[index] = node;
-              }}
-              className="absolute top-1/2 right-0 left-0 max-w-7xl -translate-y-1/2 text-left"
-              style={{
-                // Resting state before the (lazily armed) timeline takes over.
-                opacity: index === 0 ? 1 : 0,
-                pointerEvents: "none",
-              }}
-            >
-              <H2
-                ref={(node) => {
-                  headingRefs.current[index] = node;
-                }}
-                animate={false}
-                className="mb-4 max-w-6xl uppercase text-cream md:mb-6"
-              >
-                {slide.heading}
-              </H2>
-              <Paragraph
-                ref={(node) => {
-                  bodyRefs.current[index] = node;
-                }}
-                className="mb-4 max-w-4xl text-cream/90 md:mb-6"
-              >
-                {slide.body}
-              </Paragraph>
-              {"cta" in slide && slide.cta ? (
-                <div
+          <div className="w-full max-w-7xl text-left">
+            <div className="relative mb-4 md:mb-6">
+              {SLIDES.map((slide, index) => (
+                <H2
+                  key={`heading-${slide.bg}`}
                   ref={(node) => {
-                    ctaWrapRefs.current[index] = node;
+                    headingRefs.current[index] = node;
                   }}
+                  animate={false}
+                  className={[
+                    "max-w-6xl uppercase text-cream",
+                    index === 0 ? "relative" : "absolute inset-x-0 top-0",
+                  ].join(" ")}
                 >
-                  <GlassyButton href={slide.cta.href}>{slide.cta.label}</GlassyButton>
-                </div>
-              ) : null}
+                  {slide.heading}
+                </H2>
+              ))}
             </div>
-          ))}
+            <div
+              ref={ctaWrapRef}
+              className="pointer-events-auto"
+              style={{ opacity: 0 }}
+            >
+              <GlassyButton href={FOREST_CTA.href}>
+                {FOREST_CTA.label}
+              </GlassyButton>
+            </div>
+          </div>
         </div>
 
         <div
