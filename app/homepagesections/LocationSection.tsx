@@ -399,7 +399,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               alt=""
               fill
               sizes="100vw"
-              className="object-cover object-[center_32%]"
+              className="object-cover object-center"
             />
             <StaticMapMarker />
           </div>

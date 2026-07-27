@@ -248,15 +248,19 @@ function ArrowLeftIcon() {
   return (
     <svg
       aria-hidden
+      width={24}
+      height={24}
       viewBox="0 0 24 24"
-      className="h-5 w-5"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      className="shrink-0"
     >
-      <path d="M19 12H5M11 6l-6 6 6 6" />
+      <path
+        d="M11 18L5 12L11 6M5 12L19 12"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -265,21 +269,25 @@ function ArrowRightIcon() {
   return (
     <svg
       aria-hidden
+      width={24}
+      height={24}
       viewBox="0 0 24 24"
-      className="h-5 w-5"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      className="shrink-0"
     >
-      <path d="M5 12h14M13 6l6 6-6 6" />
+      <path
+        d="M13 18L19 12L13 6M19 12L5 12"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 const MOBILE_ARROW_BTN =
-  "pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center border border-cream/55 bg-black/40 text-cream backdrop-blur-[10px] transition-opacity disabled:pointer-events-none disabled:opacity-30";
+  "pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center bg-cream/16 text-cream ring-1 ring-inset ring-cream/32 backdrop-blur-[10px] transition-opacity disabled:pointer-events-none disabled:opacity-30";
 
 type ForestSectionProps = {
   overlayTargetRef?: RefObject<HTMLElement | null>;
