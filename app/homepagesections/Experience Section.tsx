@@ -59,9 +59,9 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: (
       <>
-        Bespoke dining prepared by a
+        Bespoke dining prepared
         <br />
-        private chef.
+        by a private chef.
       </>
     ),
   },
