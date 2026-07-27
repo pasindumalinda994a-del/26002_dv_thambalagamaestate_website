@@ -9,7 +9,7 @@ import { Button } from "../components/SolidButton";
 const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
-const MAP_STATIC_SRC = "/homepageimages/location-map.png";
+const MAP_STATIC_SRC = "/homepageimages/location-map.webp";
 const ESTATE_LNG = 80.403;
 const ESTATE_LAT = 6.383;
 const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${ESTATE_LAT},${ESTATE_LNG}`;

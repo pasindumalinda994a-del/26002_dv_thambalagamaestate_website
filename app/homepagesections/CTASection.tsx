@@ -9,7 +9,7 @@ import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
 
-const BG_SRC = "/homepageimages/cta-bg.jpeg";
+const BG_SRC = "/homepageimages/cta-bg.webp";
 const MOBILE_MQ = "(max-width: 767px)";
 
 const HEADLINE_CLASS =

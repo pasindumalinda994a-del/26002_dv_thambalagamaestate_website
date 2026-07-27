@@ -8,7 +8,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { GlassyButton } from "../components/GlassyButton";
 import { H2 } from "../components/H2";
 
-const BG_SRC = "/homepageimages/villa-bg.jpeg";
+const BG_SRC = "/homepageimages/villa-bg.webp";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
 const VILLA_FG_TRAVEL = 48; // 240 * 0.2
 const MOBILE_MQ = "(max-width: 767px)";
@@ -21,11 +21,11 @@ const VILLA_FEATURES = [
 ] as const;
 
 const VILLA_GALLERY_IMAGES = [
-  { src: "/homepageimages/villa-gallery-living-room.jpeg", alt: "Villa living room" },
-  { src: "/homepageimages/villa-gallery-bedroom.jpeg", alt: "Villa bedroom" },
-  { src: "/homepageimages/villa-gallery-dining-room.jpeg", alt: "Villa dining room" },
-  { src: "/homepageimages/villa-gallery-indoor-outdoor.jpeg", alt: "Villa indoor-outdoor living" },
-  { src: "/homepageimages/villa-gallery-bathroom.jpeg", alt: "Villa bathroom" },
+  { src: "/homepageimages/villa-gallery-living-room.webp", alt: "Villa living room" },
+  { src: "/homepageimages/villa-gallery-bedroom.webp", alt: "Villa bedroom" },
+  { src: "/homepageimages/villa-gallery-dining-room.webp", alt: "Villa dining room" },
+  { src: "/homepageimages/villa-gallery-indoor-outdoor.webp", alt: "Villa indoor-outdoor living" },
+  { src: "/homepageimages/villa-gallery-bathroom.webp", alt: "Villa bathroom" },
 ] as const;
 
 function VillaBackground({

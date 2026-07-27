@@ -33,7 +33,7 @@ type ExperienceImage = {
 
 const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
-    src: "/homepageimages/experience-waterfall-pools.jpeg",
+    src: "/homepageimages/experience-waterfall-pools.webp",
     alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
     heading: (
       <>
@@ -44,7 +44,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homepageimages/experience-guided-trails.jpeg",
+    src: "/homepageimages/experience-guided-trails.webp",
     alt: "Guided trail winding through lush Sinharaja rainforest",
     heading: (
       <>
@@ -55,7 +55,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homepageimages/experience-private-dining.jpeg",
+    src: "/homepageimages/experience-private-dining.webp",
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: (
       <>
