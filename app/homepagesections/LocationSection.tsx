@@ -160,9 +160,9 @@ function StaticMapMarker() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center"
+      className="pointer-events-none absolute inset-0 z-[1] flex items-start justify-center pt-[18vh]"
     >
-      <div className="mb-16 flex w-[min(320px,90vw)] flex-col items-center gap-[0.65rem] text-center">
+      <div className="flex w-[min(320px,90vw)] flex-col items-center gap-[0.65rem] text-center">
         <div
           role="img"
           aria-label="Thambalagama Estate"
@@ -399,7 +399,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               alt=""
               fill
               sizes="100vw"
-              className="object-cover object-center"
+              className="object-cover object-[center_22%]"
             />
             <StaticMapMarker />
           </div>
