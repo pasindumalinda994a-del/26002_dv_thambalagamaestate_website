@@ -145,6 +145,18 @@ function createMarkerElement(): {
 }
 
 function StaticMapMarker() {
+  const middleRingRef = useRef<SVGCircleElement>(null);
+
+  useEffect(() => {
+    const middleRing = middleRingRef.current;
+    if (!middleRing) return;
+
+    const pulse = startMiddleRingPulse(middleRing);
+    return () => {
+      pulse?.kill();
+    };
+  }, []);
+
   return (
     <div
       aria-hidden
@@ -186,6 +198,7 @@ function StaticMapMarker() {
               strokeWidth={MARKER_OUTER_RING_STROKE}
             />
             <circle
+              ref={middleRingRef}
               cx={MARKER_PIN_CENTER}
               cy={MARKER_PIN_CENTER}
               r={MIDDLE_RING_BASE_R}
@@ -386,7 +399,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               alt=""
               fill
               sizes="100vw"
-              className="object-cover object-[center_62%]"
+              className="object-cover object-[center_32%]"
             />
             <StaticMapMarker />
           </div>
