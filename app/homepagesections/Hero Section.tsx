@@ -11,7 +11,7 @@ import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
-const HERO_BG_SRC = "/homepageimages/hero-mobile-bg1.jpeg";
+const HERO_BG_SRC = "/homepageimages/hero-mobile-bg1.webp";
 const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
