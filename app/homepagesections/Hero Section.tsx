@@ -96,9 +96,9 @@ export function HeroSection() {
           alt=""
           fill
           priority
-          quality={90}
-          sizes="100vw"
-          className="object-cover object-[35%_center] md:object-center"
+          quality={95}
+          sizes="(max-width: 767px) 200vw, 100vw"
+          className="object-cover object-[90%_center] md:object-center"
         />
 
         <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
