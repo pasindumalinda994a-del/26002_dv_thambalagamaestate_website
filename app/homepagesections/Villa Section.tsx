@@ -22,19 +22,19 @@ const VILLA_FEATURES = [
 
 const VILLA_GALLERY_IMAGES = [
   {
-    src: "/homepageimages/villa-gallery-bedroom-2.webp",
+    src: "/homepageimages/villa-gallery-bedroom.webp",
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/villa-gallery-bedroom-3.png",
+    src: "/homepageimages/villa-gallery-bedroom-2.png",
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/DSC_0435.jpg_2K_202607281645_upscayl_2x_upscayl-standard-4x.png",
+    src: "/homepageimages/villa-gallery-living-room.png",
     alt: "Villa living room",
   },
-  { src: "/homepageimages/villa-gallery-dining-room-2.webp", alt: "Villa dining room" },
-  { src: "/homepageimages/Screenshot_2026-07-26_074637.png_2K_202607281518_upscayl_2x_upscayl-standard-4x.png", alt: "Villa indoor-outdoor living" },
+  { src: "/homepageimages/villa-gallery-dining-room.webp", alt: "Villa dining room" },
+  { src: "/homepageimages/villa-gallery-indoor-outdoor.png", alt: "Villa indoor-outdoor living" },
 ] as const;
 
 function VillaBackground({
@@ -73,13 +73,13 @@ function VillaGalleryCard({
   alt: string;
 }) {
   return (
-    <div className="relative mx-auto aspect-[4/3] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:w-[min(84vw,84rem)]">
+    <div className="relative mx-auto aspect-[4/3] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:aspect-[3/2] md:w-[min(calc(100vw-10rem),76rem)]">
       <Image
         src={src}
         alt={alt}
         fill
         className="object-cover"
-        sizes="(max-width: 768px) calc(100vw - 2rem), 96vw"
+        sizes="(max-width: 768px) calc(100vw - 2rem), calc(100vw - 10rem)"
       />
     </div>
   );
