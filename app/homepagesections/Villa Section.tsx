@@ -30,12 +30,11 @@ const VILLA_GALLERY_IMAGES = [
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/DSC_0531.jpg_2K_202607281137_upscayl_2x_upscayl-standard-4x.png",
+    src: "/homepageimages/DSC_0435.jpg_2K_202607281645_upscayl_2x_upscayl-standard-4x.png",
     alt: "Villa living room",
   },
   { src: "/homepageimages/villa-gallery-dining-room-2.webp", alt: "Villa dining room" },
   { src: "/homepageimages/Screenshot_2026-07-26_074637.png_2K_202607281518_upscayl_2x_upscayl-standard-4x.png", alt: "Villa indoor-outdoor living" },
-  { src: "/homepageimages/villa-gallery-bathroom-2.webp", alt: "Villa bathroom" },
 ] as const;
 
 function VillaBackground({
