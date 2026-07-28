@@ -44,7 +44,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homepageimages/pexels-sanjay-indiresh-1440654-18766214.jpg_2K_202607281505.jpeg",
+    src: "/homepageimages/experience-guided-trails.jpeg",
     alt: "Hikers walking along a forest trail with lush greenery",
     heading: (
       <>

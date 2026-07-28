@@ -12,8 +12,8 @@ import { ScrollDownHint } from "../components/ScrollDownHint";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useTempPalette } from "../components/TempPaletteToggle";
 
-// Hero background image (using villa bg)
-const HERO_BG_SRC = "/homepageimages/villa-bg.webp";
+const HERO_BG_SRC =
+  "/homepageimages/DSC_0471.jpg_2K_202607261120.jpeg";
 const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
@@ -98,7 +98,7 @@ export function HeroSection() {
           priority
           quality={90}
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-[35%_center] md:object-center"
         />
 
         <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
