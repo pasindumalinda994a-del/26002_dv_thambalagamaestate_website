@@ -361,7 +361,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           </div>
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-end px-5 pb-10 md:items-center md:px-8 md:pb-16">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-5 pb-10 md:items-center md:justify-end md:px-8 md:pb-16">
           <ExperienceMobileCarousel slides={EXPERIENCE_IMAGES} />
 
           <div
