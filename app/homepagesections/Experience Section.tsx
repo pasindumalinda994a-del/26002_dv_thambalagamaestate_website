@@ -35,35 +35,17 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
     src: "/homepageimages/experience-waterfall-pools.webp",
     alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
-    heading: (
-      <>
-        Forest bathing by private
-        <br />
-        waterfalls and pools.
-      </>
-    ),
+    heading: "Forest bathing by private waterfalls and pools.",
   },
   {
     src: "/homepageimages/experience-guided-trails.jpeg",
     alt: "Hikers walking along a forest trail with lush greenery",
-    heading: (
-      <>
-        Guided trails through the
-        <br />
-        estate and Sinharaja.
-      </>
-    ),
+    heading: "Guided trails through the estate and Sinharaja.",
   },
   {
     src: "/homepageimages/experience-private-dining.webp",
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
-    heading: (
-      <>
-        Bespoke dining prepared
-        <br />
-        by a private chef.
-      </>
-    ),
+    heading: "Bespoke dining prepared by a private chef.",
   },
 ];
 

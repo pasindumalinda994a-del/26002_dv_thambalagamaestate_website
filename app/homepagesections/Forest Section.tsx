@@ -23,37 +23,17 @@ const FOREST_CTA = {
 const SLIDES = [
   {
     bg: "/homepageimages/forest-slide-estate-bg.webp",
-    heading: (
-      <>
-        An exclusive estate bordering
-        <br />
-        the UNESCO Sinharaja
-        <br />
-        Rainforest.
-      </>
-    ),
+    heading:
+      "An exclusive estate bordering the UNESCO Sinharaja Rainforest.",
   },
   {
     bg: "/homepageimages/forest-slide-waterfalls-bg.webp",
-    heading: (
-      <>
-        Two private waterfalls
-        <br />
-        and a natural jungle pool.
-      </>
-    ),
+    heading: "Two private waterfalls and a natural jungle pool.",
   },
   {
     bg: "/homepageimages/forest-slide-trails-bg.webp",
-    heading: (
-      <>
-        Guided rainforest trails
-        <br />
-        uncovering rare endemic
-        <br />
-        wildlife species.
-      </>
-    ),
+    heading:
+      "Guided rainforest trails uncovering rare endemic wildlife species.",
   },
 ] as const;
 
