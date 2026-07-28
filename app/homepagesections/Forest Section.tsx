@@ -679,7 +679,7 @@ export function ForestSection({
           className="pointer-events-none absolute inset-0 z-20 flex flex-col items-start justify-end px-5 pb-16 md:px-8 md:pb-20"
         >
           <div className="w-full max-w-7xl text-left">
-            <div className="relative mb-4 md:mb-6">
+            <div className="relative mb-4 grid md:mb-6">
               {SLIDES.map((slide, index) => (
                 <H2
                   key={`heading-${slide.bg}`}
@@ -687,10 +687,7 @@ export function ForestSection({
                     headingRefs.current[index] = node;
                   }}
                   animate={false}
-                  className={[
-                    "max-w-6xl uppercase text-cream",
-                    index === 0 ? "relative" : "absolute inset-x-0 top-0",
-                  ].join(" ")}
+                  className="col-start-1 row-start-1 self-end max-w-6xl uppercase text-cream"
                 >
                   {slide.heading}
                 </H2>
