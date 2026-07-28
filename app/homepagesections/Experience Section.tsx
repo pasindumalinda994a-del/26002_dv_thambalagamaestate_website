@@ -334,7 +334,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
-        className="relative z-30 flex min-h-screen flex-col overflow-hidden bg-cream md:-mt-[100vh]"
+        className="relative z-30 flex min-h-screen flex-col justify-center overflow-hidden bg-cream md:-mt-[100vh] md:justify-start"
       >
         <div
           ref={darkOverlayRef}
@@ -342,7 +342,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           className="pointer-events-none absolute inset-0 z-20 bg-black opacity-0"
         />
 
-        <div className="relative z-10 shrink-0 px-5 py-12 md:px-8 md:py-20">
+        <div className="relative z-10 shrink-0 px-5 pt-12 pb-6 md:px-8 md:py-20">
           <div className="space-y-6">
             <H2
               triggerRef={sectionRef}
@@ -361,7 +361,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           </div>
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-5 pb-10 md:items-center md:justify-end md:px-8 md:pb-16">
+        <div className="relative z-10 flex min-h-0 flex-col px-5 pb-12 md:flex-1 md:items-center md:justify-end md:px-8 md:pb-16">
           <ExperienceMobileCarousel slides={EXPERIENCE_IMAGES} />
 
           <div
