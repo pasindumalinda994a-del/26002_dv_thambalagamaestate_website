@@ -21,11 +21,21 @@ const VILLA_FEATURES = [
 ] as const;
 
 const VILLA_GALLERY_IMAGES = [
-  { src: "/homepageimages/villa-gallery-living-room.webp", alt: "Villa living room" },
-  { src: "/homepageimages/villa-gallery-bedroom.webp", alt: "Villa bedroom" },
-  { src: "/homepageimages/villa-gallery-dining-room.webp", alt: "Villa dining room" },
-  { src: "/homepageimages/villa-gallery-indoor-outdoor.webp", alt: "Villa indoor-outdoor living" },
-  { src: "/homepageimages/villa-gallery-bathroom.webp", alt: "Villa bathroom" },
+  {
+    src: "/homepageimages/villa-gallery-bedroom-2.webp",
+    alt: "Villa bedroom",
+  },
+  {
+    src: "/homepageimages/villa-gallery-bedroom-3.png",
+    alt: "Villa bedroom",
+  },
+  {
+    src: "/homepageimages/DSC_0531.jpg_2K_202607281137_upscayl_2x_upscayl-standard-4x.png",
+    alt: "Villa living room",
+  },
+  { src: "/homepageimages/villa-gallery-dining-room-2.webp", alt: "Villa dining room" },
+  { src: "/homepageimages/Screenshot_2026-07-26_074637.png_2K_202607281518_upscayl_2x_upscayl-standard-4x.png", alt: "Villa indoor-outdoor living" },
+  { src: "/homepageimages/villa-gallery-bathroom-2.webp", alt: "Villa bathroom" },
 ] as const;
 
 function VillaBackground({
@@ -43,7 +53,7 @@ function VillaBackground({
           alt=""
           fill
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-[75%_center] md:object-center"
         />
       </div>
       <div aria-hidden className="absolute inset-0 bg-black/29" />
@@ -64,7 +74,7 @@ function VillaGalleryCard({
   alt: string;
 }) {
   return (
-    <div className="relative mx-auto h-[70vh] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:h-[82vh] md:w-[min(96vw,84rem)]">
+    <div className="relative mx-auto aspect-[4/3] w-[min(calc(100vw-2rem),84rem)] shrink-0 overflow-hidden md:w-[min(84vw,84rem)]">
       <Image
         src={src}
         alt={alt}
@@ -227,7 +237,12 @@ export function VillaSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} aria-label="Villa" className="relative bg-deep-forest">
+    <section
+      id="villa"
+      ref={sectionRef}
+      aria-label="Villa"
+      className="relative bg-deep-forest"
+    >
       <div className="sticky top-0 h-screen overflow-hidden bg-deep-forest">
         <div ref={bgRef} className="absolute inset-0 z-0">
           <VillaBackground
@@ -268,7 +283,7 @@ export function VillaSection() {
 
             <ul
               aria-label="Villa highlights"
-              className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end md:gap-x-8"
+              className="hidden flex-wrap gap-x-6 gap-y-2 md:flex md:justify-end md:gap-x-8"
             >
               {VILLA_FEATURES.map((feature) => (
                 <li

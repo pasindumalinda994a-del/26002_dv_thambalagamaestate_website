@@ -3,12 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useBooking } from "../components/booking/BookingProvider";
+import { useTempPalette } from "../components/TempPaletteToggle";
 
-const LOGO_SRC = "/Logo/Thambalagama%20Logo%203.png";
+const LOGO_LIGHT_SRC = "/Logo/Thambalagama%20Logo%203.png";
+const LOGO_DARK_SRC = "/Logo/ThambalagamaLogo.png";
 
 const NAV_LINKS = [
   { href: "/", label: "Sanctuary" },
-  { href: "/about", label: "Forest" },
+  { href: "/forest", label: "Forest" },
   { href: "/experiences", label: "Experience" },
   { href: "/gallery", label: "Gallery" },
 ] as const;
@@ -45,13 +47,19 @@ function ExternalLinkIcon() {
 
 export function FooterSection() {
   const { open: openBooking } = useBooking();
+  const { palette } = useTempPalette();
+  const isDark = palette === "dark";
 
   return (
-    <footer className="flex min-h-screen flex-col bg-cream text-deep-forest">
+    <footer
+      className={`flex min-h-screen flex-col ${
+        isDark ? "bg-deep-forest text-cream" : "bg-cream text-deep-forest"
+      }`}
+    >
       <div className="flex flex-1 flex-col justify-center gap-12 px-5 py-12 md:px-8 md:py-24 lg:flex-row lg:items-center lg:justify-between">
         <Link href="/" className="shrink-0">
           <Image
-            src={LOGO_SRC}
+            src={isDark ? LOGO_DARK_SRC : LOGO_LIGHT_SRC}
             alt="Thambalagama Estate"
             width={361}
             height={381}
@@ -64,7 +72,12 @@ export function FooterSection() {
           className="group/nav w-full lg:max-w-[min(52rem,55vw)]"
         >
           {NAV_LINKS.map(({ href, label }) => (
-            <div key={href} className="border-b border-deep-forest/30">
+            <div
+              key={href}
+              className={`border-b ${
+                isDark ? "border-cream/30" : "border-deep-forest/30"
+              }`}
+            >
               <Link
                 href={href}
                 className={`block py-2 md:py-3 ${FOOTER_LINK_TYPOGRAPHY}`}
@@ -87,8 +100,11 @@ export function FooterSection() {
         </nav>
       </div>
 
-      <div className="flex flex-col items-center gap-4 px-5 py-6 text-center font-secondary text-xs font-medium uppercase tracking-[0.15em] text-deep-forest/90 md:px-8 lg:mb-[53px] lg:flex-row lg:items-center lg:justify-between lg:text-left">
-        <p>© 2026 Thambalagama Estate</p>
+      <div
+        className={`flex flex-col items-center gap-4 px-5 py-6 text-center font-secondary text-xs font-medium uppercase tracking-[0.15em] md:px-8 lg:mb-[53px] lg:flex-row lg:items-center lg:justify-between lg:text-left ${
+          isDark ? "text-cream/90" : "text-deep-forest/90"
+        }`}
+      >        <p>© 2026 Thambalagama Estate</p>
 
         <div className="flex flex-wrap justify-center gap-4 md:gap-10 lg:justify-start">
           {SOCIAL_LINKS.map(({ href, label }) => (
