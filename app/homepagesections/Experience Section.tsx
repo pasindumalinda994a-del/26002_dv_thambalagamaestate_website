@@ -44,8 +44,8 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     ),
   },
   {
-    src: "/homepageimages/experience-guided-trails.webp",
-    alt: "Guided trail winding through lush Sinharaja rainforest",
+    src: "/homepageimages/pexels-sanjay-indiresh-1440654-18766214.jpg_2K_202607281505.jpeg",
+    alt: "Hikers walking along a forest trail with lush greenery",
     heading: (
       <>
         Guided trails through the
@@ -59,9 +59,9 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: (
       <>
-        Bespoke dining prepared by a
+        Bespoke dining prepared
         <br />
-        private chef.
+        by a private chef.
       </>
     ),
   },

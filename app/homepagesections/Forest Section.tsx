@@ -17,7 +17,7 @@ import { H2 } from "../components/H2";
 
 const FOREST_CTA = {
   label: "Explore the forest",
-  href: "/experiences",
+  href: "/forest",
 } as const;
 
 const SLIDES = [

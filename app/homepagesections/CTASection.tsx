@@ -8,6 +8,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
 import { GlassyButton } from "../components/GlassyButton";
+import { useTempPalette } from "../components/TempPaletteToggle";
 
 const BG_SRC = "/homepageimages/cta-bg.webp";
 const MOBILE_MQ = "(max-width: 767px)";
@@ -45,12 +46,14 @@ const CTA_HEADLINES: ReactNode[] = [
 ];
 
 export function CTASection() {
+  const { palette } = useTempPalette();
   const sectionRef = useRef<HTMLElement>(null);
   const bgContainerRef = useRef<HTMLDivElement>(null);
   const headlineRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const headlineWheelRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
   const armed = useNearViewport(sectionRef);
+  const isDark = palette === "dark";
 
   useLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -185,7 +188,9 @@ export function CTASection() {
     <section
       ref={sectionRef}
       aria-label="Call to action"
-      className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-cream"
+      className={`relative z-[32] flex min-h-screen items-center justify-center overflow-hidden ${
+        isDark ? "bg-deep-forest" : "bg-cream"
+      }`}
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <div ref={bgContainerRef} className="absolute inset-0">

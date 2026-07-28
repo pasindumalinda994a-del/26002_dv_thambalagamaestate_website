@@ -10,11 +10,14 @@ import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
+import { useTempPalette } from "../components/TempPaletteToggle";
 
-const HERO_BG_SRC = "/homepageimages/hero-mobile-bg1.webp";
+// Hero background image (using villa bg)
+const HERO_BG_SRC = "/homepageimages/villa-bg.webp";
 const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
+  const { palette } = useTempPalette();
   const sectionRef = useRef<HTMLElement>(null);
   const mediaWrapRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -22,6 +25,7 @@ export function HeroSection() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
+  const isDark = palette === "dark";
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -82,7 +86,9 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       aria-label="Hero"
-      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-deep-forest"
+      className={`relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden ${
+        isDark ? "bg-cream" : "bg-deep-forest"
+      }`}
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
         <Image
@@ -98,10 +104,10 @@ export function HeroSection() {
         <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center px-6 pb-20 text-center md:pb-24">
+      <div className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-6 text-center">
         <H1
           ref={h1Ref}
-          className="mb-10 max-w-5xl overflow-hidden uppercase text-cream md:mb-20"
+          className="mb-8 max-w-5xl overflow-hidden uppercase text-cream md:mb-10"
         >
           The edge of the
           <br />
@@ -110,7 +116,7 @@ export function HeroSection() {
 
         <Paragraph
           ref={pRef}
-          className="mb-10 max-w-xl overflow-hidden text-cream md:mb-20"
+          className="mb-12 max-w-xl overflow-hidden text-cream md:mb-12"
         >
           A fully private 18-guest reserve on the Sinharaja buffer zone. Where
           the rainforest belongs only to you.

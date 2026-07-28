@@ -15,7 +15,7 @@ const LINE_Y = 5; // centers ±5px → 6px gap between 4px-thick bars
 
 const NAV_LINKS = [
   { href: "/", label: "Sanctuary" },
-  { href: "/about", label: "Forest" },
+  { href: "/forest", label: "Forest" },
   { href: "/experiences", label: "Experience" },
   { href: "/gallery", label: "Gallery" },
 ] as const;

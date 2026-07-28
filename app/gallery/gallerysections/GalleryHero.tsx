@@ -3,11 +3,12 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { H1 } from "../../components/H1";
 import { ScrollDownHint } from "../../components/ScrollDownHint";
 import type { GalleryDisplayImage } from "@/lib/gallery/types";
+import { GalleryLightbox } from "./GalleryLightbox";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -69,9 +70,11 @@ function mapRange(
 function GalleryGrid({
   items,
   priorityCount = 0,
+  onSelect,
 }: {
   items: GalleryImage[];
   priorityCount?: number;
+  onSelect: (image: GalleryDisplayImage) => void;
 }) {
   const rows = chunkRows(items);
   let cellIndex = 0;
@@ -94,11 +97,14 @@ function GalleryGrid({
               const isFocus = rowIndex === 1 && colIndex === 1;
 
               return (
-                <div
+                <button
                   key={item.id}
+                  type="button"
                   data-gallery-cell
                   style={{ flex }}
-                  className="relative aspect-9/16 min-w-0 overflow-hidden bg-sage-muted/25 md:aspect-video"
+                  onClick={() => onSelect(item)}
+                  aria-label={`View ${item.alt || "gallery image"}`}
+                  className="relative aspect-9/16 min-w-0 cursor-pointer overflow-hidden border-0 bg-sage-muted/25 p-0 md:aspect-video"
                 >
                   <Image
                     data-gallery-img
@@ -116,7 +122,7 @@ function GalleryGrid({
                       className="pointer-events-none absolute inset-0 z-[1] bg-black/29"
                     />
                   ) : null}
-                </div>
+                </button>
               );
             })}
           </div>
@@ -133,11 +139,16 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
+  const [activeImage, setActiveImage] = useState<GalleryDisplayImage | null>(
+    null,
+  );
 
   const items: GalleryImage[] = images.map((img) => ({
     ...img,
     kind: "image" as const,
   }));
+
+  const closeLightbox = useCallback(() => setActiveImage(null), []);
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -346,7 +357,11 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
       <div ref={trackRef} className="relative w-full">
         <div className="sticky top-0 h-dvh overflow-hidden">
           <div ref={spotlightRef} className="w-full will-change-transform">
-            <GalleryGrid items={items} priorityCount={6} />
+            <GalleryGrid
+              items={items}
+              priorityCount={6}
+              onSelect={setActiveImage}
+            />
           </div>
 
           <div
@@ -369,6 +384,8 @@ export function GalleryHero({ images }: { images: GalleryDisplayImage[] }) {
           </div>
         </div>
       </div>
+
+      <GalleryLightbox image={activeImage} onClose={closeLightbox} />
     </div>
   );
 }
