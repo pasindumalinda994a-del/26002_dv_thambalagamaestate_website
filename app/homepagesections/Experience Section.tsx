@@ -38,7 +38,7 @@ const EXPERIENCE_IMAGES: ExperienceImage[] = [
     heading: "Forest bathing by private waterfalls and pools.",
   },
   {
-    src: "/homepageimages/experience-guided-trails.jpeg",
+    src: "/homepageimages/experience-guided-trails.webp",
     alt: "Hikers walking along a forest trail with lush greenery",
     heading: "Guided trails through the estate and Sinharaja.",
   },

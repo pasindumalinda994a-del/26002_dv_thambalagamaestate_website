@@ -1,5 +1,5 @@
 /**
- * Idempotent seed: inserts gallery images 10–14 from public/main images/
+ * Idempotent seed: inserts gallery images 10–14 from public/others/
  * into MongoDB. Skips files that already exist (matched by filename).
  *
  * Usage: npm run seed:gallery
@@ -70,7 +70,7 @@ async function main() {
   }
 
   const dbName = process.env.MONGODB_DB || "thambalagama_estate";
-  const imagesDir = path.join(__dirname, "..", "public", "main images");
+  const imagesDir = path.join(__dirname, "..", "public", "others");
   const client = new MongoClient(uri);
 
   try {

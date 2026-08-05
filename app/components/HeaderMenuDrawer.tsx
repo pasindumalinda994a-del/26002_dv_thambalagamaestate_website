@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { RefObject } from "react";
+import { TransitionLink } from "./TransitionLink";
 
 export type NavLink = {
   href: string;
@@ -106,14 +107,14 @@ export function HeaderMenuDrawer({
           <ul className="flex flex-col gap-2.5">
             {navLinks.map(({ href, label }, index) => (
               <li key={href} data-menu-item>
-                <Link
+                <TransitionLink
                   ref={index === 0 ? firstLinkRef : undefined}
                   href={href}
                   onClick={onClose}
                   className="font-secondary text-[22px] font-semibold uppercase leading-none tracking-[0.04em] text-cream transition-opacity hover:opacity-80"
                 >
                   {label}
-                </Link>
+                </TransitionLink>
               </li>
             ))}
           </ul>

@@ -6,10 +6,10 @@ import Image from "next/image";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
-import { useBooking } from "../components/booking/BookingProvider";
-import { GlassyButton } from "../components/GlassyButton";
+import { useBooking } from "../../components/booking/BookingProvider";
+import { GlassyButton } from "../../components/GlassyButton";
+import { BUNGALOW_CTA } from "../content";
 
-const BG_SRC = "/homepageimages/cta-bg.webp";
 const MOBILE_MQ = "(max-width: 767px)";
 
 const HEADLINE_CLASS =
@@ -27,10 +27,8 @@ const FADE_EXIT = { y: -90, opacity: 0 };
 
 const CTA_HEADLINES: ReactNode[] = [
   <>
-    <span className="font-space-grotesk font-light italic">Zero</span>{" "}
-    <span className="font-space-grotesk">
-      shared spaces or distractions.
-    </span>
+    <span className="font-space-grotesk font-light italic">Secure</span>{" "}
+    <span className="font-space-grotesk">your sanctuary.</span>
   </>,
   <>
     <span className="font-space-grotesk">Absolute,</span>{" "}
@@ -44,7 +42,7 @@ const CTA_HEADLINES: ReactNode[] = [
   </>,
 ];
 
-export function CTASection() {
+export function BungalowCta() {
   const sectionRef = useRef<HTMLElement>(null);
   const bgContainerRef = useRef<HTMLDivElement>(null);
   const headlineRefs = useRef<(HTMLHeadingElement | null)[]>([]);
@@ -118,7 +116,7 @@ export function CTASection() {
             pinSpacing: true,
             scrub: 1,
             anticipatePin: 1,
-            id: "cta-headlines",
+            id: "bungalow-cta-headlines",
             invalidateOnRefresh: true,
             refreshPriority: ST_PRIORITY.cta,
           },
@@ -148,7 +146,8 @@ export function CTASection() {
             scrollTrigger: {
               trigger: section,
               start: () =>
-                ScrollTrigger.getById("cta-headlines")?.end ?? "top top",
+                ScrollTrigger.getById("bungalow-cta-headlines")?.end ??
+                "top top",
               end: () => `+=${window.innerHeight}`,
               scrub: 1,
               invalidateOnRefresh: true,
@@ -190,7 +189,7 @@ export function CTASection() {
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <div ref={bgContainerRef} className="absolute inset-0">
           <Image
-            src={BG_SRC}
+            src={BUNGALOW_CTA.bgSrc}
             alt=""
             fill
             sizes="100vw"
@@ -204,10 +203,10 @@ export function CTASection() {
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-6 text-center md:gap-10">
         <div className="flex w-full flex-col items-center gap-2">
           <p className="font-secondary text-[16px] font-normal uppercase leading-[150%] tracking-[0.2px] text-cream">
-            The Estate Promise
+            {BUNGALOW_CTA.eyebrow}
           </p>
 
-          <div className="relative my-[80px] w-full md:perspective-[1000px]">
+          <div className="relative my-10 w-full md:my-[80px] md:perspective-[1000px]">
             <h2 aria-hidden className={`invisible ${HEADLINE_CLASS}`}>
               {CTA_HEADLINES[0]}
             </h2>
@@ -234,7 +233,9 @@ export function CTASection() {
           </div>
         </div>
 
-        <GlassyButton onClick={openBooking}>Check Availability</GlassyButton>
+        <GlassyButton onClick={openBooking}>
+          {BUNGALOW_CTA.buttonLabel}
+        </GlassyButton>
       </div>
     </section>
   );

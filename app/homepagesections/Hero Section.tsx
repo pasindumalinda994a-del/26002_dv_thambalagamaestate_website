@@ -9,15 +9,12 @@ import { Button } from "../components/SolidButton";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
+import { HERO_BG_SRC } from "@/lib/preload-assets";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
-import { useTempPalette } from "../components/TempPaletteToggle";
 
-const HERO_BG_SRC =
-  "/homepageimages/DSC_0471.jpg_2K_202607261120.jpeg";
 const MOBILE_MQ = "(max-width: 767px)";
 
 export function HeroSection() {
-  const { palette } = useTempPalette();
   const sectionRef = useRef<HTMLElement>(null);
   const mediaWrapRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -25,7 +22,6 @@ export function HeroSection() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
-  const isDark = palette === "dark";
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -86,9 +82,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       aria-label="Hero"
-      className={`relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden ${
-        isDark ? "bg-cream" : "bg-deep-forest"
-      }`}
+      className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
         <Image

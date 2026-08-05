@@ -1,8 +1,9 @@
-import Link from "next/link";
 import type { ComponentProps } from "react";
+import { TransitionLink } from "./TransitionLink";
 
 export type GlassyButtonProps = ComponentProps<"button"> & {
   href?: string;
+  showArrow?: boolean;
 };
 
 const arrowIcon = (
@@ -29,11 +30,12 @@ export function GlassyButton({
   children,
   type = "button",
   href,
+  showArrow = true,
   ...props
 }: GlassyButtonProps) {
   if (href) {
     return (
-      <Link
+      <TransitionLink
         href={href}
         className={[
           "inline-flex items-center justify-center gap-2",
@@ -50,8 +52,8 @@ export function GlassyButton({
           .join(" ")}
       >
         {children}
-        {arrowIcon}
-      </Link>
+        {showArrow ? arrowIcon : null}
+      </TransitionLink>
     );
   }
 
@@ -74,7 +76,7 @@ export function GlassyButton({
       {...props}
     >
       {children}
-      {arrowIcon}
+      {showArrow ? arrowIcon : null}
     </button>
   );
 }

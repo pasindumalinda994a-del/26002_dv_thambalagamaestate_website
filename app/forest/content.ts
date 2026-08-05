@@ -8,7 +8,7 @@ export const FOREST_HERO = {
     { label: "Reserve area", value: "8,900 ha" },
   ],
   heroImage: {
-    src: "/forestpageimages/forest-hero.png",
+    src: "/others/forest-hero.png",
     alt: "Sinharaja rainforest canopy",
   },
   introLead:
@@ -134,7 +134,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/forest-unique.png",
+        src: "/others/forest-unique.png",
         alt: "Dense primary rainforest in Sinharaja",
       },
     ],
@@ -295,7 +295,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/forest-pack.png",
+        src: "/others/forest-pack.png",
         alt: "Rainforest trail packing context",
       },
     ],
@@ -319,11 +319,11 @@ export const FOREST_SECTIONS: GuideSection[] = [
       {
         type: "button",
         label: "explore the bungalow",
-        href: "/#villa",
+        href: "/bungalow",
       },
       {
         type: "image",
-        src: "/forestpageimages/forest-stay.png",
+        src: "/others/forest-stay.png",
         alt: "Stay near the Sinharaja buffer zone",
       },
     ],
@@ -385,7 +385,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/forest-tips.png",
+        src: "/others/forest-tips.png",
         alt: "Travel tips for visiting Sinharaja",
       },
     ],

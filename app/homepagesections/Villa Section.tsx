@@ -26,15 +26,15 @@ const VILLA_GALLERY_IMAGES = [
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/villa-gallery-bedroom-2.png",
+    src: "/homepageimages/villa-gallery-bedroom-2.webp",
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/villa-gallery-living-room.png",
+    src: "/homepageimages/villa-gallery-living-room.webp",
     alt: "Villa living room",
   },
   { src: "/homepageimages/villa-gallery-dining-room.webp", alt: "Villa dining room" },
-  { src: "/homepageimages/villa-gallery-indoor-outdoor.png", alt: "Villa indoor-outdoor living" },
+  { src: "/homepageimages/villa-gallery-indoor-outdoor.webp", alt: "Villa indoor-outdoor living" },
 ] as const;
 
 function VillaBackground({
