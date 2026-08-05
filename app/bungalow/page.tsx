@@ -1,4 +1,3 @@
-import { AmbientAudioToggle } from "../components/AmbientAudioToggle";
 import { Header } from "../components/Header";
 import { FooterSection } from "../homepagesections/Footer Section";
 import { BungalowCta } from "./bungalowsections/BungalowCta";
@@ -21,7 +20,6 @@ export default function BungalowPage() {
       <PrivateQuartersSection />
       <BungalowCta />
       <FooterSection />
-      <AmbientAudioToggle />
     </main>
   );
 }

@@ -4,7 +4,6 @@ import {
   galleryPublicSrc,
   type GalleryDisplayImage,
 } from "@/lib/gallery/types";
-import { AmbientAudioToggle } from "../components/AmbientAudioToggle";
 import { Header } from "../components/Header";
 import { FooterSection } from "../homepagesections/Footer Section";
 import { GalleryHero } from "./gallerysections/GalleryHero";
@@ -30,7 +29,6 @@ export default async function GalleryPage() {
       <Header />
       <GalleryHero images={images} />
       <FooterSection />
-      <AmbientAudioToggle />
     </main>
   );
 }

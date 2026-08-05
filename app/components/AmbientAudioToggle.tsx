@@ -1,7 +1,15 @@
 "use client";
 
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from "react";
 import {
   AMBIENT_SOUND_EVENT,
   getAmbientSoundPreference,
@@ -10,7 +18,18 @@ import {
 
 type AmbientAudioToggleProps = {
   audioSrc?: string;
+  className?: string;
+  buttonRef?: Ref<HTMLButtonElement>;
 };
+
+type AmbientAudioContextValue = {
+  isPlaying: boolean;
+  toggle: () => void;
+};
+
+const AmbientAudioContext = createContext<AmbientAudioContextValue | null>(
+  null,
+);
 
 const DEFAULT_AUDIO_SRC = "/audio/ambient-forest.mp3";
 const VOLUME = 0.35;
@@ -26,12 +45,27 @@ const WAVE_A =
 const WAVE_B =
   "M24.5 29C21.5 29 20.31 23.8 19.05 21.5C18.14 18.6 17 14.5 15.5 14.5C12.11 14.5 12 19.93 12 20H10C10 19.63 10.06 12.5 15.5 12.5C18.5 12.5 19.71 16.4 20.97 18.6C21.83 21.4 23 26 24.5 26C27.94 26 28.03 20.07 28.03 20H30.03C30.03 20.37 29.97 29 24.5 29Z";
 
-export function AmbientAudioToggle({
+const DEFAULT_BUTTON_CLASS =
+  "fixed top-4 right-4 z-502 flex size-10 items-center justify-center transition-opacity hover:opacity-80";
+
+function useAmbientAudio() {
+  const ctx = useContext(AmbientAudioContext);
+  if (!ctx) {
+    throw new Error(
+      "AmbientAudioButton must be used within AmbientAudioProvider",
+    );
+  }
+  return ctx;
+}
+
+export function AmbientAudioProvider({
   audioSrc = DEFAULT_AUDIO_SRC,
-}: AmbientAudioToggleProps) {
+  children,
+}: {
+  audioSrc?: string;
+  children: ReactNode;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const wavePathRef = useRef<SVGPathElement>(null);
-  const waveTweenRef = useRef<gsap.core.Timeline | null>(null);
   const isPlayingRef = useRef(false);
   const wasPlayingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -106,6 +140,48 @@ export function AmbientAudioToggle({
     };
   }, []);
 
+  const toggle = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      wasPlayingRef.current = false;
+      return;
+    }
+
+    audio
+      .play()
+      .then(() => {
+        setIsPlaying(true);
+        wasPlayingRef.current = true;
+      })
+      .catch(() => {
+        setIsPlaying(false);
+        wasPlayingRef.current = false;
+      });
+  };
+
+  return (
+    <AmbientAudioContext.Provider value={{ isPlaying, toggle }}>
+      <audio ref={audioRef} src={audioSrc} preload="none" />
+      {children}
+    </AmbientAudioContext.Provider>
+  );
+}
+
+export function AmbientAudioButton({
+  className,
+  buttonRef,
+}: {
+  className?: string;
+  buttonRef?: Ref<HTMLButtonElement>;
+}) {
+  const { isPlaying, toggle } = useAmbientAudio();
+  const wavePathRef = useRef<SVGPathElement>(null);
+  const waveTweenRef = useRef<gsap.core.Timeline | null>(null);
+
   useEffect(() => {
     const path = wavePathRef.current;
     if (!path) return;
@@ -139,63 +215,49 @@ export function AmbientAudioToggle({
     };
   }, [isPlaying]);
 
-  const handleToggle = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      wasPlayingRef.current = false;
-      return;
-    }
-
-    audio
-      .play()
-      .then(() => {
-        setIsPlaying(true);
-        wasPlayingRef.current = true;
-      })
-      .catch(() => {
-        setIsPlaying(false);
-        wasPlayingRef.current = false;
-      });
-  };
-
   return (
-    <>
-      <audio ref={audioRef} src={audioSrc} preload="none" />
-      <button
-        type="button"
-        onClick={handleToggle}
-        aria-label={isPlaying ? "Turn sound off" : "Turn sound on"}
-        aria-pressed={isPlaying}
-        className={[
-          "fixed top-4 right-4 z-502",
-          "flex size-10 items-center justify-center",
-          "transition-opacity hover:opacity-80",
-          isPlaying ? "opacity-100" : "opacity-50",
-        ].join(" ")}
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={toggle}
+      aria-label={isPlaying ? "Turn sound off" : "Turn sound on"}
+      aria-pressed={isPlaying}
+      className={[
+        className ?? DEFAULT_BUTTON_CLASS,
+        isPlaying ? "opacity-100" : "opacity-50",
+      ].join(" ")}
+    >
+      <svg
+        width={40}
+        height={40}
+        viewBox="0 0 40 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden
       >
-        <svg
-          width={40}
-          height={40}
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden
-        >
-          <rect
-            x="0.5"
-            y="0.5"
-            width="39"
-            height="39"
-            rx="19.5"
-            stroke="white"
-          />
-          <path ref={wavePathRef} d={WAVE_REST} fill="white" />
-        </svg>
-      </button>
-    </>
+        <rect
+          x="0.5"
+          y="0.5"
+          width="39"
+          height="39"
+          rx="19.5"
+          stroke="white"
+        />
+        <path ref={wavePathRef} d={WAVE_REST} fill="white" />
+      </svg>
+    </button>
+  );
+}
+
+/** Standalone toggle (audio + fixed button). Prefer Header integration. */
+export function AmbientAudioToggle({
+  audioSrc = DEFAULT_AUDIO_SRC,
+  className,
+  buttonRef,
+}: AmbientAudioToggleProps) {
+  return (
+    <AmbientAudioProvider audioSrc={audioSrc}>
+      <AmbientAudioButton className={className} buttonRef={buttonRef} />
+    </AmbientAudioProvider>
   );
 }
