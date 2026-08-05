@@ -1,4 +1,3 @@
-import { AmbientAudioToggle } from "../components/AmbientAudioToggle";
 import { Header } from "../components/Header";
 import { FooterSection } from "../homepagesections/Footer Section";
 import { ForestGuide } from "./forestsections/ForestGuide";
@@ -13,7 +12,6 @@ export default function ForestPage() {
         <ForestGuide />
       </div>
       <FooterSection />
-      <AmbientAudioToggle />
     </main>
   );
 }

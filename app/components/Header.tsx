@@ -3,6 +3,10 @@
 import gsap from "gsap";
 import Image from "next/image";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import {
+  AmbientAudioButton,
+  AmbientAudioProvider,
+} from "./AmbientAudioToggle";
 import { useBooking } from "./booking/BookingProvider";
 import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
 import { TransitionLink } from "./TransitionLink";
@@ -25,13 +29,18 @@ function isVisible(el: HTMLElement | null): el is HTMLElement {
   return window.getComputedStyle(el).display !== "none";
 }
 
-export function Header() {
+type HeaderProps = {
+  audioSrc?: string;
+};
+
+export function Header({ audioSrc }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerReady, setDrawerReady] = useState(false);
   const { open: openBooking } = useBooking();
 
   const headerRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
+  const soundRef = useRef<HTMLButtonElement>(null);
   const ctaRef = useRef<HTMLButtonElement>(null);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
@@ -59,6 +68,7 @@ export function Header() {
   useLayoutEffect(() => {
     const header = headerRef.current;
     const logo = logoRef.current;
+    const sound = soundRef.current;
     const cta = ctaRef.current;
     const menuBtn = menuBtnRef.current;
     const line1 = line1Ref.current;
@@ -72,7 +82,8 @@ export function Header() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const fadeTargets = [logo, cta].filter(isVisible);
+    // Sound sits in the header on mobile only; fade it with logo when menu opens
+    const fadeTargets = [logo, sound, cta].filter(isVisible);
     const items = gsap.utils.toArray<HTMLElement>(
       panel.querySelectorAll("[data-menu-item]"),
     );
@@ -389,11 +400,16 @@ export function Header() {
   }, [menuOpen, drawerReady]);
 
   return (
-    <>
+    <AmbientAudioProvider audioSrc={audioSrc}>
       <header
         ref={headerRef}
         className="fixed top-4 left-4 right-4 z-[502] flex w-auto items-center justify-between bg-deep-forest px-5 py-3 md:left-1/2 md:right-auto md:w-fit md:-translate-x-1/2 md:justify-center md:gap-20 md:px-8"
       >
+        <AmbientAudioButton
+          buttonRef={soundRef}
+          className="relative z-10 flex size-10 shrink-0 items-center justify-center transition-opacity hover:opacity-80 md:hidden"
+        />
+
         <TransitionLink
           ref={logoRef}
           href="/"
@@ -427,7 +443,7 @@ export function Header() {
           aria-expanded={menuOpen}
           aria-controls="main-navigation"
           onClick={() => setMenuOpen((open) => !open)}
-          className="flex size-10 shrink-0 items-center justify-center"
+          className="relative z-10 flex size-10 shrink-0 items-center justify-center"
         >
           <span
             className="relative flex size-8 items-center justify-center"
@@ -447,6 +463,11 @@ export function Header() {
         </button>
       </header>
 
+      {/* Desktop: keep outside header so fixed positioning isn’t trapped by transforms */}
+      <AmbientAudioButton
+        className="fixed top-4 right-4 z-[502] hidden size-10 items-center justify-center transition-opacity hover:opacity-80 md:flex"
+      />
+
       <HeaderMenuDrawer
         open={menuOpen}
         onClose={closeMenu}
@@ -455,6 +476,6 @@ export function Header() {
         animRefs={{ panel: drawerPanelRef }}
         onReady={handleDrawerReady}
       />
-    </>
+    </AmbientAudioProvider>
   );
 }
