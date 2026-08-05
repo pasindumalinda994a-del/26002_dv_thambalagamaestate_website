@@ -8,8 +8,8 @@ export const FOREST_HERO = {
     { label: "Reserve area", value: "8,900 ha" },
   ],
   heroImage: {
-    src: "/others/forest-hero.png",
-    alt: "Sinharaja rainforest canopy",
+    src: "/forestpageimages/pexels-mafifp-id-7550411.jpg",
+    alt: "Aerial view of dense tropical rainforest with a river and waterfall",
   },
   introLead:
     "If you've spent any time researching a Sri Lanka holiday, you've probably come across the name Sinharaja more than once. It shows up in the same breath as Sigiriya and Yala, but it's a completely different kind of experience. There's no big rock to climb and no jeep full of tourists chasing a leopard. It's just forest, and a lot of it.",
@@ -134,8 +134,8 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/others/forest-unique.png",
-        alt: "Dense primary rainforest in Sinharaja",
+        src: "/forestpageimages/pexels-erik-ding-268389060-13073651.jpg",
+        alt: "Colorful forest bird perched on a branch",
       },
     ],
   },
@@ -295,8 +295,8 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/others/forest-pack.png",
-        alt: "Rainforest trail packing context",
+        src: "/forestpageimages/pexels-dongdilac-37671318.jpg",
+        alt: "Hiker standing on a dirt trail in dense rainforest",
       },
     ],
   },
@@ -320,11 +320,6 @@ export const FOREST_SECTIONS: GuideSection[] = [
         type: "button",
         label: "explore the bungalow",
         href: "/bungalow",
-      },
-      {
-        type: "image",
-        src: "/others/forest-stay.png",
-        alt: "Stay near the Sinharaja buffer zone",
       },
     ],
   },
@@ -382,11 +377,6 @@ export const FOREST_SECTIONS: GuideSection[] = [
       {
         type: "paragraph",
         text: "**SIM:** Pick up a local SIM card at the airport or in Colombo before heading out to Sinharaja, since signal gets patchy the closer you get to the forest.\n\n**Cash:** Bring enough Sri Lankan rupees in cash. ATMs and card machines are scarce once you're out of the main towns.\n\n**Weather:** Check the forecast, but don't fully trust it. Rainforest weather changes fast, and a sunny morning can turn into a downpour within the hour.\n\n**Road conditions:** The final few kilometers to most entrances are narrow, unpaved, or both. A vehicle with decent clearance, or a driver who knows the route well, makes a real difference.\n\n**Responsible tourism:** Stick to marked trails, don't feed wildlife, avoid single-use plastics where you can, and always go with a registered guide. Sinharaja survives because of how carefully it's been protected, and that only works if visitors respect the same rules.",
-      },
-      {
-        type: "image",
-        src: "/others/forest-tips.png",
-        alt: "Travel tips for visiting Sinharaja",
       },
     ],
   },
