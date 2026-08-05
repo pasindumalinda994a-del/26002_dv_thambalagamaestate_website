@@ -8,7 +8,7 @@ import {
   updateBookingStatusSchema,
 } from "@/lib/bookings/schema";
 import type { Booking } from "@/lib/bookings/types";
-import { sendOwnerBookingEmail } from "@/lib/email/resend";
+import { sendOwnerBookingEmail } from "@/lib/email/smtp";
 
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }

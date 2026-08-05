@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { ComponentProps } from "react";
+import { TransitionLink } from "./TransitionLink";
 
 export type ButtonVariant = "onDark" | "onCream";
 
@@ -8,6 +8,7 @@ export type ButtonProps = ComponentProps<"button"> & {
   variant?: ButtonVariant;
   target?: string;
   rel?: string;
+  showArrow?: boolean;
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -56,19 +57,20 @@ export function Button({
   variant = "onDark",
   target,
   rel,
+  showArrow = true,
   ...props
 }: ButtonProps) {
   if (href) {
     return (
-      <Link
+      <TransitionLink
         href={href}
         target={target}
         rel={rel}
         className={buttonClasses(variant, className)}
       >
         {children}
-        {arrowIcon}
-      </Link>
+        {showArrow ? arrowIcon : null}
+      </TransitionLink>
     );
   }
 
@@ -79,7 +81,7 @@ export function Button({
       {...props}
     >
       {children}
-      {arrowIcon}
+      {showArrow ? arrowIcon : null}
     </button>
   );
 }

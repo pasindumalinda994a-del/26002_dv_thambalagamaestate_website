@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto, Space_Grotesk } from "next/font/google";
 import { BookingDrawer } from "./components/booking/BookingDrawer";
 import { BookingProvider } from "./components/booking/BookingProvider";
+import { PageTransitionProvider } from "./components/PageTransitionProvider";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { listConfirmedUnavailableDates } from "@/lib/bookings/repository";
 import "./globals.css";
@@ -42,8 +43,10 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col font-primary">
         <SmoothScroll>
           <BookingProvider>
-            {children}
-            <BookingDrawer unavailableDateKeys={unavailableDateKeys} />
+            <PageTransitionProvider>
+              {children}
+              <BookingDrawer unavailableDateKeys={unavailableDateKeys} />
+            </PageTransitionProvider>
           </BookingProvider>
         </SmoothScroll>
       </body>

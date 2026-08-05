@@ -2,10 +2,10 @@
 
 import gsap from "gsap";
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useBooking } from "./booking/BookingProvider";
 import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
+import { TransitionLink } from "./TransitionLink";
 
 const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 const COLLAPSED_WIDTH = 64;
@@ -14,7 +14,7 @@ const MENU_BTN_WIDTH = 40; // size-10
 const LINE_Y = 5; // centers ±5px → 6px gap between 4px-thick bars
 
 const NAV_LINKS = [
-  { href: "/", label: "Sanctuary" },
+  { href: "/bungalow", label: "Sanctuary" },
   { href: "/forest", label: "Forest" },
   { href: "/experiences", label: "Experience" },
   { href: "/gallery", label: "Gallery" },
@@ -394,7 +394,7 @@ export function Header() {
         ref={headerRef}
         className="fixed top-4 left-4 right-4 z-[502] flex w-auto items-center justify-between bg-deep-forest px-5 py-3 md:left-1/2 md:right-auto md:w-fit md:-translate-x-1/2 md:justify-center md:gap-20 md:px-8"
       >
-        <Link
+        <TransitionLink
           ref={logoRef}
           href="/"
           onClick={closeMenu}
@@ -408,7 +408,7 @@ export function Header() {
             className="h-auto w-auto max-h-8"
             priority
           />
-        </Link>
+        </TransitionLink>
 
         <button
           ref={ctaRef}
