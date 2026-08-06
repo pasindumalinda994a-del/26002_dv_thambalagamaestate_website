@@ -61,7 +61,7 @@ export function ForestToc({ items }: ForestTocProps) {
                 <span className="whitespace-nowrap lg:whitespace-normal">
                   {item.label}
                 </span>
-                <TocChevron className="hidden size-6 shrink-0 lg:block" />
+                <TocChevron className="hidden size-6 shrink-0 rotate-90 lg:block" />
               </a>
             </li>
           );
