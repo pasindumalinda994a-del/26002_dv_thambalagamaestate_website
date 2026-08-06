@@ -6,6 +6,15 @@ import { ComfortSection } from "./bungalowsections/ComfortSection";
 import { PoolSection } from "./bungalowsections/PoolSection";
 import { PrivateQuartersSection } from "./bungalowsections/PrivateQuartersSection";
 import { SpecsSection } from "./bungalowsections/SpecsSection";
+import { BUNGALOW_OG_IMAGE, buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Rainforest Bungalow near Sinharaja Forest",
+  description:
+    "Stay at Thambalagama Estate — a private bungalow on the edge of Sinharaja Forest Sri Lanka. Ideal base for Sri Lanka rainforest travel, holidays, and eco tourism.",
+  path: "/bungalow",
+  image: BUNGALOW_OG_IMAGE,
+});
 
 export default function BungalowPage() {
   return (
