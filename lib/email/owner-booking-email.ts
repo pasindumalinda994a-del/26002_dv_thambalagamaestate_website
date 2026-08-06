@@ -78,8 +78,13 @@ export function ownerBookingEmailSubject(booking: Booking): string {
   return `New booking request — ${booking.fullName}`;
 }
 
+export function dashboardUrl(): string {
+  return `${siteUrl()}/admin`;
+}
+
 type BookingEmailView = {
   detailUrl: string;
+  dashboardUrl: string;
   logoSrc: string;
   checkIn: string;
   checkOut: string;
@@ -95,6 +100,7 @@ function buildView(booking: Booking): BookingEmailView {
   const nights = nightCount(booking.checkIn, booking.checkOut);
   return {
     detailUrl: bookingDetailUrl(booking.id),
+    dashboardUrl: dashboardUrl(),
     logoSrc: logoUrl(),
     checkIn: formatDateLong(booking.checkIn),
     checkOut: formatDateLong(booking.checkOut),
@@ -146,7 +152,8 @@ export function ownerBookingEmailText(booking: Booking): string {
     `Special requests: ${view.specialRequests}`,
     `Status:           ${booking.status}`,
     "",
-    `View in dashboard: ${view.detailUrl}`,
+    `View booking: ${view.detailUrl}`,
+    `Open dashboard: ${view.dashboardUrl}`,
   ];
   return lines.join("\n");
 }
@@ -244,10 +251,10 @@ export function ownerBookingEmailHtml(booking: Booking): string {
             <td style="padding:24px 28px 32px;text-align:center;">
               <a href="${escapeHtml(view.detailUrl)}"
                  style="display:inline-block;background:${C.forest};color:${C.cream};text-decoration:none;padding:14px 32px;font-size:14px;letter-spacing:0.06em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                View in dashboard
+                View booking
               </a>
-              <p style="margin:16px 0 0;font-size:11px;line-height:1.5;color:${C.sage};word-break:break-all;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                ${escapeHtml(view.detailUrl)}
+              <p style="margin:16px 0 0;font-size:13px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                <a href="${escapeHtml(view.dashboardUrl)}" style="color:${C.forest};text-decoration:underline;">Open dashboard</a>
               </p>
             </td>
           </tr>
