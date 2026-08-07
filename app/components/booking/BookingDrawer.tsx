@@ -241,7 +241,7 @@ export function BookingDrawer({
     Boolean(range.from && range.to) &&
     fullName.trim().length > 0 &&
     email.trim().length > 0 &&
-    whatsapp.trim().length > 0 &&
+    whatsapp.length === 9 &&
     guestTotal > 0 &&
     guestTotal <= MAX_GUESTS;
 
@@ -586,10 +586,16 @@ export function BookingDrawer({
                           type="tel"
                           name="whatsapp"
                           required
-                          autoComplete="tel"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
                           placeholder="WHATSAPP NUMBER*"
                           value={whatsapp}
-                          onChange={(e) => setWhatsapp(e.target.value)}
+                          maxLength={9}
+                          onChange={(e) =>
+                            setWhatsapp(
+                              e.target.value.replace(/\D/g, "").slice(0, 9),
+                            )
+                          }
                           className="min-w-0 flex-1 bg-cream px-3 py-3 font-secondary text-[12px] font-semibold uppercase tracking-[0.12em] text-deep-forest outline-none placeholder:text-[#7C7F78] focus:border-forest-green/50"
                         />
                       </div>

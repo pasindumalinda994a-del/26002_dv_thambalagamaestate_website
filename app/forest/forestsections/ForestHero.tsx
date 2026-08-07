@@ -8,7 +8,7 @@ export function ForestHero() {
   return (
     <section aria-label="Forest guide hero" className="flex flex-col gap-8 md:gap-10">
       <div className="px-5 md:px-8">
-        <H1 className="max-w-[1202px] uppercase text-deep-forest">
+        <H1 className="max-w-[1202px] uppercase text-deep-forest !text-[clamp(24px,6.55vw,54px)]">
           {FOREST_HERO.headline}
         </H1>
       </div>

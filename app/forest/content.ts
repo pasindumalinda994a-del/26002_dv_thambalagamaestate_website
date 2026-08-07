@@ -8,7 +8,7 @@ export const FOREST_HERO = {
     { label: "Reserve area", value: "8,900 ha" },
   ],
   heroImage: {
-    src: "/forestpageimages/pexels-mafifp-id-7550411.jpg",
+    src: "/forestpageimages/forest-hero.webp",
     alt: "Aerial view of dense tropical rainforest with a river and waterfall",
   },
   introLead:
@@ -122,6 +122,11 @@ export const FOREST_SECTIONS: GuideSection[] = [
         type: "paragraph",
         text: "Towering hardwood trees, a canopy so thick that midday light barely reaches the forest floor, and the constant background hum of insects and birds you can hear long before you spot them.\n\nFor travelers building a Sri Lanka holiday around nature and eco tourism rather than beaches and temples, Sinharaja is close to essential. It's also a good counterbalance if your trip already includes Yala or Udawalawe, since it shows you a completely different side of the island's wildlife.",
       },
+      {
+        type: "image",
+        src: "/forestpageimages/why-visit.webp",
+        alt: "Moss-covered tree branch in a dense, shaded rainforest",
+      },
     ],
   },
   {
@@ -134,7 +139,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/pexels-erik-ding-268389060-13073651.jpg",
+        src: "/forestpageimages/what-makes-unique.webp",
         alt: "Colorful forest bird perched on a branch",
       },
     ],
@@ -252,6 +257,11 @@ export const FOREST_SECTIONS: GuideSection[] = [
         type: "paragraph",
         text: "**Guided trekking** is the main event here, and it's mandatory anyway since independent hiking isn't permitted inside the reserve. Trails range from an easy 90-minute loop to full-day treks toward Sinhagala peak.\n\n**Bird watching** draws a serious crowd of dedicated birders every year, and for good reason. Sinharaja holds the highest concentration of Sri Lanka's endemic bird species anywhere on the island.\n\n**Wildlife photography** rewards patience more than expensive gear. A guide who knows where the mixed feeding flocks tend to move will get you far better shots than wandering alone ever could.\n\n**Waterfalls** scattered around the Lankagama and Pitadeniya entrances make for a natural reward at the end of a sweaty hike, whether you're there to photograph them or just cool off.\n\n**Swimming** is possible in some of the calmer pools below the waterfalls, though always check with your guide first since water levels shift quickly after rain.\n\n**Nature walks** on the gentler trails suit families or anyone not up for a full trek. Even a short walk from Kudawa's conservation center delivers a solid taste of the forest.\n\n**Village experiences** around Kudawa and Deniyaya offer a look at how local communities have lived alongside the reserve for generations, often through small guesthouses run by families with deep knowledge of the forest.",
       },
+      {
+        type: "image",
+        src: "/forestpageimages/things-to-do.webp",
+        alt: "Hikers walking single-file along a narrow trail through dense rainforest",
+      },
     ],
   },
   {
@@ -262,6 +272,11 @@ export const FOREST_SECTIONS: GuideSection[] = [
         type: "paragraph",
         text: "**Birds** are the headline act. Keep an eye out for the Sri Lanka blue magpie, red-faced malkoha, green-billed coucal, Sri Lanka frogmouth, and the Sri Lanka grey hornbill. Birds here tend to travel in mixed feeding flocks, often led by the drongo and the orange-billed babbler, so once you spot one species, several more are usually close by.\n\n**Reptiles** in the reserve include green pit vipers, various endemic lizard species, and if you're lucky (or unlucky, depending on your feelings about snakes) the occasional hump-nosed viper.\n\n**Butterflies** flutter through sunlit clearings in impressive numbers and variety, with Sinharaja holding a large share of the island's endemic species.\n\n**Mammals** are harder to spot given the dense canopy, but purple-faced langurs, giant squirrels, and occasionally a fishing cat or two show up for patient or lucky visitors.\n\n**Endemic species** overall are the real draw. Between the birds, mammals, butterflies, and plant life, Sinharaja punches well above its size when it comes to species found nowhere else on the planet.",
       },
+      {
+        type: "image",
+        src: "/forestpageimages/wildlife.webp",
+        alt: "Wildlife photographer with a telephoto lens in dense forest foliage",
+      },
     ],
   },
   {
@@ -271,6 +286,11 @@ export const FOREST_SECTIONS: GuideSection[] = [
       {
         type: "paragraph",
         text: "**Difficulty** ranges from easy to genuinely demanding, depending on which trail and entrance you choose. The short loops near Kudawa's conservation center are manageable for most fitness levels, while Sinhagala peak is a serious full-day trek over uneven, often slippery terrain.\n\n**Routes** worth knowing include the Moulawella Nature Trail (moderate, a few hours, good views), the Sinhagala Trail (long, difficult, reaches the highest point in the reserve), and the waterfall circuits around Lankagama and Pitadeniya (moderate, three to five hours with multiple stops).\n\n**Duration** for most day treks runs between three and seven hours. If you want to reach Sinhagala peak, plan for a full day and start early.\n\n**Guide costs** vary by entrance and negotiation, but expect somewhere in the range of a few thousand Sri Lankan rupees for a private guide over a few hours, more for a full-day trek. Prices shift year to year, so confirm current rates locally or through your accommodation before you go.\n\n**Entrance fees** for foreign visitors generally sit somewhere between roughly USD 15 and 20, though this has fluctuated over recent years, so it's worth double-checking before your trip. A registered guide is mandatory and is either included in this fee or charged separately depending on the entrance.\n\n**Safety** inside the reserve is generally good as long as you stick with your guide and wear appropriate footwear. Trails get slippery after rain, streams can rise quickly, and you're deep enough in the forest that a twisted ankle becomes a real inconvenience rather than a minor one.",
+      },
+      {
+        type: "image",
+        src: "/forestpageimages/trekking.webp",
+        alt: "Dirt trail winding through dense rainforest with wet foliage",
       },
     ],
   },
@@ -292,11 +312,6 @@ export const FOREST_SECTIONS: GuideSection[] = [
           "Cash in small denominations",
           "A basic first aid kit for scrapes and leech bites",
         ],
-      },
-      {
-        type: "image",
-        src: "/forestpageimages/pexels-dongdilac-37671318.jpg",
-        alt: "Hiker standing on a dirt trail in dense rainforest",
       },
     ],
   },

@@ -7,6 +7,14 @@ import {
 import { Header } from "../components/Header";
 import { FooterSection } from "../homepagesections/Footer Section";
 import { GalleryHero } from "./gallerysections/GalleryHero";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  title: "Gallery — Sinharaja Rainforest & Estate",
+  description:
+    "Photos from Thambalagama Estate and Sinharaja Forest Sri Lanka — rainforest atmosphere, bungalow stays, and Travel Sri Lanka inspiration.",
+  path: "/gallery",
+});
 
 export default async function GalleryPage() {
   let dynamicImages: GalleryDisplayImage[] = [];
