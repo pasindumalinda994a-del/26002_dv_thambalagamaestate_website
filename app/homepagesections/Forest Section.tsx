@@ -12,7 +12,7 @@ import {
 } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
-import { GlassyButton } from "../components/GlassyButton";
+import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 
 const FOREST_CTA = {
@@ -698,9 +698,9 @@ export function ForestSection({
               className="pointer-events-auto"
               style={{ opacity: 0 }}
             >
-              <GlassyButton href={FOREST_CTA.href}>
+              <Button variant="glass" href={FOREST_CTA.href}>
                 {FOREST_CTA.label}
-              </GlassyButton>
+              </Button>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
-import { GlassyButton } from "../components/GlassyButton";
+import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 
 const BG_SRC = "/homepageimages/villa-bg.webp";
@@ -275,9 +275,9 @@ export function VillaSection() {
                 Crafted for comfort.
               </H2>
 
-              <GlassyButton className="mt-8 md:mt-10" href="/bungalow">
+              <Button variant="glass" className="mt-8 md:mt-10" href="/bungalow">
                 Tour the bungalow
-              </GlassyButton>
+              </Button>
             </div>
 
             <ul

@@ -15,7 +15,9 @@ export const SITE_KEYWORDS = [
 export const DEFAULT_OG_IMAGE = "/homepageimages/DSC_0471.jpg_2K_202607261120.webp";
 export const FOREST_OG_IMAGE = "/forestpageimages/forest-hero.webp";
 export const BUNGALOW_OG_IMAGE =
-  "/balgalowpageimages/0C8A9932.JPG_2K_202607281106.jpeg";
+  "/balgalowpageimages/0C8A9933.JPG";
+export const EXPERIENCES_OG_IMAGE =
+  "/experiencepageimages/experiences-hero.webp";
 export const LOGO_PATH = "/Logo/ThambalagamaLogo.png";
 
 /** Estate coordinates (Sinharaja buffer zone) — matches LocationSection map. */

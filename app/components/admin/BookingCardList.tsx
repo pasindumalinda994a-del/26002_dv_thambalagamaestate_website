@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Booking } from "@/lib/bookings/types";
+import { Button } from "../Button";
 import { formatDate, formatSubmitted, nightCount } from "./format";
 import { StatusSelect } from "./StatusSelect";
 
@@ -39,12 +40,15 @@ export function BookingCardList({ bookings }: { bookings: Booking[] }) {
                     </span>
                   </p>
                 </div>
-                <Link
+                <Button
                   href={`/admin/bookings/${booking.id}`}
-                  className="shrink-0 border border-forest-green/25 px-3 py-1.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream"
+                  variant="dark"
+                  size="small"
+                  showArrow={false}
+                  className="shrink-0"
                 >
                   View
-                </Link>
+                </Button>
               </div>
 
               <div className="flex flex-wrap gap-x-4 gap-y-1 font-secondary text-[13px] text-forest-green">

@@ -5,7 +5,7 @@ import { useLenis } from "lenis/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { refreshScrollTriggers } from "@/lib/scroll-refresh";
-import { GlassyButton } from "../components/GlassyButton";
+import { Button } from "../components/Button";
 import { Paragraph } from "../components/Paragraph";
 
 const BG_SRC = "/homepageimages/start-experience-bg.webp";
@@ -168,9 +168,9 @@ export function StartExperience() {
           For the full experience, turn on your sound.
         </Paragraph>
 
-        <GlassyButton type="button" onClick={handleEnter} disabled={isAnimating}>
+        <Button variant="glass" type="button" onClick={handleEnter} disabled={isAnimating}>
           Enter the sanctuary
-        </GlassyButton>
+        </Button>
       </div>
     </section>
   );

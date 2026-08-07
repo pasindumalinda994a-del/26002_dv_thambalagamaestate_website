@@ -7,8 +7,8 @@ export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
   scrollLabel: "scroll to explore",
   image: {
-    src: "/balgalowpageimages/0C8A9932.JPG_2K_202607281106.jpeg",
-    alt: "Thambalagama Estate bungalow in the rainforest",
+    src: "/balgalowpageimages/0C8A9933.JPG",
+    alt: "Thambalagama Estate bungalow at dusk",
   } satisfies BungalowImage,
 } as const;
 
@@ -88,8 +88,8 @@ export const BUNGALOW_SPECS = {
 export const BUNGALOW_POOL = {
   label: "Spring-fed natural pool",
   image: {
-    src: "/balgalowpageimages/DSC_0471.jpg_2K_202607261120.jpeg",
-    alt: "Spring-fed natural pool at the estate",
+    src: "/balgalowpageimages/0C8A0086.JPG",
+    alt: "Spring-fed natural pool with rock waterfall and mountain views",
   } satisfies BungalowImage,
 } as const;
 
@@ -97,20 +97,36 @@ export const BUNGALOW_QUARTERS = {
   headline: "private quarters",
   images: [
     {
-      src: "/homepageimages/villa-gallery-bedroom.webp",
-      alt: "Private master suite",
+      src: "/balgalowpageimages/DSC_0568.jpg",
+      alt: "Twin beds with teal accents and wooden headboard",
     },
     {
-      src: "/homepageimages/villa-gallery-living-room.webp",
-      alt: "Private living quarters",
+      src: "/balgalowpageimages/DSC_0572.jpg",
+      alt: "Twin beds with leaf-pattern bedding and tufted headboard",
     },
     {
-      src: "/homepageimages/villa-gallery-dining-room.webp",
-      alt: "Private dining space",
+      src: "/balgalowpageimages/DSC_0577.jpg",
+      alt: "Bedside detail with floating nightstand and warm lighting",
     },
     {
-      src: "/homepageimages/villa-gallery-indoor-outdoor.webp",
-      alt: "Private bungalow surrounded by rainforest",
+      src: "/balgalowpageimages/DSC_0585.jpg",
+      alt: "Twin beds with pink floral bedding",
+    },
+    {
+      src: "/balgalowpageimages/DSC_0593.jpg",
+      alt: "Twin beds with sage green bedding and floral wall art",
+    },
+    {
+      src: "/balgalowpageimages/DSC_0596.jpg",
+      alt: "Double bed suite with botanical bedding and wooden headboard",
+    },
+    {
+      src: "/balgalowpageimages/DSC_0599.jpg",
+      alt: "Double bed with floral art and amber reading lamps",
+    },
+    {
+      src: "/balgalowpageimages/DSC_0611.jpg",
+      alt: "Floral suite with tufted headboard and wall art",
     },
   ] as const satisfies readonly BungalowImage[],
 } as const;

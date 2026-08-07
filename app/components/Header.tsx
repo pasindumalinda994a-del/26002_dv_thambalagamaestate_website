@@ -2,11 +2,14 @@
 
 import gsap from "gsap";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   AmbientAudioButton,
   AmbientAudioProvider,
+  type SoundButtonVariant,
 } from "./AmbientAudioToggle";
+import { Button } from "./Button";
 import { useBooking } from "./booking/BookingProvider";
 import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
 import { TransitionLink } from "./TransitionLink";
@@ -24,6 +27,12 @@ const NAV_LINKS = [
   { href: "/gallery", label: "Gallery" },
 ] as const;
 
+/** Photo / imagery pages → Glass; cream pages → Dark (default). */
+function desktopSoundVariantForPath(pathname: string): SoundButtonVariant {
+  if (pathname === "/" || pathname.startsWith("/gallery")) return "glass";
+  return "dark";
+}
+
 function isVisible(el: HTMLElement | null): el is HTMLElement {
   if (!el) return false;
   return window.getComputedStyle(el).display !== "none";
@@ -34,6 +43,8 @@ type HeaderProps = {
 };
 
 export function Header({ audioSrc }: HeaderProps) {
+  const pathname = usePathname();
+  const desktopSoundVariant = desktopSoundVariantForPath(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerReady, setDrawerReady] = useState(false);
   const { open: openBooking } = useBooking();
@@ -407,7 +418,8 @@ export function Header({ audioSrc }: HeaderProps) {
       >
         <AmbientAudioButton
           buttonRef={soundRef}
-          className="relative z-10 flex size-10 shrink-0 items-center justify-center transition-opacity hover:opacity-80 md:hidden"
+          variant="light"
+          className="relative z-10 flex size-12 shrink-0 items-center justify-center transition-opacity hover:opacity-80 md:hidden"
         />
 
         <TransitionLink
@@ -426,15 +438,16 @@ export function Header({ audioSrc }: HeaderProps) {
           />
         </TransitionLink>
 
-        <button
+        <Button
           ref={ctaRef}
           type="button"
+          variant="light"
+          size="medium"
           onClick={handleAvailability}
-          className="hidden shrink-0 items-center gap-2 overflow-hidden font-secondary text-[14px] font-medium uppercase tracking-[0.2px] text-cream transition-opacity hover:opacity-80 md:inline-flex"
+          className="hidden shrink-0 overflow-hidden !bg-transparent !shadow-none !border-transparent !text-cream md:inline-flex"
         >
           Check Availability
-          <span aria-hidden>→</span>
-        </button>
+        </Button>
 
         <button
           ref={menuBtnRef}
@@ -465,7 +478,8 @@ export function Header({ audioSrc }: HeaderProps) {
 
       {/* Desktop: keep outside header so fixed positioning isn’t trapped by transforms */}
       <AmbientAudioButton
-        className="fixed top-4 right-4 z-[502] hidden size-10 items-center justify-center transition-opacity hover:opacity-80 md:flex"
+        variant={desktopSoundVariant}
+        className="fixed top-4 right-4 z-[502] hidden size-12 items-center justify-center transition-opacity hover:opacity-80 md:flex"
       />
 
       <HeaderMenuDrawer

@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { createBookingAction } from "@/app/actions/bookings";
+import { Button } from "../Button";
 import { useBooking } from "./BookingProvider";
 import { DateRangeCalendar, type DateRange } from "./DateRangeCalendar";
 import { GuestStepper } from "./GuestStepper";
@@ -179,14 +180,9 @@ function ThankYouView({
       </div>
 
       <div className="flex shrink-0 justify-end border-t border-forest-green/15 bg-cream px-6 py-4 md:px-10">
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="inline-flex items-center justify-center gap-2 bg-forest-green px-6 py-3.5 font-secondary text-[12px] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-deep-forest"
-        >
+        <Button type="button" variant="dark" size="medium" onClick={onDismiss}>
           Continue Exploring
-          <span aria-hidden>→</span>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -670,19 +666,15 @@ export function BookingDrawer({
                   </p>
                 )}
                 <div className="flex sm:justify-end">
-                  <button
+                  <Button
                     type="submit"
+                    variant="dark"
+                    size="medium"
                     disabled={!canSubmit || isSubmitting}
-                    className={[
-                      "inline-flex items-center justify-center gap-2 px-6 py-3.5 font-secondary text-[12px] font-semibold uppercase tracking-[0.14em] transition-colors",
-                      canSubmit && !isSubmitting
-                        ? "bg-forest-green text-cream hover:bg-deep-forest"
-                        : "cursor-not-allowed bg-olive/35 text-cream/90",
-                    ].join(" ")}
+                    showArrow={!isSubmitting}
                   >
                     {isSubmitting ? "Sending…" : "Request to Book"}
-                    {!isSubmitting ? <span aria-hidden>→</span> : null}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>

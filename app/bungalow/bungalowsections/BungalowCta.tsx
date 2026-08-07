@@ -7,7 +7,7 @@ import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../../components/booking/BookingProvider";
-import { GlassyButton } from "../../components/GlassyButton";
+import { Button } from "../../components/Button";
 import { BUNGALOW_CTA } from "../content";
 
 const MOBILE_MQ = "(max-width: 767px)";
@@ -233,9 +233,9 @@ export function BungalowCta() {
           </div>
         </div>
 
-        <GlassyButton onClick={openBooking}>
+        <Button variant="glass" onClick={openBooking}>
           {BUNGALOW_CTA.buttonLabel}
-        </GlassyButton>
+        </Button>
       </div>
     </section>
   );

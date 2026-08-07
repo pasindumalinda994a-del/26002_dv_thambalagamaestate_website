@@ -11,6 +11,7 @@ import {
 import { validateGalleryFile } from "@/lib/gallery/schema";
 import { STATIC_GALLERY_IMAGES } from "@/lib/gallery/static-images";
 import { galleryPublicSrc } from "@/lib/gallery/types";
+import { Button } from "../Button";
 
 export type GalleryManagerItem = {
   id: string;
@@ -332,13 +333,16 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
               </div>
             </div>
           ) : null}
-          <button
+          <Button
             type="submit"
+            variant="dark"
+            size="small"
             disabled={busy}
-            className="w-fit border border-forest-green bg-forest-green px-5 py-2.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-transparent hover:text-forest-green disabled:opacity-50"
+            showArrow={false}
+            className="w-fit"
           >
             {uploading ? "Uploading…" : "Upload"}
-          </button>
+          </Button>
         </form>
       </section>
 
@@ -446,24 +450,28 @@ function GalleryCard({
             </p>
           </div>
           <div className="flex shrink-0 flex-col gap-1">
-            <button
+            <Button
               type="button"
+              variant="dark"
+              size="small"
               disabled={disabled || index === 0}
               onClick={onMoveUp}
               title="Move earlier in gallery"
-              className="border border-forest-green/25 px-3 py-1.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream disabled:opacity-40"
+              showArrow={false}
             >
               Up
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="dark"
+              size="small"
               disabled={disabled || index >= total - 1}
               onClick={onMoveDown}
               title="Move later in gallery"
-              className="border border-forest-green/25 px-3 py-1.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream disabled:opacity-40"
+              showArrow={false}
             >
               Down
-            </button>
+            </Button>
           </div>
         </div>
         <label className="block">
@@ -479,14 +487,16 @@ function GalleryCard({
           />
         </label>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
+            variant="dark"
+            size="small"
             disabled={disabled || altDraft.trim() === image.alt}
             onClick={() => onSaveAlt(image.id, altDraft.trim())}
-            className="border border-forest-green/25 px-3 py-2 font-secondary text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream disabled:opacity-40"
+            showArrow={false}
           >
             Save alt
-          </button>
+          </Button>
           <button
             type="button"
             disabled={disabled}

@@ -6,8 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { dispatchAmbientSoundPreference } from "@/lib/ambient-sound";
 import { HOME_CRITICAL_ASSETS } from "@/lib/preload-assets";
 import { refreshScrollTriggers } from "@/lib/scroll-refresh";
-import { GlassyButton } from "./GlassyButton";
-import { Button } from "./SolidButton";
+import { Button } from "./Button";
 
 /** Full progress arc — long enough for each status phase to read. */
 const PROGRESS_DURATION_MS = 7200;
@@ -413,19 +412,20 @@ export function Preloader() {
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <Button
               type="button"
-              variant="onDark"
-              showArrow={false}
+              variant="light"
+              size="large"
               onClick={() => handleSoundChoice(true)}
             >
               Sound On
             </Button>
-            <GlassyButton
+            <Button
               type="button"
-              showArrow={false}
+              variant="glass"
+              size="large"
               onClick={() => handleSoundChoice(false)}
             >
               Sound Off
-            </GlassyButton>
+            </Button>
           </div>
         </div>
       )}
