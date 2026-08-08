@@ -4,7 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { forwardRef, useEffect, useState, useRef } from "react";
-import { Button } from "../components/SolidButton";
+import { Button } from "../components/Button";
 
 const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
@@ -445,7 +445,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               href={DIRECTIONS_URL}
               target="_blank"
               rel="noopener noreferrer"
-              variant="onCream"
+              variant="dark"
               className="w-fit self-end"
             >
               Get Directions

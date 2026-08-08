@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Booking } from "@/lib/bookings/types";
+import { Button } from "../Button";
 import {
   formatDateLong,
   formatSubmitted,
@@ -152,21 +153,27 @@ export function BookingDetail({ booking }: { booking: Booking }) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-forest-green/15 bg-white p-4 md:hidden">
-        <a
+        <Button
           href={`mailto:${booking.email}`}
-          className="flex flex-1 items-center justify-center border border-forest-green/25 px-4 py-3 font-secondary text-[12px] font-semibold uppercase tracking-[0.12em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream"
+          variant="dark"
+          size="small"
+          showArrow={false}
+          className="flex-1"
         >
           Email guest
-        </a>
+        </Button>
         {wa ? (
-          <a
+          <Button
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center bg-forest-green px-4 py-3 font-secondary text-[12px] font-semibold uppercase tracking-[0.12em] text-cream transition-colors hover:bg-deep-forest"
+            variant="dark"
+            size="small"
+            showArrow={false}
+            className="flex-1"
           >
             WhatsApp
-          </a>
+          </Button>
         ) : null}
       </div>
     </>

@@ -15,7 +15,7 @@ import {
 } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
-import { Button } from "../components/SolidButton";
+import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
 const HOVER_GROW = 2.4;
@@ -337,7 +337,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
               A private rhythm of secluded waters, guided wilderness, and
               personalized dining.
             </Paragraph>
-            <Button variant="onCream" href="/experiences">
+            <Button variant="dark" href="/experiences">
               Explore experiences
             </Button>
           </div>

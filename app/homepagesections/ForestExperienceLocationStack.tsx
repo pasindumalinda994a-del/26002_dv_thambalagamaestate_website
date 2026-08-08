@@ -51,8 +51,10 @@ export function ForestExperienceLocationStack() {
         overlayTargetRef={locationRef}
       />
       <LocationSection ref={locationRef} ready={stackReady} />
-      <CTASection />
-      <FooterSection />
+      <div className="bg-deep-forest">
+        <CTASection />
+        <FooterSection />
+      </div>
     </div>
   );
 }

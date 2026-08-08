@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button } from "../../components/SolidButton";
+import { Button } from "../../components/Button";
 import {
   FOREST_SECTIONS,
   FOREST_TOC,
@@ -57,7 +57,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
     case "button":
       return (
         <div>
-          <Button href={block.href} variant="onCream">
+          <Button href={block.href} variant="dark">
             {block.label}
           </Button>
         </div>

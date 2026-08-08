@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
+import { Button } from "../Button";
 import { NAV_ITEMS } from "./constants";
 import {
   BOOKING_STATUSES,
@@ -208,12 +209,15 @@ export function AdminSidebar({
 
         <div className="mt-auto border-t border-forest-green/15 p-4">
           <form action={logoutAction}>
-            <button
+            <Button
               type="submit"
-              className="w-full border border-forest-green/25 px-4 py-2.5 font-secondary text-[11px] font-semibold uppercase tracking-[0.14em] text-forest-green transition-colors hover:bg-forest-green hover:text-cream"
+              variant="dark"
+              size="small"
+              showArrow={false}
+              className="w-full"
             >
               Log out
-            </button>
+            </Button>
           </form>
         </div>
       </aside>

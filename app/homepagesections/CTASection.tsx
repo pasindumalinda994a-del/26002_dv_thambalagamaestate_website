@@ -7,7 +7,7 @@ import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
-import { GlassyButton } from "../components/GlassyButton";
+import { Button } from "../components/Button";
 
 const BG_SRC = "/homepageimages/cta-bg.webp";
 const MOBILE_MQ = "(max-width: 767px)";
@@ -234,7 +234,7 @@ export function CTASection() {
           </div>
         </div>
 
-        <GlassyButton onClick={openBooking}>Check Availability</GlassyButton>
+        <Button variant="glass" onClick={openBooking}>Check Availability</Button>
       </div>
     </section>
   );

@@ -27,8 +27,10 @@ export default function BungalowPage() {
       </div>
       <PoolSection />
       <PrivateQuartersSection />
-      <BungalowCta />
-      <FooterSection />
+      <div className="bg-deep-forest">
+        <BungalowCta />
+        <FooterSection />
+      </div>
     </main>
   );
 }

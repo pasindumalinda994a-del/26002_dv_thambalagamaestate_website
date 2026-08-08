@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { RefObject } from "react";
+import { Button } from "./Button";
 import { TransitionLink } from "./TransitionLink";
 
 export type NavLink = {
@@ -119,15 +120,16 @@ export function HeaderMenuDrawer({
             ))}
           </ul>
 
-          <button
+          <Button
             data-menu-item
             type="button"
+            variant="light"
+            size="medium"
             onClick={onCheckAvailability}
-            className="mt-8 flex w-full items-center justify-center gap-2 bg-cream px-4 py-3.5 font-secondary text-[13px] font-semibold uppercase tracking-[0.08em] text-deep-forest transition-opacity hover:opacity-90"
+            className="mt-8 w-full"
           >
             Check Availability
-            <span aria-hidden>→</span>
-          </button>
+          </Button>
 
           <Link
             data-menu-item

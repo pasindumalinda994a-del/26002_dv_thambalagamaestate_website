@@ -1,6 +1,5 @@
 "use client";
 
-import gsap from "gsap";
 import {
   createContext,
   useContext,
@@ -34,19 +33,32 @@ const AmbientAudioContext = createContext<AmbientAudioContextValue | null>(
 const DEFAULT_AUDIO_SRC = "/audio/ambient-forest.mp3";
 const VOLUME = 0.35;
 
-/** Resting wave (matches public/Icons/Frame 1261155686.svg). */
-const WAVE_REST =
-  "M24.5 29C21.5 29 20.31 24.76 19.05 20.28C18.14 17.04 17 13 15.5 13C12.11 13 12 19.93 12 20H10C10 19.63 10.06 11 15.5 11C18.5 11 19.71 15.25 20.97 19.74C21.83 22.8 23 27 24.5 27C27.94 27 28.03 20.07 28.03 20H30.03C30.03 20.37 29.97 29 24.5 29Z";
+export type SoundButtonVariant = "glass" | "dark" | "light";
 
-/** Peak-shifted variants — same command structure for GSAP attr tweening. */
-const WAVE_A =
-  "M24.5 29C21.5 29 20.31 25.6 19.05 18.9C18.14 15.5 17 11.5 15.5 11.5C12.11 11.5 12 19.93 12 20H10C10 19.63 10.06 9.5 15.5 9.5C18.5 9.5 19.71 14.2 20.97 20.8C21.83 24.2 23 28 24.5 28C27.94 28 28.03 20.07 28.03 20H30.03C30.03 20.37 29.97 29 24.5 29Z";
+const SINE_WAVE_CREAM = "/Icons/mdi-sine-wave.svg";
+const SINE_WAVE_FOREST = "/Icons/mdi-sine-wave-forest.svg";
 
-const WAVE_B =
-  "M24.5 29C21.5 29 20.31 23.8 19.05 21.5C18.14 18.6 17 14.5 15.5 14.5C12.11 14.5 12 19.93 12 20H10C10 19.63 10.06 12.5 15.5 12.5C18.5 12.5 19.71 16.4 20.97 18.6C21.83 21.4 23 26 24.5 26C27.94 26 28.03 20.07 28.03 20H30.03C30.03 20.37 29.97 29 24.5 29Z";
+const VARIANT_SHELL: Record<SoundButtonVariant, string> = {
+  glass:
+    "rounded-full bg-cream/16 shadow-[0_4px_10px_0] shadow-black/8 ring-1 ring-inset ring-cream/32 backdrop-blur-[5px]",
+  dark: "rounded-full bg-forest-green shadow-[0_4px_10px_0] shadow-black/8",
+  light: "rounded-full bg-cream shadow-[0_4px_10px_0] shadow-black/8",
+};
 
-const DEFAULT_BUTTON_CLASS =
-  "fixed top-4 right-4 z-502 flex size-10 items-center justify-center transition-opacity hover:opacity-80";
+const VARIANT_ICON: Record<SoundButtonVariant, string> = {
+  glass: SINE_WAVE_CREAM,
+  dark: SINE_WAVE_CREAM,
+  light: SINE_WAVE_FOREST,
+};
+
+const VARIANT_SLASH: Record<SoundButtonVariant, string> = {
+  glass: "bg-cream",
+  dark: "bg-cream",
+  light: "bg-forest-green",
+};
+
+const DEFAULT_LAYOUT_CLASS =
+  "fixed top-4 right-4 z-[502] flex size-12 items-center justify-center transition-opacity hover:opacity-80";
 
 function useAmbientAudio() {
   const ctx = useContext(AmbientAudioContext);
@@ -174,46 +186,13 @@ export function AmbientAudioProvider({
 export function AmbientAudioButton({
   className,
   buttonRef,
+  variant = "glass",
 }: {
   className?: string;
   buttonRef?: Ref<HTMLButtonElement>;
+  variant?: SoundButtonVariant;
 }) {
   const { isPlaying, toggle } = useAmbientAudio();
-  const wavePathRef = useRef<SVGPathElement>(null);
-  const waveTweenRef = useRef<gsap.core.Timeline | null>(null);
-
-  useEffect(() => {
-    const path = wavePathRef.current;
-    if (!path) return;
-
-    waveTweenRef.current?.kill();
-    waveTweenRef.current = null;
-    gsap.set(path, { attr: { d: WAVE_REST } });
-
-    if (!isPlaying) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-
-    const tl = gsap.timeline({ repeat: -1 });
-    tl.to(path, {
-      attr: { d: WAVE_A },
-      duration: 0.7,
-      ease: "sine.inOut",
-    }).to(path, {
-      attr: { d: WAVE_B },
-      duration: 0.7,
-      ease: "sine.inOut",
-    });
-    waveTweenRef.current = tl;
-
-    return () => {
-      tl.kill();
-      waveTweenRef.current = null;
-      gsap.set(path, { attr: { d: WAVE_REST } });
-    };
-  }, [isPlaying]);
 
   return (
     <button
@@ -223,28 +202,34 @@ export function AmbientAudioButton({
       aria-label={isPlaying ? "Turn sound off" : "Turn sound on"}
       aria-pressed={isPlaying}
       className={[
-        className ?? DEFAULT_BUTTON_CLASS,
-        isPlaying ? "opacity-100" : "opacity-50",
-      ].join(" ")}
+        VARIANT_SHELL[variant],
+        className ?? DEFAULT_LAYOUT_CLASS,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <svg
-        width={40}
-        height={40}
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden
-      >
-        <rect
-          x="0.5"
-          y="0.5"
-          width="39"
-          height="39"
-          rx="19.5"
-          stroke="white"
+      <span className="relative size-6 shrink-0 overflow-hidden" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={VARIANT_ICON[variant]}
+          alt=""
+          width={24}
+          height={24}
+          className="block size-full max-w-none"
         />
-        <path ref={wavePathRef} d={WAVE_REST} fill="white" />
-      </svg>
+      </span>
+      {!isPlaying && (
+        <span
+          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+          aria-hidden
+        >
+          <span className="flex-none rotate-45">
+            <span
+              className={`block h-[25px] w-[2.5px] ${VARIANT_SLASH[variant]}`}
+            />
+          </span>
+        </span>
+      )}
     </button>
   );
 }

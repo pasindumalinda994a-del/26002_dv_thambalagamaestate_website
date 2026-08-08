@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
-import { Button } from "../components/SolidButton";
+import { Button } from "../components/Button";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
@@ -117,7 +117,7 @@ export function HeroSection() {
         </Paragraph>
 
         <div ref={buttonRef}>
-          <Button onClick={openBooking}>Check Availability</Button>
+          <Button variant="light" onClick={openBooking}>Check Availability</Button>
         </div>
       </div>
 
