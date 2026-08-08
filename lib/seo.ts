@@ -19,6 +19,8 @@ export const BUNGALOW_OG_IMAGE =
 export const EXPERIENCES_OG_IMAGE =
   "/experiencepageimages/experiences-hero.webp";
 export const LOGO_PATH = "/Logo/ThambalagamaLogo.png";
+/** Dark mark for browser tab / search favicons (readable on light chrome). */
+export const FAVICON_LOGO_PATH = "/Logo/Thambalagama%20Logo%203.png";
 
 /** Estate coordinates (Sinharaja buffer zone) — matches LocationSection map. */
 export const ESTATE_GEO = {
