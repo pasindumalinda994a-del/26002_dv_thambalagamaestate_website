@@ -90,8 +90,8 @@ export function HeroSection() {
           alt=""
           fill
           priority
-          quality={95}
-          sizes="(max-width: 767px) 200vw, 100vw"
+          quality={75}
+          sizes="100vw"
           className="object-cover object-[90%_center] md:object-center"
         />
 

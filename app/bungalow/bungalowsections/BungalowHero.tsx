@@ -79,7 +79,7 @@ export function BungalowHero() {
             alt={BUNGALOW_HERO.image.alt}
             fill
             priority
-            quality={95}
+            quality={75}
             sizes="100vw"
             className="object-cover"
             onLoad={() => refreshScrollTriggers()}

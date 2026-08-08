@@ -7,7 +7,7 @@ export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
   scrollLabel: "scroll to explore",
   image: {
-    src: "/balgalowpageimages/0C8A9933.JPG",
+    src: "/balgalowpageimages/0C8A9933.webp",
     alt: "Thambalagama Estate bungalow at dusk",
   } satisfies BungalowImage,
 } as const;
@@ -21,7 +21,7 @@ export const BUNGALOW_COMFORT = {
       alt: "Master suite bedroom",
     },
     {
-      src: "/balgalowpageimages/DSC_0568.jpg",
+      src: "/balgalowpageimages/DSC_0568.webp",
       alt: "Twin beds with teal accents and wooden headboard",
     },
   ] as const satisfies readonly BungalowImage[],
@@ -70,11 +70,11 @@ export const BUNGALOW_SPECS = {
       alt: "Estate bungalow exterior",
     },
     {
-      src: "/balgalowpageimages/0C8A9906.JPG",
+      src: "/balgalowpageimages/0C8A9906.webp",
       alt: "Evening patio dining under string lights and wagon-wheel chandeliers",
     },
     {
-      src: "/balgalowpageimages/0C8A0018.JPG",
+      src: "/balgalowpageimages/0C8A0018.webp",
       alt: "Ensuite bathroom with vessel sink, rainfall shower, and warm lighting",
     },
   ] as const satisfies readonly BungalowImage[],
@@ -88,7 +88,7 @@ export const BUNGALOW_SPECS = {
 export const BUNGALOW_POOL = {
   label: "Spring-fed natural pool",
   image: {
-    src: "/balgalowpageimages/0C8A0086.JPG",
+    src: "/balgalowpageimages/0C8A0086.webp",
     alt: "Spring-fed natural pool with rock waterfall and mountain views",
   } satisfies BungalowImage,
 } as const;
@@ -97,35 +97,35 @@ export const BUNGALOW_QUARTERS = {
   headline: "private quarters",
   images: [
     {
-      src: "/balgalowpageimages/DSC_0568.jpg",
+      src: "/balgalowpageimages/DSC_0568.webp",
       alt: "Twin beds with teal accents and wooden headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0572.jpg",
+      src: "/balgalowpageimages/DSC_0572.webp",
       alt: "Twin beds with leaf-pattern bedding and tufted headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0577.jpg",
+      src: "/balgalowpageimages/DSC_0577.webp",
       alt: "Bedside detail with floating nightstand and warm lighting",
     },
     {
-      src: "/balgalowpageimages/DSC_0585.jpg",
+      src: "/balgalowpageimages/DSC_0585.webp",
       alt: "Twin beds with pink floral bedding",
     },
     {
-      src: "/balgalowpageimages/DSC_0593.jpg",
+      src: "/balgalowpageimages/DSC_0593.webp",
       alt: "Twin beds with sage green bedding and floral wall art",
     },
     {
-      src: "/balgalowpageimages/DSC_0596.jpg",
+      src: "/balgalowpageimages/DSC_0596.webp",
       alt: "Double bed suite with botanical bedding and wooden headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0599.jpg",
+      src: "/balgalowpageimages/DSC_0599.webp",
       alt: "Double bed with floral art and amber reading lamps",
     },
     {
-      src: "/balgalowpageimages/DSC_0611.jpg",
+      src: "/balgalowpageimages/DSC_0611.webp",
       alt: "Floral suite with tufted headboard and wall art",
     },
   ] as const satisfies readonly BungalowImage[],
