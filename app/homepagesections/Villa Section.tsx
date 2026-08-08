@@ -26,7 +26,7 @@ const VILLA_GALLERY_IMAGES = [
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/villa-gallery-bedroom-2.webp",
+    src: "/balgalowpageimages/DSC_0568.webp",
     alt: "Villa bedroom",
   },
   {
