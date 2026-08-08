@@ -8,6 +8,7 @@ import { SmoothScroll } from "./components/SmoothScroll";
 import { listConfirmedUnavailableDates } from "@/lib/bookings/repository";
 import {
   DEFAULT_OG_IMAGE,
+  FAVICON_LOGO_PATH,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
   SITE_NAME,
@@ -76,6 +77,10 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} | Sinharaja Rainforest Stay in Sri Lanka`,
     description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
+  },
+  icons: {
+    icon: [{ url: FAVICON_LOGO_PATH, type: "image/png" }],
+    apple: [{ url: FAVICON_LOGO_PATH, type: "image/png" }],
   },
   alternates: {
     canonical: "/",
