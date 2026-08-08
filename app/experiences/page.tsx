@@ -42,8 +42,10 @@ export default function ExperiencesPage() {
           features={EXPERIENCES_DINING.features}
         />
       </div>
-      <ExperiencesCta />
-      <FooterSection />
+      <div className="bg-deep-forest">
+        <ExperiencesCta />
+        <FooterSection />
+      </div>
     </main>
   );
 }

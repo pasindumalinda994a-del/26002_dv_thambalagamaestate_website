@@ -30,19 +30,36 @@ export function ImageMosaic({ large, top, bottom }: ImageMosaicProps) {
     }
 
     const ctx = gsap.context(() => {
-      frames.forEach((frame) => {
-        gsap.set(frame, { opacity: 0 });
-        gsap.to(frame, {
+      const [largeEl, topEl, bottomEl] = Array.from(frames);
+      gsap.set(frames, { opacity: 0 });
+
+      // Large + top reveal together; short stagger reads as one beat
+      if (largeEl && topEl) {
+        gsap.to([largeEl, topEl], {
           opacity: 1,
           duration: 1.4,
           ease: "power1.inOut",
+          stagger: 0.18,
           scrollTrigger: {
-            trigger: frame,
+            trigger: largeEl,
             start: "top 50%",
             once: true,
           },
         });
-      });
+      }
+
+      if (bottomEl) {
+        gsap.to(bottomEl, {
+          opacity: 1,
+          duration: 1.4,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: bottomEl,
+            start: "top 50%",
+            once: true,
+          },
+        });
+      }
     }, root);
 
     return () => ctx.revert();

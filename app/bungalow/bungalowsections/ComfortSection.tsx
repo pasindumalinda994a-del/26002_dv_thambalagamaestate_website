@@ -33,18 +33,18 @@ export function ComfortSection() {
     }
 
     const ctx = gsap.context(() => {
-      frames.forEach((frame) => {
-        gsap.set(frame, { clipPath: CLIP_COLLAPSED });
-        gsap.to(frame, {
-          clipPath: CLIP_FULL,
-          ease: "power2.out",
-          duration: 1.1,
-          scrollTrigger: {
-            trigger: frame,
-            start: "top 50%",
-            once: true,
-          },
-        });
+      gsap.set(frames, { clipPath: CLIP_COLLAPSED });
+      // Paired accents share one trigger; slight stagger for polish
+      gsap.to(frames, {
+        clipPath: CLIP_FULL,
+        ease: "power2.out",
+        duration: 1.1,
+        stagger: 0.18,
+        scrollTrigger: {
+          trigger: frames[0],
+          start: "top 50%",
+          once: true,
+        },
       });
     }, section);
 

@@ -21,8 +21,8 @@ export const BUNGALOW_COMFORT = {
       alt: "Master suite bedroom",
     },
     {
-      src: "/homepageimages/villa-gallery-bedroom-2.webp",
-      alt: "Bungalow bedroom with forest light",
+      src: "/balgalowpageimages/DSC_0568.jpg",
+      alt: "Twin beds with teal accents and wooden headboard",
     },
   ] as const satisfies readonly BungalowImage[],
   mosaic: [
@@ -70,12 +70,12 @@ export const BUNGALOW_SPECS = {
       alt: "Estate bungalow exterior",
     },
     {
-      src: "/homepageimages/experience-private-dining.webp",
-      alt: "Private dining at the estate",
+      src: "/balgalowpageimages/0C8A9906.JPG",
+      alt: "Evening patio dining under string lights and wagon-wheel chandeliers",
     },
     {
-      src: "/homepageimages/experience-guided-trails.webp",
-      alt: "Forest views from the estate",
+      src: "/balgalowpageimages/0C8A0018.JPG",
+      alt: "Ensuite bathroom with vessel sink, rainfall shower, and warm lighting",
     },
   ] as const satisfies readonly BungalowImage[],
   features: [

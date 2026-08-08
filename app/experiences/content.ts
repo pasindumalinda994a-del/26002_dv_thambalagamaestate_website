@@ -8,7 +8,7 @@ export const EXPERIENCES_HERO = {
   headlineMobile: "A Glimpse Beyond the Border.",
   scrollLabel: "scroll to explore",
   image: {
-    src: "/experiencepageimages/experiences-hero.webp",
+    src: "/forestpageimages/things-to-do.webp",
     alt: "Aerial view of misty rainforest canopy surrounding Thambalagama Estate",
   } satisfies ExperiencesImage,
 } as const;
@@ -77,6 +77,7 @@ export const EXPERIENCES_DINING = {
 } as const;
 
 export const EXPERIENCES_CTA = {
-  headline: "secure your sanctuary",
+  eyebrow: "The Estate Promise",
   buttonLabel: "Check Availability",
+  bgSrc: "/homepageimages/cta-bg.webp",
 } as const;
