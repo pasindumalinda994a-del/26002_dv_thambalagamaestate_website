@@ -8,7 +8,7 @@ export const EXPERIENCES_HERO = {
   headlineMobile: "A Glimpse Beyond the Border.",
   scrollLabel: "scroll to explore",
   image: {
-    src: "/forestpageimages/things-to-do.webp",
+    src: "/forestpageimages/why-visit.webp",
     alt: "Aerial view of misty rainforest canopy surrounding Thambalagama Estate",
   } satisfies ExperiencesImage,
 } as const;
