@@ -123,7 +123,7 @@ export function HeroSection() {
 
       <div
         ref={scrollHintRef}
-        className="absolute inset-x-0 bottom-6 z-10 flex justify-center md:bottom-10"
+        className="absolute inset-x-0 bottom-20 z-10 flex justify-center md:bottom-10"
       >
         <ScrollDownHint />
       </div>

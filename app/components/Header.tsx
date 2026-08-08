@@ -418,7 +418,7 @@ export function Header({ audioSrc }: HeaderProps) {
       >
         <AmbientAudioButton
           buttonRef={soundRef}
-          variant="light"
+          variant="glass"
           className="relative z-10 flex size-12 shrink-0 items-center justify-center transition-opacity hover:opacity-80 md:hidden"
         />
 
@@ -444,7 +444,7 @@ export function Header({ audioSrc }: HeaderProps) {
           variant="light"
           size="medium"
           onClick={handleAvailability}
-          className="hidden shrink-0 overflow-hidden !bg-transparent !shadow-none !border-transparent !text-cream md:inline-flex"
+          className="!hidden shrink-0 overflow-hidden !bg-transparent !shadow-none !border-transparent !text-cream md:!inline-flex"
         >
           Check Availability
         </Button>
