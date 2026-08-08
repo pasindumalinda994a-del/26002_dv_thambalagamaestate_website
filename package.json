@@ -9,7 +9,7 @@
     "lint": "eslint",
     "postinstall": "node scripts/copy-mapbox-worker.js",
     "seed:gallery": "node scripts/seed-gallery.js",
-    "seed:gallery": "node scripts/seed-gallery.js"
+    "optimize:images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -18,21 +18,23 @@
     "mapbox-gl": "^3.25.0",
     "mongodb": "^7.5.0",
     "next": "16.2.7",
+    "nodemailer": "^7.0.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "nodemailer": "^7.0.6",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/mapbox-gl": "^3.4.1",
-    "@types/nodemailer": "^6.4.17",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
+    "ttf2woff2": "^8.0.1",
     "typescript": "^5"
   }
 }

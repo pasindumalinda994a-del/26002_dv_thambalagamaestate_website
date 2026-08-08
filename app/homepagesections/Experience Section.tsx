@@ -143,7 +143,7 @@ function ExperienceMobileCarousel({
               fill
               className="object-cover"
               sizes="100vw"
-              quality={90}
+              quality={75}
             />
             <ExperienceImageCaption
               heading={slide.heading}
@@ -371,7 +371,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                     fill
                     className="object-cover"
                     sizes="(min-width: 768px) 75vw, 100vw"
-                    quality={90}
+                    quality={75}
                   />
                 </div>
                 <ExperienceImageCaption

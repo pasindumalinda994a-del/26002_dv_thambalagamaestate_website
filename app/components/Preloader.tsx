@@ -9,9 +9,9 @@ import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { Button } from "./Button";
 
 /** Full progress arc — long enough for each status phase to read. */
-const PROGRESS_DURATION_MS = 7200;
+const PROGRESS_DURATION_MS = 2400;
 const MAX_ASSET_WAIT_MS = 5000;
-const HOLD_AT_100_MS = 1400;
+const HOLD_AT_100_MS = 500;
 const SESSION_KEY = "te-preloader-seen";
 const DEEP_FOREST = "#18200e";
 const WIPE_DURATION = 0.9;

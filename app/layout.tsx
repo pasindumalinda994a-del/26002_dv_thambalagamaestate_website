@@ -25,7 +25,7 @@ const roboto = Roboto({
 });
 
 const spaceGrotesk = Space_Grotesk({
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
   subsets: ["latin"],
   display: "swap",
   variable: "--font-space-grotesk-face",
