@@ -20,6 +20,8 @@ import type { LenisOptions } from "lenis";
  *   Cinematic:  0.07 / 0.85  (current — slower, silkier glide)
  *
  * Used by app/components/SmoothScroll.tsx, which drives Lenis via the GSAP ticker.
+ * SmoothScroll disables Lenis entirely on mobile/touch (native scroll) and when
+ * prefers-reduced-motion is set — these options only apply on desktop.
  */
 export const LENIS_OPTIONS: LenisOptions = {
   /**

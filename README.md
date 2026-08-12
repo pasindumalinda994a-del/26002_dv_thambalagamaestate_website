@@ -27,11 +27,8 @@ Copy `.env.example` to `.env.local` and fill in values:
 | `MONGODB_DB` | Database name (default: `thambalagama_estate`) |
 | `ADMIN_PASSWORD` | Shared password for the owner dashboard |
 | `AUTH_SECRET` | Long random string used to sign the admin session cookie |
-| `SMTP_HOST` | SMTP server (default: `smtp.gmail.com`) |
-| `SMTP_PORT` | SMTP port (default: `587`; use `465` for SSL) |
-| `SMTP_USER` | Google account that owns the app password |
-| `SMTP_PASS` | Gmail app password (not your normal Google password) |
-| `EMAIL_FROM` | Sender shown in booking emails; must match `SMTP_USER` or a verified "Send mail as" alias |
+| `RESEND_API_KEY` | Resend API key for sending booking notification emails |
+| `EMAIL_FROM` | Sender shown in booking emails; must use an address on your verified Resend domain (e.g. `Thambalagama Estate <bookings@booking.thambalagamaestate.com>`) |
 | `OWNER_EMAIL` | Inbox that receives new booking notifications |
 
 Owner dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)

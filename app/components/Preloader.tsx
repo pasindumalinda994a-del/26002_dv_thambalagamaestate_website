@@ -9,9 +9,9 @@ import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { Button } from "./Button";
 
 /** Full progress arc — long enough for each status phase to read. */
-const PROGRESS_DURATION_MS = 2400;
+const PROGRESS_DURATION_MS = 5200;
 const MAX_ASSET_WAIT_MS = 5000;
-const HOLD_AT_100_MS = 500;
+const HOLD_AT_100_MS = 1100;
 const SESSION_KEY = "te-preloader-seen";
 const DEEP_FOREST = "#18200e";
 const WIPE_DURATION = 0.9;
@@ -124,14 +124,14 @@ export function Preloader() {
     gsap.to(el, {
       opacity: 0,
       y: 4,
-      duration: 0.22,
+      duration: 0.3,
       ease: "power2.in",
       onComplete: () => {
         setStatus(nextStatus);
         gsap.fromTo(
           el,
           { opacity: 0, y: -4 },
-          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+          { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" },
         );
       },
     });

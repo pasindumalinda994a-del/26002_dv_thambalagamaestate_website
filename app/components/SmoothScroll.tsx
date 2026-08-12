@@ -33,17 +33,33 @@ function LenisGSAPConnector() {
   return null;
 }
 
+const MOBILE_MQ = "(max-width: 767px)";
+const COARSE_POINTER_MQ = "(pointer: coarse)";
+
+function shouldEnableLenis() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return false;
+  }
+  // Native scroll on phones/tablets — Lenis RAF + CSS adds lag on touch.
+  if (
+    window.matchMedia(MOBILE_MQ).matches ||
+    window.matchMedia(COARSE_POINTER_MQ).matches
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function SmoothScroll({ children }: { children: ReactNode }) {
-  const [reduceMotion, setReduceMotion] = useState(false);
+  // Start false so mobile never mounts Lenis; desktop enables after mount.
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
     ensureScrollTriggerConfig();
-    setReduceMotion(
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    );
+    setEnabled(shouldEnableLenis());
   }, []);
 
-  if (reduceMotion) {
+  if (!enabled) {
     return children;
   }
 
