@@ -1,14 +1,25 @@
 import Link from "next/link";
 import type { Booking } from "@/lib/bookings/types";
 import { Button } from "../Button";
+import { BookingQuickActions } from "./BookingQuickActions";
+import { stayPhase } from "./booking-ops";
 import { formatDate, formatSubmitted, nightCount } from "./format";
+import { StayBadge } from "./StayBadge";
 import { StatusSelect } from "./StatusSelect";
 
-export function BookingCardList({ bookings }: { bookings: Booking[] }) {
+export function BookingCardList({
+  bookings,
+  today,
+  emptyMessage = "No booking requests yet.",
+}: {
+  bookings: Booking[];
+  today: string;
+  emptyMessage?: string;
+}) {
   if (bookings.length === 0) {
     return (
       <p className="border border-forest-green/15 bg-white px-6 py-10 text-center font-secondary text-sm text-forest-green/60">
-        No booking requests yet.
+        {emptyMessage}
       </p>
     );
   }
@@ -17,6 +28,7 @@ export function BookingCardList({ bookings }: { bookings: Booking[] }) {
     <ul className="flex flex-col gap-3">
       {bookings.map((booking) => {
         const nights = nightCount(booking.checkIn, booking.checkOut);
+        const phase = stayPhase(booking, today);
         return (
           <li
             key={booking.id}
@@ -25,9 +37,10 @@ export function BookingCardList({ bookings }: { bookings: Booking[] }) {
             <div className="flex flex-col gap-4 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
+                  <StayBadge phase={phase} />
                   <Link
                     href={`/admin/bookings/${booking.id}`}
-                    className="font-secondary text-[16px] font-semibold text-forest-green underline-offset-2 hover:underline"
+                    className="mt-2 block font-secondary text-[16px] font-semibold text-forest-green underline-offset-2 hover:underline"
                   >
                     {booking.fullName}
                   </Link>
@@ -73,9 +86,12 @@ export function BookingCardList({ bookings }: { bookings: Booking[] }) {
                 />
               </div>
 
-              <p className="font-secondary text-[12px] text-forest-green/50">
-                Submitted {formatSubmitted(booking.createdAt)}
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <BookingQuickActions booking={booking} />
+                <p className="font-secondary text-[12px] text-forest-green/50">
+                  Submitted {formatSubmitted(booking.createdAt)}
+                </p>
+              </div>
             </div>
           </li>
         );

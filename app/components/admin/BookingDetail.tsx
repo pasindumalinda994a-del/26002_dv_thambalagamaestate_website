@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { Booking } from "@/lib/bookings/types";
-import { Button } from "../Button";
+import { stayPhase, todayISO } from "./booking-ops";
+import { CopyContactButton } from "./CopyContactButton";
 import {
   formatDateLong,
   formatSubmitted,
   nightCount,
   whatsappHref,
 } from "./format";
+import { StayBadge } from "./StayBadge";
 import { StatusSelect } from "./StatusSelect";
 
 function Field({
@@ -45,9 +47,43 @@ function Section({
   );
 }
 
+function ContactButtons({
+  email,
+  whatsapp,
+  whatsappHref: wa,
+}: {
+  email: string;
+  whatsapp: string;
+  whatsappHref: string | null;
+}) {
+  return (
+    <>
+      <CopyContactButton
+        variant="button"
+        label="Email guest"
+        copyValue={email}
+        href={`mailto:${email}`}
+        copyAriaLabel="Copy email"
+      />
+      {wa ? (
+        <CopyContactButton
+          variant="button"
+          label="WhatsApp"
+          copyValue={whatsapp}
+          href={wa}
+          target="_blank"
+          rel="noopener noreferrer"
+          copyAriaLabel="Copy WhatsApp number"
+        />
+      ) : null}
+    </>
+  );
+}
+
 export function BookingDetail({ booking }: { booking: Booking }) {
   const nights = nightCount(booking.checkIn, booking.checkOut);
   const wa = whatsappHref(booking.whatsapp);
+  const phase = stayPhase(booking, todayISO());
 
   return (
     <>
@@ -60,6 +96,9 @@ export function BookingDetail({ booking }: { booking: Booking }) {
             >
               ← Back to dashboard
             </Link>
+            <div className="mt-3">
+              <StayBadge phase={phase} />
+            </div>
             <h1 className="mt-3 text-[clamp(28px,4vw,40px)] font-semibold text-forest-green">
               {booking.fullName}
             </h1>
@@ -67,14 +106,23 @@ export function BookingDetail({ booking }: { booking: Booking }) {
               Submitted {formatSubmitted(booking.createdAt)}
             </p>
           </div>
-          <div className="sm:min-w-[160px]">
-            <p className="mb-2 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/50">
-              Status
-            </p>
-            <StatusSelect
-              bookingId={booking.id}
-              initialStatus={booking.status}
-            />
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="w-full sm:min-w-[160px]">
+              <p className="mb-2 font-secondary text-[11px] font-medium uppercase tracking-[0.14em] text-forest-green/50">
+                Status
+              </p>
+              <StatusSelect
+                bookingId={booking.id}
+                initialStatus={booking.status}
+              />
+            </div>
+            <div className="hidden gap-3 md:flex">
+              <ContactButtons
+                email={booking.email}
+                whatsapp={booking.whatsapp}
+                whatsappHref={wa}
+              />
+            </div>
           </div>
         </div>
 
@@ -103,23 +151,27 @@ export function BookingDetail({ booking }: { booking: Booking }) {
           <Section title="Contact">
             <dl className="grid gap-4">
               <Field label="Email">
-                <a
+                <CopyContactButton
+                  variant="link"
+                  label={booking.email}
+                  copyValue={booking.email}
                   href={`mailto:${booking.email}`}
+                  copyAriaLabel="Copy email"
                   className="underline-offset-2 hover:underline"
-                >
-                  {booking.email}
-                </a>
+                />
               </Field>
               <Field label="WhatsApp">
                 {wa ? (
-                  <a
+                  <CopyContactButton
+                    variant="link"
+                    label={booking.whatsapp}
+                    copyValue={booking.whatsapp}
                     href={wa}
                     target="_blank"
                     rel="noopener noreferrer"
+                    copyAriaLabel="Copy WhatsApp number"
                     className="underline-offset-2 hover:underline"
-                  >
-                    {booking.whatsapp}
-                  </a>
+                  />
                 ) : (
                   booking.whatsapp
                 )}
@@ -153,28 +205,11 @@ export function BookingDetail({ booking }: { booking: Booking }) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-forest-green/15 bg-white p-4 md:hidden">
-        <Button
-          href={`mailto:${booking.email}`}
-          variant="dark"
-          size="small"
-          showArrow={false}
-          className="flex-1"
-        >
-          Email guest
-        </Button>
-        {wa ? (
-          <Button
-            href={wa}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="dark"
-            size="small"
-            showArrow={false}
-            className="flex-1"
-          >
-            WhatsApp
-          </Button>
-        ) : null}
+        <ContactButtons
+          email={booking.email}
+          whatsapp={booking.whatsapp}
+          whatsappHref={wa}
+        />
       </div>
     </>
   );

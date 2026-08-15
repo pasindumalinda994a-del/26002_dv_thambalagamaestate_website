@@ -7,6 +7,7 @@ import { dispatchAmbientSoundPreference } from "@/lib/ambient-sound";
 import { HOME_CRITICAL_ASSETS } from "@/lib/preload-assets";
 import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { Button } from "./Button";
+import { DecryptedText } from "./DecryptedText";
 
 /** Full progress arc — long enough for each status phase to read. */
 const PROGRESS_DURATION_MS = 5200;
@@ -91,7 +92,6 @@ export function Preloader() {
   const soundDialogRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const percentRef = useRef<HTMLParagraphElement>(null);
-  const statusRef = useRef<HTMLParagraphElement>(null);
   const progressRef = useRef(0);
   const statusTextRef = useRef(statusForProgress(0));
   const setProgressSafe = useRef<(value: number) => void>(() => {});
@@ -104,6 +104,7 @@ export function Preloader() {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState(statusForProgress(0));
   const [showSoundPrompt, setShowSoundPrompt] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   setProgressSafe.current = (value: number) => {
     const next = Math.round(Math.min(100, Math.max(0, value)));
@@ -114,27 +115,7 @@ export function Preloader() {
     const nextStatus = statusForProgress(next);
     if (nextStatus === statusTextRef.current) return;
     statusTextRef.current = nextStatus;
-
-    const el = statusRef.current;
-    if (!el) {
-      setStatus(nextStatus);
-      return;
-    }
-
-    gsap.to(el, {
-      opacity: 0,
-      y: 4,
-      duration: 0.3,
-      ease: "power2.in",
-      onComplete: () => {
-        setStatus(nextStatus);
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: -4 },
-          { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" },
-        );
-      },
-    });
+    setStatus(nextStatus);
   };
 
   const finish = () => {
@@ -202,6 +183,12 @@ export function Preloader() {
     } catch {
       /* private mode / blocked storage */
     }
+
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    reduceMotionRef.current = prefersReduced;
+    setReduceMotion(prefersReduced);
   }, []);
 
   useEffect(() => {
@@ -380,18 +367,30 @@ export function Preloader() {
               {progress}%
             </p>
           </div>
-          <div className="h-px w-44 overflow-hidden bg-cream/20 md:w-52">
+          <div className="h-0.5 w-44 overflow-hidden bg-cream/20 md:w-52">
             <div
               ref={barRef}
               className="h-full w-full origin-left scale-x-0 bg-cream"
             />
           </div>
-          <p
-            ref={statusRef}
-            className="min-h-[1.25em] text-center font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream"
-          >
-            {status}
-          </p>
+          {reduceMotion ? (
+            <p className="min-h-[1.25em] text-center font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream">
+              {status}
+            </p>
+          ) : (
+            <DecryptedText
+              key={status}
+              text={status}
+              sequential
+              revealDirection="start"
+              animateOn="view"
+              speed={20}
+              useOriginalCharsOnly
+              className="font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream"
+              encryptedClassName="font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream/40"
+              parentClassName="min-h-[1.25em] text-center"
+            />
+          )}
         </div>
       )}
 
@@ -414,6 +413,7 @@ export function Preloader() {
               type="button"
               variant="light"
               size="large"
+              className="outline-none"
               onClick={() => handleSoundChoice(true)}
             >
               Sound On
@@ -422,6 +422,7 @@ export function Preloader() {
               type="button"
               variant="glass"
               size="large"
+              className="outline-none"
               onClick={() => handleSoundChoice(false)}
             >
               Sound Off

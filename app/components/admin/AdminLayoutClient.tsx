@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import type { BookingStatus } from "@/lib/bookings/types";
+import type { AdminCounts } from "./booking-counts";
 import {
   AdminMobileHeader,
   AdminSidebar,
@@ -12,7 +12,7 @@ export function AdminLayoutClient({
   counts,
   children,
 }: {
-  counts: Record<BookingStatus | "all", number>;
+  counts: AdminCounts;
   children: React.ReactNode;
 }) {
   const { mobileOpen, pageTitle, onMobileOpen, onMobileClose } =

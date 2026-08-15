@@ -2,6 +2,7 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import {
   forwardRef,
@@ -18,11 +19,17 @@ import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 import { Paragraph } from "../components/Paragraph";
+
 const HOVER_GROW = 2.4;
 const SHRINK_GROW = 0.45;
 const REST_GROW = 1;
-const HOVER_DURATION = 0.7;
-const HOVER_EASE = "power3.inOut";
+const HOVER_DURATION = 0.6;
+const HOVER_EASE = "power3.out";
+const HOVER_PARALLAX = 0.5;
+const TEXT_REVEAL_DURATION = 0.8;
+const TEXT_REVEAL_STAGGER = 0.05;
+const TEXT_HIDE_DURATION = 0.25;
+const OVERLAY_FADE_DURATION = 0.25;
 
 type ExperienceImage = {
   src: string;
@@ -53,20 +60,31 @@ function ExperienceImageCaption({
   heading,
   caption,
   showOnHover = true,
+  overlayRef,
+  headingRef,
 }: {
   heading?: ReactNode;
   caption?: string;
   showOnHover?: boolean;
+  overlayRef?: (el: HTMLDivElement | null) => void;
+  headingRef?: (el: HTMLHeadingElement | null) => void;
 }) {
   return (
     <div
+      ref={overlayRef}
       className={[
-        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-4 transition-opacity duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] md:p-6",
-        showOnHover ? "opacity-0 group-hover:opacity-100" : "opacity-100",
+        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-4 md:p-6",
+        showOnHover
+          ? "opacity-0 motion-reduce:group-hover:opacity-100"
+          : "opacity-100",
       ].join(" ")}
     >
       {heading ? (
-        <H2 animate={false} className="max-w-[min(48rem,96%)] uppercase text-cream">
+        <H2
+          ref={headingRef}
+          animate={false}
+          className="max-w-[min(48rem,96%)] uppercase text-cream"
+        >
           {heading}
         </H2>
       ) : caption ? (
@@ -184,6 +202,8 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
     const gridRef = useRef<HTMLDivElement>(null);
     const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const imageWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const captionOverlayRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const captionHeadingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
     const armed = useNearViewport(sectionRef);
 
     const setSectionRef = (node: HTMLElement | null) => {
@@ -259,16 +279,29 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       if (!grid || panels.length === 0 || imageWraps.length !== panels.length)
         return;
 
-      const tweenDefaults = {
-        duration: HOVER_DURATION,
-        ease: HOVER_EASE,
-        overwrite: "auto" as const,
-      };
+      let cancelled = false;
+      let timeline: gsap.core.Timeline | null = null;
+      let imageWrapWidth = 0;
+      let resizeObserver: ResizeObserver | null = null;
+      let ctx: gsap.Context | undefined;
+      const splits: (SplitText | null)[] = [];
+
+      const hiddenCharVars = {
+        y: 200,
+        opacity: 0.2,
+        filter: "blur(20px)",
+      } as const;
+
+      const visibleCharVars = {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+      } as const;
 
       const syncImageWidths = () => {
         const maxGrowSum =
           HOVER_GROW + SHRINK_GROW * (panels.length - 1);
-        const imageWrapWidth =
+        imageWrapWidth =
           (grid.clientWidth * HOVER_GROW) / maxGrowSum;
         imageWraps.forEach((wrap) => {
           wrap.style.width = `${imageWrapWidth}px`;
@@ -276,39 +309,224 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       };
 
       const animateToHovered = (index: number) => {
-        gsap.to(panels, {
-          ...tweenDefaults,
-          flexGrow: (i) => (i === index ? HOVER_GROW : SHRINK_GROW),
+        timeline?.kill();
+        const tl = gsap.timeline();
+
+        panels.forEach((panel, i) => {
+          const isActive = i === index;
+          tl.to(
+            panel,
+            {
+              flexGrow: isActive ? HOVER_GROW : SHRINK_GROW,
+              duration: HOVER_DURATION,
+              ease: HOVER_EASE,
+            },
+            0,
+          );
+
+          const wrap = imageWraps[i];
+          if (wrap) {
+            const drift = Math.max(-1.5, Math.min(1.5, index - i));
+            const shift = isActive
+              ? 0
+              : drift * HOVER_PARALLAX * imageWrapWidth * 0.06;
+            tl.to(
+              wrap,
+              {
+                xPercent: -50,
+                x: shift,
+                duration: HOVER_DURATION,
+                ease: HOVER_EASE,
+              },
+              0,
+            );
+          }
+
+          const overlay = captionOverlayRefs.current[i];
+          const chars = splits[i]?.chars;
+
+          if (!isActive) {
+            if (overlay) {
+              tl.to(
+                overlay,
+                {
+                  opacity: 0,
+                  duration: TEXT_HIDE_DURATION,
+                  ease: HOVER_EASE,
+                },
+                0,
+              );
+            }
+            if (chars?.length) {
+              tl.to(
+                chars,
+                {
+                  ...hiddenCharVars,
+                  duration: TEXT_HIDE_DURATION,
+                  ease: HOVER_EASE,
+                  stagger: 0,
+                },
+                0,
+              );
+            }
+          }
         });
+
+        const activeOverlay = captionOverlayRefs.current[index];
+        const activeChars = splits[index]?.chars;
+
+        if (activeOverlay) {
+          tl.to(
+            activeOverlay,
+            {
+              opacity: 1,
+              duration: OVERLAY_FADE_DURATION,
+              ease: HOVER_EASE,
+            },
+            HOVER_DURATION,
+          );
+        }
+
+        if (activeChars?.length) {
+          tl.to(
+            activeChars,
+            {
+              ...visibleCharVars,
+              duration: TEXT_REVEAL_DURATION,
+              ease: "power4.out",
+              stagger: TEXT_REVEAL_STAGGER,
+            },
+            HOVER_DURATION,
+          );
+        }
+
+        timeline = tl;
       };
 
       const animateToRest = () => {
-        gsap.to(panels, {
-          ...tweenDefaults,
-          flexGrow: REST_GROW,
+        timeline?.kill();
+        const tl = gsap.timeline();
+
+        panels.forEach((panel, i) => {
+          tl.to(
+            panel,
+            {
+              flexGrow: REST_GROW,
+              duration: HOVER_DURATION,
+              ease: HOVER_EASE,
+            },
+            0,
+          );
+
+          const wrap = imageWraps[i];
+          if (wrap) {
+            tl.to(
+              wrap,
+              {
+                xPercent: -50,
+                x: 0,
+                duration: HOVER_DURATION,
+                ease: HOVER_EASE,
+              },
+              0,
+            );
+          }
+
+          const overlay = captionOverlayRefs.current[i];
+          const chars = splits[i]?.chars;
+
+          if (overlay) {
+            tl.to(
+              overlay,
+              {
+                opacity: 0,
+                duration: TEXT_HIDE_DURATION,
+                ease: HOVER_EASE,
+              },
+              0,
+            );
+          }
+          if (chars?.length) {
+            tl.to(
+              chars,
+              {
+                ...hiddenCharVars,
+                duration: TEXT_HIDE_DURATION,
+                ease: HOVER_EASE,
+                stagger: 0,
+              },
+              0,
+            );
+          }
         });
+
+        timeline = tl;
       };
 
-      syncImageWidths();
-      const resizeObserver = new ResizeObserver(syncImageWidths);
-      resizeObserver.observe(grid);
+      const setup = () => {
+        if (cancelled || !grid) return;
 
-      const ctx = gsap.context(() => {
-        gsap.set(panels, {
-          flexGrow: REST_GROW,
-          flexShrink: 1,
-          flexBasis: 0,
-        });
+        gsap.registerPlugin(SplitText);
 
-        panels.forEach((panel, index) => {
-          panel.addEventListener("mouseenter", () => animateToHovered(index));
-        });
-        grid.addEventListener("mouseleave", animateToRest);
-      }, grid);
+        syncImageWidths();
+        resizeObserver = new ResizeObserver(syncImageWidths);
+        resizeObserver.observe(grid);
+
+        ctx = gsap.context(() => {
+          gsap.set(panels, {
+            flexGrow: REST_GROW,
+            flexShrink: 1,
+            flexBasis: 0,
+          });
+          gsap.set(imageWraps, { xPercent: -50, x: 0 });
+
+          panels.forEach((_, index) => {
+            const overlay = captionOverlayRefs.current[index];
+            const heading = captionHeadingRefs.current[index];
+            if (overlay) gsap.set(overlay, { opacity: 0 });
+
+            if (!heading) {
+              splits[index] = null;
+              return;
+            }
+
+            const split = SplitText.create(heading, {
+              type: "lines,chars",
+              mask: "lines",
+              autoSplit: true,
+              linesClass: "h2-line",
+              charsClass: "inline-block",
+              onSplit(self) {
+                if (!self.chars.length) return;
+                gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
+                gsap.set(self.chars, hiddenCharVars);
+              },
+            });
+            splits[index] = split ?? null;
+          });
+
+          panels.forEach((panel, index) => {
+            panel.addEventListener("mouseenter", () => animateToHovered(index));
+          });
+          grid.addEventListener("mouseleave", animateToRest);
+        }, grid);
+      };
+
+      const fonts = document.fonts;
+      if (fonts?.status === "loaded") {
+        setup();
+      } else if (fonts?.ready) {
+        fonts.ready.then(setup);
+      } else {
+        setup();
+      }
 
       return () => {
-        resizeObserver.disconnect();
-        ctx.revert();
+        cancelled = true;
+        timeline?.kill();
+        resizeObserver?.disconnect();
+        splits.forEach((split) => split?.revert());
+        ctx?.revert();
       };
     }, []);
 
@@ -377,6 +595,12 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
                 <ExperienceImageCaption
                   heading={image.heading}
                   caption={image.caption}
+                  overlayRef={(el) => {
+                    captionOverlayRefs.current[index] = el;
+                  }}
+                  headingRef={(el) => {
+                    captionHeadingRefs.current[index] = el;
+                  }}
                 />
               </div>
             ))}
