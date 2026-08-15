@@ -5,7 +5,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import { Button } from "../Button";
-import { NAV_ITEMS } from "./constants";
+import type { AdminCounts, AdminNavKey } from "./booking-counts";
+import { NAV_ITEMS, navHref } from "./constants";
 import {
   BOOKING_STATUSES,
   type BookingStatus,
@@ -30,24 +31,21 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
-function resolveActiveStatus(
+function resolveActiveNav(
   pathname: string,
   statusParam: string | null,
-): BookingStatus | "all" | null {
+): AdminNavKey | null {
   if (pathname !== "/admin") return null;
-  if (!statusParam || statusParam === "all") return "all";
+  if (!statusParam) return "today";
+  if (statusParam === "all") return "all";
   if ((BOOKING_STATUSES as readonly string[]).includes(statusParam)) {
     return statusParam as BookingStatus;
   }
-  return "all";
-}
-
-function navHref(value: BookingStatus | "all") {
-  return value === "all" ? "/admin" : `/admin?status=${value}`;
+  return "today";
 }
 
 type AdminSidebarProps = {
-  counts: Record<BookingStatus | "all", number>;
+  counts: AdminCounts;
   mobileOpen: boolean;
   onMobileClose: () => void;
   onMobileOpen: () => void;
@@ -56,12 +54,12 @@ type AdminSidebarProps = {
 
 function SidebarNav({
   counts,
-  activeStatus,
+  activeNav,
   pathname,
   onNavigate,
 }: {
-  counts: Record<BookingStatus | "all", number>;
-  activeStatus: BookingStatus | "all" | null;
+  counts: AdminCounts;
+  activeNav: AdminNavKey | null;
   pathname: string;
   onNavigate?: () => void;
 }) {
@@ -73,7 +71,7 @@ function SidebarNav({
         Bookings
       </p>
       {NAV_ITEMS.map((item) => {
-        const isActive = !galleryActive && activeStatus === item.value;
+        const isActive = !galleryActive && activeNav === item.value;
         return (
           <Link
             key={item.value}
@@ -151,7 +149,7 @@ export function AdminSidebar({
 }: Omit<AdminSidebarProps, "onMobileOpen">) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeStatus = resolveActiveStatus(
+  const activeNav = resolveActiveNav(
     pathname,
     searchParams.get("status"),
   );
@@ -202,7 +200,7 @@ export function AdminSidebar({
 
         <SidebarNav
           counts={counts}
-          activeStatus={activeStatus}
+          activeNav={activeNav}
           pathname={pathname}
           onNavigate={handleNavigate}
         />

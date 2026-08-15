@@ -1,6 +1,18 @@
 import { BookingList } from "@/app/components/admin/BookingList";
-import { countByStatus } from "@/app/components/admin/booking-counts";
-import { DashboardStats } from "@/app/components/admin/DashboardStats";
+import {
+  countByStatus,
+  emptyMessageForStatus,
+} from "@/app/components/admin/booking-counts";
+import {
+  formatOpsDate,
+  formatOpsSummary,
+  partitionForDashboard,
+  sortByStayDate,
+  todayISO,
+} from "@/app/components/admin/booking-ops";
+import { STATUS_LABELS } from "@/app/components/admin/constants";
+import { OpsStats } from "@/app/components/admin/DashboardStats";
+import { TodayBoard } from "@/app/components/admin/TodayBoard";
 import { listBookings } from "@/lib/bookings/repository";
 import {
   BOOKING_STATUSES,
@@ -10,12 +22,15 @@ import {
 
 type SearchParams = Promise<{ status?: string }>;
 
-function resolveStatus(value: string | undefined): BookingStatus | "all" {
-  if (!value || value === "all") return "all";
+type DashboardView = "today" | "all" | BookingStatus;
+
+function resolveView(value: string | undefined): DashboardView {
+  if (!value) return "today";
+  if (value === "all") return "all";
   if ((BOOKING_STATUSES as readonly string[]).includes(value)) {
     return value as BookingStatus;
   }
-  return "all";
+  return "today";
 }
 
 export default async function AdminBookingsPage({
@@ -24,7 +39,8 @@ export default async function AdminBookingsPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const status = resolveStatus(params.status);
+  const view = resolveView(params.status);
+  const today = todayISO();
   let allBookings: Booking[] = [];
   let loadError: string | null = null;
 
@@ -36,6 +52,47 @@ export default async function AdminBookingsPage({
   }
 
   const counts = countByStatus(allBookings);
+  const partition = partitionForDashboard(allBookings, today);
+
+  if (loadError) {
+    return (
+      <>
+        <DashboardHeader
+          title="Today"
+          subtitle={formatOpsDate(today)}
+        />
+        <p
+          className="border border-chestnut/30 bg-white px-6 py-8 text-center font-secondary text-sm text-chestnut"
+          role="alert"
+        >
+          {loadError}
+        </p>
+      </>
+    );
+  }
+
+  if (view === "today") {
+    return (
+      <>
+        <DashboardHeader
+          title="Today"
+          subtitle={formatOpsDate(today)}
+          summary={formatOpsSummary(partition, counts.new)}
+        />
+        <div className="mb-8">
+          <OpsStats
+            arriving={partition.arriving.length}
+            inHouse={partition.inHouse.length}
+            departing={partition.departing.length}
+            newCount={counts.new}
+          />
+        </div>
+        <TodayBoard partition={partition} today={today} />
+      </>
+    );
+  }
+
+  const status = view;
   const bookings =
     status === "all"
       ? allBookings
@@ -43,31 +100,40 @@ export default async function AdminBookingsPage({
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="text-[clamp(28px,4vw,40px)] font-semibold text-forest-green">
-          Dashboard
-        </h1>
-        <p className="mt-2 text-sm text-forest-green/60">
-          Review stay requests submitted from the website.
-        </p>
-      </div>
-
-      {!loadError ? (
-        <div className="mb-8 hidden lg:block">
-          <DashboardStats counts={counts} active={status} />
-        </div>
-      ) : null}
-
-      {loadError ? (
-        <p
-          className="border border-chestnut/30 bg-white px-6 py-8 text-center font-secondary text-sm text-chestnut"
-          role="alert"
-        >
-          {loadError}
-        </p>
-      ) : (
-        <BookingList bookings={bookings} />
-      )}
+      <DashboardHeader
+        title={status === "all" ? "All bookings" : STATUS_LABELS[status]}
+        subtitle="Stay requests submitted from the website."
+      />
+      <BookingList
+        bookings={sortByStayDate(bookings, today)}
+        today={today}
+        emptyMessage={emptyMessageForStatus(status)}
+        searchable
+      />
     </>
+  );
+}
+
+function DashboardHeader({
+  title,
+  subtitle,
+  summary,
+}: {
+  title: string;
+  subtitle: string;
+  summary?: string;
+}) {
+  return (
+    <div className="mb-8">
+      <h1 className="text-[clamp(28px,4vw,40px)] font-semibold text-forest-green">
+        {title}
+      </h1>
+      <p className="mt-2 text-sm text-forest-green/60">{subtitle}</p>
+      {summary ? (
+        <p className="mt-1 font-secondary text-sm text-forest-green/80">
+          {summary}
+        </p>
+      ) : null}
+    </div>
   );
 }

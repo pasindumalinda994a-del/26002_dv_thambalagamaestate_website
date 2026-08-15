@@ -1,11 +1,11 @@
-import type { BookingStatus } from "@/lib/bookings/types";
+import type { AdminCounts } from "./booking-counts";
 import { AdminLayoutClient } from "./AdminLayoutClient";
 
 export function AdminShell({
   counts,
   children,
 }: {
-  counts: Record<BookingStatus | "all", number>;
+  counts: AdminCounts;
   children: React.ReactNode;
 }) {
   return (
