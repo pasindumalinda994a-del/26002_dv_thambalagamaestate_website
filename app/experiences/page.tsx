@@ -1,4 +1,5 @@
 import { Header } from "../components/Header";
+import { CTASection } from "../homepagesections/CTASection";
 import { FooterSection } from "../homepagesections/Footer Section";
 import { EXPERIENCES_OG_IMAGE, buildPageMetadata } from "@/lib/seo";
 import {
@@ -7,7 +8,6 @@ import {
 } from "./content";
 import { CuratedWilderness } from "./experiencesections/CuratedWilderness";
 import { ExperienceBlock } from "./experiencesections/ExperienceBlock";
-import { ExperiencesCta } from "./experiencesections/ExperiencesCta";
 import { ExperiencesHero } from "./experiencesections/ExperiencesHero";
 import { WaterfallSection } from "./experiencesections/WaterfallSection";
 
@@ -43,7 +43,7 @@ export default function ExperiencesPage() {
         />
       </div>
       <div className="bg-deep-forest">
-        <ExperiencesCta />
+        <CTASection />
         <FooterSection />
       </div>
     </main>

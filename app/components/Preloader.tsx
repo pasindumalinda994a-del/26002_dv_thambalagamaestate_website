@@ -3,17 +3,23 @@
 import gsap from "gsap";
 import { useLenis } from "lenis/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { dispatchAmbientSoundPreference } from "@/lib/ambient-sound";
+import {
+  dispatchAmbientSoundPreference,
+  getAmbientSoundPreference,
+} from "@/lib/ambient-sound";
 import { HOME_CRITICAL_ASSETS } from "@/lib/preload-assets";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
+import {
+  lockScrollRestoration,
+  refreshScrollTriggers,
+  scrollToHero,
+} from "@/lib/scroll-refresh";
 import { Button } from "./Button";
 import { DecryptedText } from "./DecryptedText";
 
 /** Full progress arc — long enough for each status phase to read. */
-const PROGRESS_DURATION_MS = 5200;
+const PROGRESS_DURATION_MS = 7000;
 const MAX_ASSET_WAIT_MS = 5000;
-const HOLD_AT_100_MS = 1100;
-const SESSION_KEY = "te-preloader-seen";
+const HOLD_AT_100_MS = 1600;
 const DEEP_FOREST = "#18200e";
 const WIPE_DURATION = 0.9;
 const WIPE_EASE = "power2.inOut";
@@ -82,10 +88,20 @@ function statusForProgress(progress: number): string {
   return "COORD: 6°24'N 80°28'E";
 }
 
-export function Preloader() {
+type PreloaderProps = {
+  assets?: readonly string[];
+  onComplete?: () => void;
+};
+
+export function Preloader({
+  assets = HOME_CRITICAL_ASSETS,
+  onComplete,
+}: PreloaderProps) {
   const lenis = useLenis();
   const lenisRef = useRef(lenis);
   lenisRef.current = lenis;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -119,16 +135,13 @@ export function Preloader() {
   };
 
   const finish = () => {
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-
     document.body.style.overflow = bodyStylesRef.current.overflow;
     document.body.style.backgroundColor = bodyStylesRef.current.backgroundColor;
+    scrollToHero(lenisRef.current);
     lenisRef.current?.start();
     refreshScrollTriggers(50);
+    window.setTimeout(() => scrollToHero(lenisRef.current), 80);
+    onCompleteRef.current?.();
     setMounted(false);
   };
 
@@ -175,14 +188,12 @@ export function Preloader() {
     runWipeExit();
   };
 
+  const runWipeExitRef = useRef(runWipeExit);
+  runWipeExitRef.current = runWipeExit;
+
   useLayoutEffect(() => {
-    try {
-      if (sessionStorage.getItem(SESSION_KEY) === "1") {
-        setMounted(false);
-      }
-    } catch {
-      /* private mode / blocked storage */
-    }
+    lockScrollRestoration();
+    scrollToHero(lenisRef.current);
 
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -194,6 +205,7 @@ export function Preloader() {
   useEffect(() => {
     if (!mounted) return;
     lenis?.stop();
+    scrollToHero(lenis);
     return () => {
       lenis?.start();
     };
@@ -266,7 +278,7 @@ export function Preloader() {
       const progressProxy = { t: 0 };
 
       const assetsReady = Promise.race([
-        waitForCriticalAssets(HOME_CRITICAL_ASSETS),
+        waitForCriticalAssets(assets),
         delay(MAX_ASSET_WAIT_MS),
       ]);
 
@@ -303,6 +315,13 @@ export function Preloader() {
 
       if (cancelled || exitingRef.current) return;
 
+      const existingPreference = getAmbientSoundPreference();
+      if (existingPreference !== null) {
+        dispatchAmbientSoundPreference(existingPreference);
+        runWipeExitRef.current();
+        return;
+      }
+
       revealSoundPrompt();
     };
 
@@ -316,7 +335,7 @@ export function Preloader() {
       document.body.style.overflow = bodyStylesRef.current.overflow;
       document.body.style.backgroundColor = bodyStylesRef.current.backgroundColor;
     };
-  }, [mounted]);
+  }, [assets, mounted]);
 
   useEffect(() => {
     if (!showSoundPrompt || !soundDialogRef.current) return;
@@ -382,6 +401,7 @@ export function Preloader() {
               key={status}
               text={status}
               sequential
+              revealUnit="word"
               revealDirection="start"
               animateOn="view"
               speed={20}

@@ -75,9 +75,3 @@ export const EXPERIENCES_DINING = {
     "Estate Harvest",
   ] as const,
 } as const;
-
-export const EXPERIENCES_CTA = {
-  eyebrow: "The Estate Promise",
-  buttonLabel: "Check Availability",
-  bgSrc: "/homepageimages/cta-bg.webp",
-} as const;

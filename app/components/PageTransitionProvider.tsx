@@ -15,7 +15,7 @@ import {
   type ReactNode,
 } from "react";
 import { flushSync } from "react-dom";
-import { refreshScrollTriggers } from "@/lib/scroll-refresh";
+import { refreshScrollTriggers, scrollToHero } from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(SplitText);
 
@@ -194,8 +194,10 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
       gsap.set(curtain, { yPercent: 100, pointerEvents: "none" });
     }
     document.body.style.overflow = pending?.previousOverflow ?? "";
+    scrollToHero(lenisRef.current);
     lenisRef.current?.start();
     refreshScrollTriggers(50);
+    window.setTimeout(() => scrollToHero(lenisRef.current), 80);
     pendingRef.current = null;
     revealingRef.current = false;
     busyRef.current = false;
@@ -213,7 +215,7 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
 
     revealingRef.current = true;
     clearSafetyTimer();
-    lenisRef.current?.scrollTo(0, { immediate: true });
+    scrollToHero(lenisRef.current);
 
     revealTlRef.current?.kill();
     const tl = gsap.timeline({
@@ -261,20 +263,27 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
       const pathnameNow = pathnameRef.current;
 
       if (shouldSkipTransition(href, pathnameNow)) {
-        if (normalizePath(href) !== normalizePath(pathnameNow)) {
-          router.push(href);
+        if (normalizePath(href) === normalizePath(pathnameNow)) {
+          if (!href.startsWith("#")) {
+            scrollToHero(lenisRef.current);
+          }
+        } else {
+          scrollToHero(lenisRef.current);
+          router.push(href, { scroll: false });
         }
         return;
       }
 
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        router.push(href);
+        scrollToHero(lenisRef.current);
+        router.push(href, { scroll: false });
         return;
       }
 
       const curtain = curtainRef.current;
       if (!curtain) {
-        router.push(href);
+        scrollToHero(lenisRef.current);
+        router.push(href, { scroll: false });
         return;
       }
 
@@ -323,6 +332,7 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
           const pending = pendingRef.current;
           if (!pending) return;
           pending.coverComplete = true;
+          scrollToHero(lenisRef.current);
           router.push(href, { scroll: false });
           startReveal();
         });

@@ -1,5 +1,4 @@
 import { Header } from "./components/Header";
-import { Preloader } from "./components/Preloader";
 import { AboutSection } from "./homepagesections/About Section";
 import { HeroSection } from "./homepagesections/Hero Section";
 import { HomeBelowFold } from "./homepagesections/HomeBelowFold";
@@ -14,7 +13,6 @@ export const metadata = buildPageMetadata({
 export default function Home() {
   return (
     <main className="flex min-h-full flex-1 flex-col">
-      <Preloader />
       <Header audioSrc="/audio/emycutiepants-jungle-ambience-339096.mp3" />
       <HeroSection />
       <AboutSection />

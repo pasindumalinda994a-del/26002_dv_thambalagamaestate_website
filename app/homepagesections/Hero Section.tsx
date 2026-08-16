@@ -2,14 +2,14 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/Button";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
-import { HERO_BG_SRC } from "@/lib/preload-assets";
+import { HERO_VIDEO_SRC } from "@/lib/preload-assets";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
 const MOBILE_MQ = "(max-width: 767px)";
@@ -85,6 +85,18 @@ export function HeroSection() {
       className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover object-[90%_center] md:object-center"
+        >
+          <source src={HERO_VIDEO_SRC} type="video/mp4" />
+        </video>
+
+        {/* Current still — restore if the video is swapped back out.
         <Image
           src={HERO_BG_SRC}
           alt=""
@@ -94,6 +106,7 @@ export function HeroSection() {
           sizes="100vw"
           className="object-cover object-[90%_center] md:object-center"
         />
+        */}
 
         <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
       </div>

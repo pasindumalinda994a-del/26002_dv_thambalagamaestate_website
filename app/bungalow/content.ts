@@ -130,9 +130,3 @@ export const BUNGALOW_QUARTERS = {
     },
   ] as const satisfies readonly BungalowImage[],
 } as const;
-
-export const BUNGALOW_CTA = {
-  eyebrow: "The Estate Promise",
-  buttonLabel: "Check Availability",
-  bgSrc: "/homepageimages/cta-bg.webp",
-} as const;

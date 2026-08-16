@@ -2,7 +2,6 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import {
   forwardRef,
@@ -18,6 +17,10 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
+import {
+  HoverHeadingReveal,
+  type HoverHeadingRevealHandle,
+} from "../components/HoverHeadingReveal";
 import { Paragraph } from "../components/Paragraph";
 
 const HOVER_GROW = 2.4;
@@ -26,10 +29,11 @@ const REST_GROW = 1;
 const HOVER_DURATION = 0.6;
 const HOVER_EASE = "power3.out";
 const HOVER_PARALLAX = 0.5;
-const TEXT_REVEAL_DURATION = 0.8;
-const TEXT_REVEAL_STAGGER = 0.05;
-const TEXT_HIDE_DURATION = 0.25;
-const OVERLAY_FADE_DURATION = 0.25;
+const TEXT_REVEAL_DELAY = 0.38;
+const OVERLAY_FADE_DURATION = 0.9;
+const OVERLAY_HIDE_DURATION = 0.4;
+const OVERLAY_EASE = "power2.out";
+const OVERLAY_HIDE_EASE = "power2.inOut";
 
 type ExperienceImage = {
   src: string;
@@ -67,31 +71,36 @@ function ExperienceImageCaption({
   caption?: string;
   showOnHover?: boolean;
   overlayRef?: (el: HTMLDivElement | null) => void;
-  headingRef?: (el: HTMLHeadingElement | null) => void;
+  headingRef?: (el: HoverHeadingRevealHandle | null) => void;
 }) {
   return (
-    <div
-      ref={overlayRef}
-      className={[
-        "pointer-events-none absolute inset-0 flex items-end justify-start bg-linear-to-t from-black/60 via-black/15 to-transparent p-4 md:p-6",
-        showOnHover
-          ? "opacity-0 motion-reduce:group-hover:opacity-100"
-          : "opacity-100",
-      ].join(" ")}
-    >
-      {heading ? (
-        <H2
-          ref={headingRef}
-          animate={false}
-          className="max-w-[min(48rem,96%)] uppercase text-cream"
-        >
-          {heading}
-        </H2>
-      ) : caption ? (
-        <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
-          {caption}
-        </Paragraph>
-      ) : null}
+    <div className="pointer-events-none absolute inset-0">
+      <div
+        ref={overlayRef}
+        aria-hidden
+        className={[
+          "absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,12,0.82)_0%,rgba(8,10,12,0.52)_24%,rgba(8,10,12,0.2)_48%,rgba(8,10,12,0.06)_70%,transparent_90%)]",
+          showOnHover
+            ? "opacity-0 motion-reduce:group-hover:opacity-100"
+            : "opacity-100",
+        ].join(" ")}
+      />
+      <div className="absolute inset-0 flex items-end justify-start p-4 md:p-6">
+        {heading ? (
+          <HoverHeadingReveal
+            ref={headingRef}
+            as="h2"
+            enabled={showOnHover}
+            className="max-w-[min(48rem,96%)] font-space-grotesk text-[clamp(24px,6.15vw,54px)] font-bold uppercase leading-[130%] tracking-[0.2px] text-cream"
+          >
+            {heading}
+          </HoverHeadingReveal>
+        ) : caption ? (
+          <Paragraph className="max-w-[min(32rem,92%)] text-left text-cream">
+            {caption}
+          </Paragraph>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -203,7 +212,9 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
     const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
     const imageWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
     const captionOverlayRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const captionHeadingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+    const captionHeadingRefs = useRef<(HoverHeadingRevealHandle | null)[]>(
+      [],
+    );
     const armed = useNearViewport(sectionRef);
 
     const setSectionRef = (node: HTMLElement | null) => {
@@ -284,19 +295,6 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       let imageWrapWidth = 0;
       let resizeObserver: ResizeObserver | null = null;
       let ctx: gsap.Context | undefined;
-      const splits: (SplitText | null)[] = [];
-
-      const hiddenCharVars = {
-        y: 200,
-        opacity: 0.2,
-        filter: "blur(20px)",
-      } as const;
-
-      const visibleCharVars = {
-        y: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-      } as const;
 
       const syncImageWidths = () => {
         const maxGrowSum =
@@ -343,28 +341,17 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           }
 
           const overlay = captionOverlayRefs.current[i];
-          const chars = splits[i]?.chars;
+          const heading = captionHeadingRefs.current[i];
 
           if (!isActive) {
+            heading?.hide();
             if (overlay) {
               tl.to(
                 overlay,
                 {
                   opacity: 0,
-                  duration: TEXT_HIDE_DURATION,
-                  ease: HOVER_EASE,
-                },
-                0,
-              );
-            }
-            if (chars?.length) {
-              tl.to(
-                chars,
-                {
-                  ...hiddenCharVars,
-                  duration: TEXT_HIDE_DURATION,
-                  ease: HOVER_EASE,
-                  stagger: 0,
+                  duration: OVERLAY_HIDE_DURATION,
+                  ease: OVERLAY_HIDE_EASE,
                 },
                 0,
               );
@@ -373,7 +360,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         });
 
         const activeOverlay = captionOverlayRefs.current[index];
-        const activeChars = splits[index]?.chars;
+        captionHeadingRefs.current[index]?.play({ delay: TEXT_REVEAL_DELAY });
 
         if (activeOverlay) {
           tl.to(
@@ -381,22 +368,9 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
             {
               opacity: 1,
               duration: OVERLAY_FADE_DURATION,
-              ease: HOVER_EASE,
+              ease: OVERLAY_EASE,
             },
-            HOVER_DURATION,
-          );
-        }
-
-        if (activeChars?.length) {
-          tl.to(
-            activeChars,
-            {
-              ...visibleCharVars,
-              duration: TEXT_REVEAL_DURATION,
-              ease: "power4.out",
-              stagger: TEXT_REVEAL_STAGGER,
-            },
-            HOVER_DURATION,
+            TEXT_REVEAL_DELAY,
           );
         }
 
@@ -433,27 +407,15 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
           }
 
           const overlay = captionOverlayRefs.current[i];
-          const chars = splits[i]?.chars;
+          captionHeadingRefs.current[i]?.hide();
 
           if (overlay) {
             tl.to(
               overlay,
               {
                 opacity: 0,
-                duration: TEXT_HIDE_DURATION,
-                ease: HOVER_EASE,
-              },
-              0,
-            );
-          }
-          if (chars?.length) {
-            tl.to(
-              chars,
-              {
-                ...hiddenCharVars,
-                duration: TEXT_HIDE_DURATION,
-                ease: HOVER_EASE,
-                stagger: 0,
+                duration: OVERLAY_HIDE_DURATION,
+                ease: OVERLAY_HIDE_EASE,
               },
               0,
             );
@@ -465,8 +427,6 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
       const setup = () => {
         if (cancelled || !grid) return;
-
-        gsap.registerPlugin(SplitText);
 
         syncImageWidths();
         resizeObserver = new ResizeObserver(syncImageWidths);
@@ -482,27 +442,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
 
           panels.forEach((_, index) => {
             const overlay = captionOverlayRefs.current[index];
-            const heading = captionHeadingRefs.current[index];
             if (overlay) gsap.set(overlay, { opacity: 0 });
-
-            if (!heading) {
-              splits[index] = null;
-              return;
-            }
-
-            const split = SplitText.create(heading, {
-              type: "lines,chars",
-              mask: "lines",
-              autoSplit: true,
-              linesClass: "h2-line",
-              charsClass: "inline-block",
-              onSplit(self) {
-                if (!self.chars.length) return;
-                gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
-                gsap.set(self.chars, hiddenCharVars);
-              },
-            });
-            splits[index] = split ?? null;
           });
 
           panels.forEach((panel, index) => {
@@ -525,7 +465,6 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         cancelled = true;
         timeline?.kill();
         resizeObserver?.disconnect();
-        splits.forEach((split) => split?.revert());
         ctx?.revert();
       };
     }, []);

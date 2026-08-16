@@ -15,6 +15,7 @@ interface DecryptedTextProps extends ComponentProps<"span"> {
   maxIterations?: number;
   sequential?: boolean;
   revealDirection?: "start" | "end" | "center";
+  revealUnit?: "character" | "word";
   useOriginalCharsOnly?: boolean;
   characters?: string;
   className?: string;
@@ -25,6 +26,33 @@ interface DecryptedTextProps extends ComponentProps<"span"> {
 }
 
 type Direction = "forward" | "reverse";
+type WordRange = { start: number; end: number };
+
+function getWordRanges(text: string): WordRange[] {
+  const ranges: WordRange[] = [];
+  const re = /\S+/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    ranges.push({ start: match.index, end: match.index + match[0].length });
+  }
+  return ranges;
+}
+
+function isRangeRevealed(
+  revealed: Set<number>,
+  start: number,
+  end: number,
+  source: string,
+): boolean {
+  for (let i = start; i < end; i++) {
+    if (source[i] !== " " && !revealed.has(i)) return false;
+  }
+  return true;
+}
+
+function fillRange(set: Set<number>, start: number, end: number): void {
+  for (let i = start; i < end; i++) set.add(i);
+}
 
 export function DecryptedText({
   text,
@@ -32,6 +60,7 @@ export function DecryptedText({
   maxIterations = 10,
   sequential = false,
   revealDirection = "start",
+  revealUnit = "character",
   useOriginalCharsOnly = false,
   characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+",
   className = "",
@@ -56,6 +85,10 @@ export function DecryptedText({
   const orderRef = useRef<number[]>([]);
   const pointerRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const currentWordRef = useRef<number>(0);
+
+  const wordRanges = useMemo(() => getWordRanges(text), [text]);
+  const isWordReveal = revealUnit === "word";
 
   const availableChars = useMemo<string[]>(() => {
     return useOriginalCharsOnly
@@ -64,8 +97,14 @@ export function DecryptedText({
   }, [useOriginalCharsOnly, text, characters]);
 
   const shuffleText = useCallback(
-    (originalText: string, currentRevealed: Set<number>) => {
+    (
+      originalText: string,
+      currentRevealed: Set<number>,
+      visibleUntil?: number,
+    ) => {
+      const cutoff = visibleUntil ?? originalText.length;
       return originalText
+        .slice(0, cutoff)
         .split("")
         .map((char, i) => {
           if (char === " ") return " ";
@@ -77,6 +116,16 @@ export function DecryptedText({
         .join("");
     },
     [availableChars],
+  );
+
+  const visibleUntilForWord = useCallback(
+    (wordIndex: number): number => {
+      if (!isWordReveal) return text.length;
+      if (wordIndex < 0 || wordRanges.length === 0) return 0;
+      if (wordIndex >= wordRanges.length) return text.length;
+      return wordRanges[wordIndex].end;
+    },
+    [isWordReveal, text.length, wordRanges],
   );
 
   const computeOrder = useCallback(
@@ -128,12 +177,20 @@ export function DecryptedText({
 
   const encryptInstantly = useCallback(() => {
     const emptySet = new Set<number>();
+    currentWordRef.current = 0;
     setRevealedIndices(emptySet);
-    setDisplayText(shuffleText(text, emptySet));
+    setDisplayText(
+      shuffleText(
+        text,
+        emptySet,
+        isWordReveal ? visibleUntilForWord(0) : undefined,
+      ),
+    );
     setIsDecrypted(false);
-  }, [text, shuffleText]);
+  }, [text, shuffleText, isWordReveal, visibleUntilForWord]);
 
   const triggerDecrypt = useCallback(() => {
+    currentWordRef.current = 0;
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -146,18 +203,27 @@ export function DecryptedText({
   }, [sequential, computeOrder, text.length]);
 
   const triggerReverse = useCallback(() => {
+    currentWordRef.current = Math.max(0, wordRanges.length - 1);
+    const allRevealed = fillAllIndices();
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
-      setRevealedIndices(fillAllIndices());
-      setDisplayText(shuffleText(text, fillAllIndices()));
+      setRevealedIndices(allRevealed);
+      setDisplayText(shuffleText(text, allRevealed));
     } else {
-      setRevealedIndices(fillAllIndices());
-      setDisplayText(shuffleText(text, fillAllIndices()));
+      setRevealedIndices(allRevealed);
+      setDisplayText(shuffleText(text, allRevealed));
     }
     setDirection("reverse");
     setIsAnimating(true);
-  }, [sequential, computeOrder, fillAllIndices, shuffleText, text]);
+  }, [
+    sequential,
+    computeOrder,
+    fillAllIndices,
+    shuffleText,
+    text,
+    wordRanges.length,
+  ]);
 
   useEffect(() => {
     if (!isAnimating) return;
@@ -196,8 +262,240 @@ export function DecryptedText({
       }
     };
 
+    const getNextIndexInRange = (
+      revealedSet: Set<number>,
+      start: number,
+      end: number,
+      mode: "add" | "remove",
+    ): number => {
+      const candidates: number[] = [];
+      for (let i = start; i < end; i++) {
+        const isRevealed = revealedSet.has(i);
+        if (mode === "add" ? !isRevealed : isRevealed) {
+          candidates.push(i);
+        }
+      }
+      if (candidates.length === 0) return -1;
+
+      switch (revealDirection) {
+        case "end":
+          return mode === "add"
+            ? candidates[candidates.length - 1]
+            : candidates[0];
+        case "center": {
+          const middle = start + Math.floor((end - start) / 2);
+          let best = candidates[0];
+          let bestDist = Math.abs(best - middle);
+          for (const idx of candidates) {
+            const dist = Math.abs(idx - middle);
+            if (dist < bestDist) {
+              best = idx;
+              bestDist = dist;
+            }
+          }
+          return best;
+        }
+        default:
+          return mode === "add"
+            ? candidates[0]
+            : candidates[candidates.length - 1];
+      }
+    };
+
+    const finishForward = (revealed: Set<number>) => {
+      clearInterval(intervalRef.current ?? undefined);
+      setIsAnimating(false);
+      setIsDecrypted(true);
+      setDisplayText(text);
+      return revealed;
+    };
+
+    const finishReverse = (revealed: Set<number>) => {
+      clearInterval(intervalRef.current ?? undefined);
+      setIsAnimating(false);
+      setIsDecrypted(false);
+      return revealed;
+    };
+
     intervalRef.current = setInterval(() => {
       setRevealedIndices((prevRevealed) => {
+        if (isWordReveal) {
+          if (wordRanges.length === 0) {
+            return direction === "forward"
+              ? finishForward(prevRevealed)
+              : finishReverse(prevRevealed);
+          }
+
+          if (sequential) {
+            if (direction === "forward") {
+              if (currentWordRef.current >= wordRanges.length) {
+                return finishForward(prevRevealed);
+              }
+
+              const word = wordRanges[currentWordRef.current];
+              const nextIndex = getNextIndexInRange(
+                prevRevealed,
+                word.start,
+                word.end,
+                "add",
+              );
+              const newRevealed = new Set(prevRevealed);
+              if (nextIndex !== -1) newRevealed.add(nextIndex);
+
+              if (isRangeRevealed(newRevealed, word.start, word.end, text)) {
+                currentWordRef.current += 1;
+              }
+
+              if (currentWordRef.current >= wordRanges.length) {
+                return finishForward(newRevealed);
+              }
+
+              setDisplayText(
+                shuffleText(
+                  text,
+                  newRevealed,
+                  visibleUntilForWord(currentWordRef.current),
+                ),
+              );
+              return newRevealed;
+            }
+
+            if (direction === "reverse") {
+              if (currentWordRef.current < 0) {
+                setDisplayText(shuffleText(text, new Set(), 0));
+                return finishReverse(new Set());
+              }
+
+              const word = wordRanges[currentWordRef.current];
+              const idxToRemove = getNextIndexInRange(
+                prevRevealed,
+                word.start,
+                word.end,
+                "remove",
+              );
+              const newRevealed = new Set(prevRevealed);
+              if (idxToRemove !== -1) newRevealed.delete(idxToRemove);
+
+              let wordHasRevealed = false;
+              for (let i = word.start; i < word.end; i++) {
+                if (newRevealed.has(i)) {
+                  wordHasRevealed = true;
+                  break;
+                }
+              }
+
+              if (!wordHasRevealed) {
+                currentWordRef.current -= 1;
+              }
+
+              if (currentWordRef.current < 0) {
+                setDisplayText(shuffleText(text, new Set(), 0));
+                return finishReverse(new Set());
+              }
+
+              setDisplayText(
+                shuffleText(
+                  text,
+                  newRevealed,
+                  visibleUntilForWord(currentWordRef.current),
+                ),
+              );
+              return newRevealed;
+            }
+          } else {
+            if (direction === "forward") {
+              if (currentWordRef.current >= wordRanges.length) {
+                return finishForward(prevRevealed);
+              }
+
+              setDisplayText(
+                shuffleText(
+                  text,
+                  prevRevealed,
+                  visibleUntilForWord(currentWordRef.current),
+                ),
+              );
+              currentIteration++;
+              if (currentIteration >= maxIterations) {
+                const word = wordRanges[currentWordRef.current];
+                const newRevealed = new Set(prevRevealed);
+                fillRange(newRevealed, word.start, word.end);
+                currentWordRef.current += 1;
+                currentIteration = 0;
+
+                if (currentWordRef.current >= wordRanges.length) {
+                  return finishForward(newRevealed);
+                }
+
+                setDisplayText(
+                  shuffleText(
+                    text,
+                    newRevealed,
+                    visibleUntilForWord(currentWordRef.current),
+                  ),
+                );
+                return newRevealed;
+              }
+              return prevRevealed;
+            }
+
+            if (direction === "reverse") {
+              if (currentWordRef.current < 0) {
+                setDisplayText(shuffleText(text, new Set(), 0));
+                return finishReverse(new Set());
+              }
+
+              const word = wordRanges[currentWordRef.current];
+              let currentSet = prevRevealed;
+              if (currentSet.size === 0) {
+                currentSet = fillAllIndices();
+              }
+              const wordSize = Math.max(1, word.end - word.start);
+              const removeCount = Math.max(
+                1,
+                Math.ceil(wordSize / Math.max(1, maxIterations)),
+              );
+              const nextSet = new Set(currentSet);
+              const wordIndices = [...currentSet].filter(
+                (i) => i >= word.start && i < word.end,
+              );
+              for (let i = 0; i < removeCount && wordIndices.length > 0; i++) {
+                const idx = Math.floor(Math.random() * wordIndices.length);
+                nextSet.delete(wordIndices[idx]);
+                wordIndices.splice(idx, 1);
+              }
+
+              currentIteration++;
+              let wordEmpty = true;
+              for (let i = word.start; i < word.end; i++) {
+                if (nextSet.has(i)) {
+                  wordEmpty = false;
+                  break;
+                }
+              }
+              if (wordEmpty || currentIteration >= maxIterations) {
+                for (let i = word.start; i < word.end; i++) nextSet.delete(i);
+                currentWordRef.current -= 1;
+                currentIteration = 0;
+
+                if (currentWordRef.current < 0) {
+                  setDisplayText(shuffleText(text, new Set(), 0));
+                  return finishReverse(new Set());
+                }
+              }
+
+              setDisplayText(
+                shuffleText(
+                  text,
+                  nextSet,
+                  visibleUntilForWord(currentWordRef.current),
+                ),
+              );
+              return nextSet;
+            }
+          }
+        }
+
         if (sequential) {
           if (direction === "forward") {
             if (prevRevealed.size < text.length) {
@@ -276,6 +574,9 @@ export function DecryptedText({
     maxIterations,
     sequential,
     revealDirection,
+    isWordReveal,
+    wordRanges,
+    visibleUntilForWord,
     shuffleText,
     direction,
     fillAllIndices,
@@ -306,12 +607,17 @@ export function DecryptedText({
   const triggerHoverDecrypt = useCallback(() => {
     if (isAnimating) return;
 
+    currentWordRef.current = 0;
     setRevealedIndices(new Set());
     setIsDecrypted(false);
-    setDisplayText(text);
+    setDisplayText(
+      isWordReveal
+        ? shuffleText(text, new Set(), visibleUntilForWord(0))
+        : text,
+    );
     setDirection("forward");
     setIsAnimating(true);
-  }, [isAnimating, text]);
+  }, [isAnimating, text, isWordReveal, shuffleText, visibleUntilForWord]);
 
   const resetToPlainText = useCallback(() => {
     clearInterval(intervalRef.current ?? undefined);
@@ -352,6 +658,7 @@ export function DecryptedText({
   }, [animateOn, hasAnimated, triggerDecrypt]);
 
   useEffect(() => {
+    currentWordRef.current = 0;
     if (
       animateOn === "click" ||
       animateOn === "view" ||

@@ -43,7 +43,7 @@ export function ComfortSection() {
         scrollTrigger: {
           trigger: frames[0],
           start: "top 50%",
-          once: true,
+          toggleActions: "play none none reset",
         },
       });
     }, section);
