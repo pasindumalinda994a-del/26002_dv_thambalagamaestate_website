@@ -88,6 +88,32 @@ function statusForProgress(progress: number): string {
   return "COORD: 6°24'N 80°28'E";
 }
 
+function HeadphonesIcon() {
+  return (
+    <svg
+      aria-hidden
+      width={40}
+      height={40}
+      viewBox="0 0 24 24"
+      fill="none"
+      className="shrink-0 text-cream"
+    >
+      <path
+        d="M4 13v3.5A2.5 2.5 0 0 0 6.5 19h.5A1.5 1.5 0 0 0 8.5 17.5v-2A1.5 1.5 0 0 0 7 14H4Zm16 0v3.5A2.5 2.5 0 0 1 17.5 19h-.5A1.5 1.5 0 0 1 15.5 17.5v-2A1.5 1.5 0 0 1 17 14h3Z"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinejoin="round"
+      />
+      <path
+        d="M4 14a8 8 0 0 1 16 0"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 type PreloaderProps = {
   assets?: readonly string[];
   onComplete?: () => void;
@@ -422,12 +448,15 @@ export function Preloader({
           aria-labelledby="preloader-sound-title"
           className="flex flex-col items-center gap-8 px-6 opacity-0"
         >
-          <h2
-            id="preloader-sound-title"
-            className="max-w-md text-center font-secondary text-base font-normal tracking-[0.02em] text-cream md:text-lg"
-          >
-            For the full experience, turn on your sound.
-          </h2>
+          <div className="flex flex-col items-center gap-4">
+            <HeadphonesIcon />
+            <h2
+              id="preloader-sound-title"
+              className="max-w-md text-center font-secondary text-base font-normal tracking-[0.02em] text-cream md:text-lg"
+            >
+              The forest is closer with headphones.
+            </h2>
+          </div>
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <Button
               type="button"

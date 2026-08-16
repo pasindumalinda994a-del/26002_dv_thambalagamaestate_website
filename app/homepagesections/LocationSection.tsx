@@ -391,6 +391,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
       <section
         ref={setSectionRef}
         aria-label="Location"
+        data-ambient-zone="locationCta"
         className="relative -mt-[100vh] z-[31] h-screen w-full overflow-hidden bg-deep-forest"
       >
         {isMobile ? (

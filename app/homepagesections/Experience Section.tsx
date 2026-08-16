@@ -13,6 +13,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { setExperienceWaterNudge } from "@/lib/homepage-ambient-mix";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
@@ -150,6 +151,23 @@ function ExperienceMobileCarousel({
       }
     };
   }, []);
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+    const apply = () => {
+      if (!mobileQuery.matches) {
+        setExperienceWaterNudge(0);
+        return;
+      }
+      setExperienceWaterNudge(activeIndex === 0 ? 1 : 0);
+    };
+    apply();
+    mobileQuery.addEventListener("change", apply);
+    return () => {
+      mobileQuery.removeEventListener("change", apply);
+      if (mobileQuery.matches) setExperienceWaterNudge(0);
+    };
+  }, [activeIndex]);
 
   return (
     <div className="w-full space-y-4 md:hidden">
@@ -307,6 +325,8 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       };
 
       const animateToHovered = (index: number) => {
+        if (index === 0) setExperienceWaterNudge(1);
+        else setExperienceWaterNudge(0);
         timeline?.kill();
         const tl = gsap.timeline();
 
@@ -378,6 +398,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       };
 
       const animateToRest = () => {
+        setExperienceWaterNudge(0);
         timeline?.kill();
         const tl = gsap.timeline();
 
@@ -466,6 +487,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         timeline?.kill();
         resizeObserver?.disconnect();
         ctx?.revert();
+        setExperienceWaterNudge(0);
       };
     }, []);
 
@@ -473,6 +495,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       <section
         ref={setSectionRef}
         aria-label="Estate experiences"
+        data-ambient-zone="experience"
         className="relative z-30 flex min-h-screen flex-col justify-center overflow-hidden bg-cream md:-mt-[100vh] md:justify-start"
       >
         <div

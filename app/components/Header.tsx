@@ -40,9 +40,10 @@ function isVisible(el: HTMLElement | null): el is HTMLElement {
 
 type HeaderProps = {
   audioSrc?: string;
+  ambient?: "single" | "layers";
 };
 
-export function Header({ audioSrc }: HeaderProps) {
+export function Header({ audioSrc, ambient = "single" }: HeaderProps) {
   const pathname = usePathname();
   const desktopSoundVariant = desktopSoundVariantForPath(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -411,7 +412,7 @@ export function Header({ audioSrc }: HeaderProps) {
   }, [menuOpen, drawerReady]);
 
   return (
-    <AmbientAudioProvider audioSrc={audioSrc}>
+    <AmbientAudioProvider audioSrc={audioSrc} mode={ambient}>
       <header
         ref={headerRef}
         className="fixed top-4 left-4 right-4 z-[502] flex w-auto items-center justify-between bg-deep-forest px-5 py-3 md:left-1/2 md:right-auto md:w-fit md:-translate-x-1/2 md:justify-center md:gap-20 md:px-8"

@@ -52,6 +52,7 @@ export function AboutSection() {
     <section
       ref={sectionRef}
       aria-label="About"
+      data-ambient-zone="about"
       className="relative flex min-h-screen items-center justify-center bg-deep-forest"
     >
       <h2
