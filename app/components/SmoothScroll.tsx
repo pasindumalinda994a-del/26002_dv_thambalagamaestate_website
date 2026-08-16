@@ -3,9 +3,12 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ReactLenis, useLenis } from "lenis/react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { LENIS_OPTIONS } from "@/lib/lenis-config";
-import { ensureScrollTriggerConfig } from "@/lib/scroll-refresh";
+import {
+  ensureScrollTriggerConfig,
+  lockScrollRestoration,
+} from "@/lib/scroll-refresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -53,6 +56,10 @@ function shouldEnableLenis() {
 export function SmoothScroll({ children }: { children: ReactNode }) {
   // Start false so mobile never mounts Lenis; desktop enables after mount.
   const [enabled, setEnabled] = useState(false);
+
+  useLayoutEffect(() => {
+    lockScrollRestoration();
+  }, []);
 
   useEffect(() => {
     ensureScrollTriggerConfig();

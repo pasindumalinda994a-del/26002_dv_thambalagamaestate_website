@@ -71,7 +71,7 @@ export function GalleryLightbox({
         onClick={onClose}
       />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 md:p-8">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-3 md:p-8">
         <div className="pointer-events-auto relative h-full w-full">
           <Image
             src={image.src}

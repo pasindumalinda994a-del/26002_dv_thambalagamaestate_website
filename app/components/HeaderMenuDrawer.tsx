@@ -1,7 +1,6 @@
 "use client";
 
 import { useLenis } from "lenis/react";
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { RefObject } from "react";
@@ -105,14 +104,14 @@ export function HeaderMenuDrawer({
             Menu
           </p>
 
-          <ul className="flex flex-col gap-2.5">
+          <ul className="group/nav flex flex-col gap-2.5">
             {navLinks.map(({ href, label }, index) => (
               <li key={href} data-menu-item>
                 <TransitionLink
                   ref={index === 0 ? firstLinkRef : undefined}
                   href={href}
                   onClick={onClose}
-                  className="font-secondary text-[22px] font-semibold uppercase leading-none tracking-[0.04em] text-cream transition-opacity hover:opacity-80"
+                  className="font-secondary text-[22px] font-semibold uppercase leading-none tracking-[0.04em] text-cream transition-opacity duration-300 group-hover/nav:opacity-[36%] hover:opacity-100"
                 >
                   {label}
                 </TransitionLink>
@@ -130,15 +129,6 @@ export function HeaderMenuDrawer({
           >
             Check Availability
           </Button>
-
-          <Link
-            data-menu-item
-            href="/admin/login"
-            onClick={onClose}
-            className="mt-4 flex w-full items-center justify-center font-secondary text-[12px] font-medium uppercase tracking-[0.12em] text-cream/60 transition-opacity hover:text-cream hover:opacity-100"
-          >
-            Dashboard Login
-          </Link>
         </nav>
       </div>
     </div>,

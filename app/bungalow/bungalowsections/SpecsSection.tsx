@@ -74,9 +74,13 @@ export function SpecsSection() {
                 scrollTrigger: {
                   trigger: row,
                   start: TRIGGER_START,
-                  once: true,
+                  toggleActions: "play none none reset",
                   invalidateOnRefresh: true,
                   refreshPriority: ST_PRIORITY.h2,
+                  onLeaveBack() {
+                    gsap.set(line, { scaleX: 0, transformOrigin: "left center" });
+                    if (label) gsap.set(label, { opacity: 0, y: 12 });
+                  },
                 },
                 onStart() {
                   if (label) {

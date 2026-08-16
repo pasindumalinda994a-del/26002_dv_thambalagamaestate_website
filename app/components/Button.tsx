@@ -1,9 +1,21 @@
+"use client";
+
+import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
 import {
   forwardRef,
+  useLayoutEffect,
+  useRef,
   type ComponentProps,
   type ReactNode,
 } from "react";
 import { TransitionLink } from "./TransitionLink";
+
+gsap.registerPlugin(SplitText);
+
+const LABEL_DURATION = 0.35;
+const LABEL_STAGGER = 0.02;
+const LABEL_EASE = "power2.out";
 
 export type ButtonVariant = "dark" | "light" | "glass";
 export type ButtonSize = "large" | "medium" | "small";
@@ -49,7 +61,6 @@ const arrowSize: Record<ButtonSize, number> = {
 const variantClasses: Record<ButtonVariant, string> = {
   dark: [
     "bg-forest-green text-cream",
-    "hover:bg-olive",
     "disabled:bg-deep-forest disabled:opacity-24 disabled:pointer-events-none",
     "aria-disabled:bg-deep-forest aria-disabled:opacity-24 aria-disabled:pointer-events-none",
   ].join(" "),
@@ -90,15 +101,121 @@ function ArrowIcon({ size }: { size: number }) {
 }
 
 function ButtonLabel({ children }: { children: ReactNode }) {
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const primaryRef = useRef<HTMLSpanElement>(null);
+  const duplicateRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const wrap = wrapRef.current;
+    const primary = primaryRef.current;
+    const duplicate = duplicateRef.current;
+    if (!wrap || !primary || !duplicate) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const parent = wrap.closest<HTMLElement>(".group");
+    if (!parent) return;
+
+    let cancelled = false;
+    let ctx: gsap.Context | undefined;
+    let splitPrimary: SplitText | undefined;
+    let splitDuplicate: SplitText | undefined;
+    let hoverTl: gsap.core.Timeline | undefined;
+    let play: (() => void) | undefined;
+    let reverse: (() => void) | undefined;
+    let onFocusOut: ((event: FocusEvent) => void) | undefined;
+
+    const setup = () => {
+      if (cancelled || !primaryRef.current || !duplicateRef.current) return;
+
+      ctx = gsap.context(() => {
+        splitPrimary = SplitText.create(primary, {
+          type: "chars",
+          smartWrap: true,
+          tag: "span",
+          charsClass: "inline-block",
+        });
+        splitDuplicate = SplitText.create(duplicate, {
+          type: "chars",
+          smartWrap: true,
+          tag: "span",
+          charsClass: "inline-block",
+        });
+
+        if (!splitPrimary.chars.length || !splitDuplicate.chars.length) return;
+
+        duplicate.classList.remove("translate-y-full");
+        gsap.set(splitDuplicate.chars, { yPercent: 100 });
+
+        hoverTl = gsap.timeline({ paused: true });
+        hoverTl
+          .to(
+            splitPrimary.chars,
+            {
+              yPercent: -100,
+              duration: LABEL_DURATION,
+              ease: LABEL_EASE,
+              stagger: LABEL_STAGGER,
+            },
+            0,
+          )
+          .to(
+            splitDuplicate.chars,
+            {
+              yPercent: 0,
+              duration: LABEL_DURATION,
+              ease: LABEL_EASE,
+              stagger: LABEL_STAGGER,
+            },
+            0,
+          );
+      }, wrap);
+
+      play = () => hoverTl?.play();
+      reverse = () => hoverTl?.reverse();
+      onFocusOut = (event: FocusEvent) => {
+        if (!parent.contains(event.relatedTarget as Node)) reverse?.();
+      };
+
+      parent.addEventListener("pointerenter", play);
+      parent.addEventListener("pointerleave", reverse);
+      parent.addEventListener("focusin", play);
+      parent.addEventListener("focusout", onFocusOut);
+    };
+
+    const fonts = document.fonts;
+    if (fonts?.status === "loaded") {
+      setup();
+    } else if (fonts?.ready) {
+      fonts.ready.then(setup);
+    } else {
+      setup();
+    }
+
+    return () => {
+      cancelled = true;
+      if (play && reverse && onFocusOut) {
+        parent.removeEventListener("pointerenter", play);
+        parent.removeEventListener("pointerleave", reverse);
+        parent.removeEventListener("focusin", play);
+        parent.removeEventListener("focusout", onFocusOut);
+      }
+      ctx?.revert();
+      splitPrimary?.revert();
+      splitDuplicate?.revert();
+    };
+  }, [children]);
+
   return (
-    <span className="relative inline-flex overflow-hidden [clip-path:inset(0)]">
-      <span
-        className={`block ${trackTransition} group-hover:-translate-y-full motion-reduce:group-hover:translate-y-0`}
-      >
+    <span
+      ref={wrapRef}
+      className="relative inline-flex overflow-hidden whitespace-nowrap [clip-path:inset(0)]"
+    >
+      <span ref={primaryRef} className="block">
         {children}
       </span>
       <span
-        className={`absolute inset-0 block translate-y-full ${trackTransition} group-hover:translate-y-0 motion-reduce:translate-y-0`}
+        ref={duplicateRef}
+        className="absolute inset-0 block translate-y-full"
         aria-hidden
       >
         {children}

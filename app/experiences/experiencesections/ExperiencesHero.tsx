@@ -104,7 +104,7 @@ export function ExperiencesHero() {
       <div className="relative z-10 flex w-full min-w-0 flex-col items-center justify-center px-4 text-center md:px-6">
         <H1
           key={isMobile ? "mobile" : "desktop"}
-          className="w-full max-w-[min(1067px,100%)] overflow-hidden break-words uppercase text-cream !text-[54px] md:!text-[clamp(54px,6.6vw,95px)]"
+          className="max-w-[1067px] overflow-hidden uppercase text-cream"
         >
           {isMobile
             ? EXPERIENCES_HERO.headlineMobile

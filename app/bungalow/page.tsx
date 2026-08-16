@@ -1,6 +1,6 @@
 import { Header } from "../components/Header";
+import { CTASection } from "../homepagesections/CTASection";
 import { FooterSection } from "../homepagesections/Footer Section";
-import { BungalowCta } from "./bungalowsections/BungalowCta";
 import { BungalowHero } from "./bungalowsections/BungalowHero";
 import { ComfortSection } from "./bungalowsections/ComfortSection";
 import { PoolSection } from "./bungalowsections/PoolSection";
@@ -28,7 +28,7 @@ export default function BungalowPage() {
       <PoolSection />
       <PrivateQuartersSection />
       <div className="bg-deep-forest">
-        <BungalowCta />
+        <CTASection />
         <FooterSection />
       </div>
     </main>

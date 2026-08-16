@@ -97,6 +97,11 @@ function easePower2In(t: number) {
   return x * x;
 }
 
+function easePower2Out(t: number) {
+  const x = Math.max(0, Math.min(1, t));
+  return 1 - (1 - x) * (1 - x);
+}
+
 function scaleFromRevealT(t: number) {
   return 1.2 - easePower2In(t) * 0.2;
 }
@@ -104,11 +109,13 @@ function scaleFromRevealT(t: number) {
 const HEADING_ENTER_Y = 200;
 const HEADING_EXIT_Y = -200;
 const HEADING_BLUR = 20;
-const HEADING_DIM_OPACITY = 0.2;
+const HEADING_DIM_OPACITY = 0;
 /** Next heading enter begins once its bg slide is this far through reveal. */
 const HEADING_ENTER_BG_REVEAL = 0.55;
-/** Fraction of an enter/exit phase reserved for char stagger spread. */
-const HEADING_STAGGER_SPAN = 0.28;
+/** Within-line char cascade, matching H1's relative stagger feel. */
+const HEADING_CHAR_STAGGER_SPAN = 0.22;
+/** Forest-only: tight gap so the next line starts before the previous finishes. */
+const HEADING_LINE_STAGGER = 0.04;
 const SLIDE_SCROLL_VH = 280;
 
 function getSlideScrollDistance() {
@@ -169,22 +176,53 @@ function headingPhase(progress: number, index: number): HeadingPhase {
   return { mode: "post", t: 1 };
 }
 
+type HeadingCharMeta = {
+  start: number;
+  maxStart: number;
+};
+
+function headingCharMeta(split: SplitText): HeadingCharMeta[] {
+  const chars = split.chars ?? [];
+  const lines = split.lines ?? [];
+  const starts = chars.map(() => 0);
+
+  if (lines.length === 0) {
+    const n = Math.max(1, chars.length);
+    chars.forEach((_, index) => {
+      starts[index] = (index / n) * HEADING_CHAR_STAGGER_SPAN;
+    });
+  } else {
+    lines.forEach((line, lineIndex) => {
+      const lineChars = chars.filter((char) => line.contains(char));
+      const n = Math.max(1, lineChars.length);
+      lineChars.forEach((char, charInLine) => {
+        const index = chars.indexOf(char);
+        if (index < 0) return;
+        starts[index] =
+          lineIndex * HEADING_LINE_STAGGER +
+          (charInLine / n) * HEADING_CHAR_STAGGER_SPAN;
+      });
+    });
+  }
+
+  const maxStart = Math.max(0, ...starts);
+  return starts.map((start) => ({ start, maxStart }));
+}
+
 function staggeredPhaseT(
   phaseT: number,
-  charIndex: number,
-  charCount: number,
+  start: number,
+  maxStart: number,
 ): number {
-  const n = Math.max(1, charCount);
-  const charStart = (charIndex / n) * HEADING_STAGGER_SPAN;
-  const charDuration = 1 - HEADING_STAGGER_SPAN;
+  const charDuration = 1 - maxStart;
   if (charDuration <= 0) return phaseT >= 1 ? 1 : 0;
-  return Math.max(0, Math.min(1, (phaseT - charStart) / charDuration));
+  const t = Math.max(0, Math.min(1, (phaseT - start) / charDuration));
+  return easePower2Out(t);
 }
 
 function headingCharState(
   phase: HeadingPhase,
-  charIndex: number,
-  charCount: number,
+  t: number,
   useBlur: boolean,
 ) {
   const filter = (px: number) =>
@@ -205,22 +243,18 @@ function headingCharState(
       };
     case "hold":
       return { y: 0, ...filter(0), opacity: 1 };
-    case "enter": {
-      const t = staggeredPhaseT(phase.t, charIndex, charCount);
+    case "enter":
       return {
         y: HEADING_ENTER_Y * (1 - t),
         ...filter(HEADING_BLUR * (1 - t)),
         opacity: HEADING_DIM_OPACITY + (1 - HEADING_DIM_OPACITY) * t,
       };
-    }
-    case "exit": {
-      const t = staggeredPhaseT(phase.t, charIndex, charCount);
+    case "exit":
       return {
         y: HEADING_EXIT_Y * t,
         ...filter(HEADING_BLUR * t),
         opacity: 1 - (1 - HEADING_DIM_OPACITY) * t,
       };
-    }
   }
 }
 
@@ -286,6 +320,7 @@ export function ForestSection({
   const headingRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const ctaWrapRef = useRef<HTMLDivElement>(null);
   const headingSplits = useRef<(SplitText | null)[]>([]);
+  const headingCharMetas = useRef<HeadingCharMeta[][]>([]);
   const slide0Revealed = useRef(false);
   const slideProgressRef = useRef(0);
   const introProgressRef = useRef(0);
@@ -357,12 +392,19 @@ export function ForestSection({
 
     gsap.registerPlugin(ScrollTrigger, SplitText);
 
+    let cancelled = false;
     const progressProxy = { progress: 0 };
     let slideTween: gsap.core.Tween | null = null;
 
     const revertContentAnimations = () => {
       headingSplits.current.forEach((split) => split?.revert());
       headingSplits.current = [];
+      headingCharMetas.current = [];
+    };
+
+    const cacheHeadingMeta = (index: number, split: SplitText) => {
+      headingSplits.current[index] = split;
+      headingCharMetas.current[index] = headingCharMeta(split);
     };
 
     const applyHeadingChars = (index: number, phase: HeadingPhase) => {
@@ -375,9 +417,13 @@ export function ForestSection({
       }
 
       const useBlur = !isMobile;
-      const count = chars.length;
+      const metas = headingCharMetas.current[index] ?? [];
       chars.forEach((char, charIndex) => {
-        gsap.set(char, headingCharState(phase, charIndex, count, useBlur));
+        const meta = metas[charIndex];
+        const t = meta
+          ? staggeredPhaseT(phase.t, meta.start, meta.maxStart)
+          : easePower2Out(phase.t);
+        gsap.set(char, headingCharState(phase, t, useBlur));
       });
     };
 
@@ -559,52 +605,68 @@ export function ForestSection({
     progressProxy.progress = 0;
     setActiveSlide(0);
 
-    SLIDES.forEach((_, index) => {
-      const element = headingRefs.current[index];
-      if (!element) return;
+    const setupHeadingSplits = () => {
+      if (cancelled) return;
 
-      const split = SplitText.create(element, {
-        type: "lines,chars",
-        mask: "lines",
-        autoSplit: true,
-        linesClass: "h2-line",
-        charsClass: "inline-block",
-        onSplit(self) {
-          gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
-          headingSplits.current[index] = self;
-          if (index === 0 && !slide0Revealed.current) {
-            applyHeadingChars(0, {
-              mode: "enter",
-              t: introProgressRef.current,
-            });
-          } else {
-            applyHeadingChars(
-              index,
-              headingPhase(slideProgressRef.current, index),
-            );
-          }
-        },
+      revertContentAnimations();
+
+      SLIDES.forEach((_, index) => {
+        const element = headingRefs.current[index];
+        if (!element) return;
+
+        const split = SplitText.create(element, {
+          type: "lines,chars",
+          mask: "lines",
+          autoSplit: true,
+          linesClass: "h2-line",
+          charsClass: "inline-block",
+          onSplit(self) {
+            gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
+            cacheHeadingMeta(index, self);
+            if (index === 0 && !slide0Revealed.current) {
+              applyHeadingChars(0, {
+                mode: "enter",
+                t: introProgressRef.current,
+              });
+            } else {
+              applyHeadingChars(
+                index,
+                headingPhase(slideProgressRef.current, index),
+              );
+            }
+          },
+        });
+
+        if (split) cacheHeadingMeta(index, split);
       });
 
-      headingSplits.current[index] = split ?? null;
-    });
+      if (isMobile) {
+        // Mobile: no pin scrub — show slide 0 immediately; arrows drive transitions.
+        gsap.set(ctaWrapRef.current, { opacity: 1 });
+        revealSlide0Content();
+        updateSlides(0);
+        setSlideNavReady(true);
+      } else {
+        // CTA fades in once on intro, then stays visible through every slide.
+        gsap.set(ctaWrapRef.current, { opacity: 0 });
+        updateHeadingChars(0);
+        setSlideNavReady(false);
+      }
 
-    if (isMobile) {
-      // Mobile: no pin scrub — show slide 0 immediately; arrows drive transitions.
-      gsap.set(ctaWrapRef.current, { opacity: 1 });
-      revealSlide0Content();
-      updateSlides(0);
-      setSlideNavReady(true);
+      refreshScrollTriggers();
+    };
+
+    const fonts = document.fonts;
+    if (fonts?.status === "loaded") {
+      setupHeadingSplits();
+    } else if (fonts?.ready) {
+      fonts.ready.then(setupHeadingSplits);
     } else {
-      // CTA fades in once on intro, then stays visible through every slide.
-      gsap.set(ctaWrapRef.current, { opacity: 0 });
-      updateHeadingChars(0);
-      setSlideNavReady(false);
+      setupHeadingSplits();
     }
 
-    refreshScrollTriggers();
-
     return () => {
+      cancelled = true;
       slideTween?.kill();
       goToSlideRef.current = () => {};
       setSlideNavReady(false);

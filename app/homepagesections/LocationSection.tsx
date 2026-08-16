@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { forwardRef, useEffect, useState, useRef } from "react";
 import { Button } from "../components/Button";
+import { H2 } from "../components/H2";
 
 const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
@@ -417,9 +418,13 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
               <p className="font-secondary text-[14px] font-semibold uppercase leading-[150%] tracking-[0.2px] text-olive">
                 Location
               </p>
-              <h2 className="font-space-grotesk text-[20px] font-bold leading-[150%] tracking-[0.2px] text-forest-green">
+              <H2
+                ready={ready}
+                triggerRef={sectionRef}
+                className="text-[20px]! leading-[150%] tracking-[0.2px] text-forest-green"
+              >
                 On the Edge of the Wild.
-              </h2>
+              </H2>
             </div>
 
             <ul className="flex flex-col">

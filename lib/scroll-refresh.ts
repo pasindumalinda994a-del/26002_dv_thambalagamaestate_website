@@ -40,3 +40,20 @@ export function refreshScrollTriggers(delayMs = 100) {
     ScrollTrigger.refresh();
   }, delayMs);
 }
+
+type ScrollToHeroLenis = {
+  scrollTo: (value: number, options?: { immediate?: boolean }) => void;
+} | null | undefined;
+
+/** Native + Lenis reset — Lenis is null on mobile, so window.scrollTo is required. */
+export function scrollToHero(lenis?: ScrollToHeroLenis) {
+  if (typeof window === "undefined") return;
+  window.scrollTo(0, 0);
+  lenis?.scrollTo(0, { immediate: true });
+}
+
+/** Keep the browser from restoring a mid-page Y after reload / image load. */
+export function lockScrollRestoration() {
+  if (typeof history === "undefined" || !("scrollRestoration" in history)) return;
+  history.scrollRestoration = "manual";
+}

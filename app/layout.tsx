@@ -4,6 +4,7 @@ import { BookingDrawer } from "./components/booking/BookingDrawer";
 import { BookingProvider } from "./components/booking/BookingProvider";
 import { JsonLd } from "./components/JsonLd";
 import { PageTransitionProvider } from "./components/PageTransitionProvider";
+import { SitePreloader } from "./components/SitePreloader";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { listConfirmedUnavailableDates } from "@/lib/bookings/repository";
 import {
@@ -106,8 +107,10 @@ export default async function RootLayout({
         <SmoothScroll>
           <BookingProvider>
             <PageTransitionProvider>
-              {children}
-              <BookingDrawer unavailableDateKeys={unavailableDateKeys} />
+              <SitePreloader>
+                {children}
+                <BookingDrawer unavailableDateKeys={unavailableDateKeys} />
+              </SitePreloader>
             </PageTransitionProvider>
           </BookingProvider>
         </SmoothScroll>
