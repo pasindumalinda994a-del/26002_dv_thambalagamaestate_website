@@ -10,6 +10,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import { setForestSlideProgress } from "@/lib/homepage-ambient-mix";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
@@ -350,6 +351,7 @@ export function ForestSection({
     const applyStaticSlides = (index: number) => {
       const progress = progressFromIndex(index);
       slideProgressRef.current = progress;
+      setForestSlideProgress(progress);
       progressFillRef.current?.style.setProperty(
         "width",
         `${progress * 100}%`,
@@ -450,6 +452,7 @@ export function ForestSection({
 
     const updateSlides = (progress: number) => {
       slideProgressRef.current = progress;
+      setForestSlideProgress(progress);
       progressFillRef.current?.style.setProperty("width", `${progress * 100}%`);
 
       slideRefs.current.forEach((slide, index) => {
@@ -694,7 +697,12 @@ export function ForestSection({
   const canGoNext = activeSlide < LAST_SLIDE_INDEX;
 
   return (
-    <section ref={sectionRef} aria-label="Forest" className="relative z-[1]">
+    <section
+      ref={sectionRef}
+      aria-label="Forest"
+      data-ambient-zone="forest"
+      className="relative z-[1]"
+    >
       <div ref={pinRef} className="relative z-[1] h-screen overflow-hidden">
         {SLIDES.map((slide, index) => (
           <div

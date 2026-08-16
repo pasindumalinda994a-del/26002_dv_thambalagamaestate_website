@@ -82,6 +82,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       aria-label="Hero"
+      data-ambient-zone="hero"
       className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
@@ -91,7 +92,7 @@ export function HeroSection() {
           loop
           playsInline
           preload="auto"
-          className="absolute inset-0 h-full w-full object-cover object-[90%_center] md:object-center"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         >
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>

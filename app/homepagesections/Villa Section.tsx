@@ -240,6 +240,7 @@ export function VillaSection() {
       id="villa"
       ref={sectionRef}
       aria-label="Villa"
+      data-ambient-zone="villa"
       className="relative bg-deep-forest"
     >
       <div className="sticky top-0 h-screen overflow-hidden bg-deep-forest">

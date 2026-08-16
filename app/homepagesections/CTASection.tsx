@@ -226,6 +226,7 @@ export function CTASection() {
     <section
       ref={sectionRef}
       aria-label="Call to action"
+      data-ambient-zone="locationCta"
       className="relative z-[32] flex min-h-screen items-center justify-center overflow-hidden bg-deep-forest"
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden">
