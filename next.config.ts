@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "6mb",
     },
+    optimizePackageImports: ["gsap", "lenis"],
   },
   images: {
     // Keep candidates lean for LCP; avoid ultra-wide retina fetches.

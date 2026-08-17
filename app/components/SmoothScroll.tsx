@@ -9,6 +9,7 @@ import {
   ensureScrollTriggerConfig,
   lockScrollRestoration,
 } from "@/lib/scroll-refresh";
+import { usePreloaderComplete } from "./SitePreloader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,6 +31,7 @@ function LenisGSAPConnector() {
     return () => {
       lenis.off("scroll", ScrollTrigger.update);
       gsap.ticker.remove(update);
+      gsap.ticker.lagSmoothing(500, 33);
     };
   }, [lenis]);
 
@@ -54,7 +56,7 @@ function shouldEnableLenis() {
 }
 
 export function SmoothScroll({ children }: { children: ReactNode }) {
-  // Start false so mobile never mounts Lenis; desktop enables after mount.
+  const preloaderComplete = usePreloaderComplete();
   const [enabled, setEnabled] = useState(false);
 
   useLayoutEffect(() => {
@@ -63,8 +65,12 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     ensureScrollTriggerConfig();
+    if (!preloaderComplete) {
+      setEnabled(false);
+      return;
+    }
     setEnabled(shouldEnableLenis());
-  }, []);
+  }, [preloaderComplete]);
 
   if (!enabled) {
     return children;

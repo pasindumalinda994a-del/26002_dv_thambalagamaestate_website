@@ -33,12 +33,12 @@ export const AMBIENT_ZONES: AmbientZone[] = [
 ];
 
 export const AMBIENT_LAYER_SRCS: Record<AmbientLayer, string> = {
-  wind: "/audio/wind.mp3",
-  birds: "/audio/birds.mp3",
-  insects: "/audio/insects.wav",
-  water: "/audio/water.mp3",
-  waterfall: "/audio/waterfall.mp3",
-  foliage: "/audio/foliage.mp3",
+  wind: "/audio/optimized/wind.mp3",
+  birds: "/audio/optimized/birds.mp3",
+  insects: "/audio/optimized/insects.mp3",
+  water: "/audio/optimized/water.mp3",
+  waterfall: "/audio/optimized/waterfall.mp3",
+  foliage: "/audio/optimized/foliage.mp3",
 };
 
 export const AMBIENT_MASTER = 0.3;
@@ -209,12 +209,6 @@ const state: MixState = {
   experienceScrollCloseness: 0,
   velocityBump: 0,
 };
-
-const listeners = new Set<() => void>();
-
-function notify() {
-  listeners.forEach((listener) => listener());
-}
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
@@ -402,14 +396,6 @@ export function getToneTargets(): { lowpass: number } {
   return { lowpass: Math.exp(logSum) };
 }
 
-export function getAmbientZone() {
-  return dominantZone(normalizedWeights());
-}
-
-export function setAmbientZone(zone: AmbientZone) {
-  setZoneWeights({ [zone]: 1 });
-}
-
 export function setZoneWeights(weights: ZoneWeights) {
   const next = copyWeights(weights);
   if (weightsEqual(state.targetWeights, next) && state.weightsPrimed) return;
@@ -420,11 +406,7 @@ export function setZoneWeights(weights: ZoneWeights) {
     state.weights = copyWeights(next);
     state.weightsPrimed = true;
     state.zone = dominantZone(normalizedWeights());
-    notify();
-    return;
   }
-
-  notify();
 }
 
 export function smoothZoneWeights(dt: number) {
@@ -443,68 +425,41 @@ export function smoothZoneWeights(dt: number) {
 
   state.weights = next;
   state.zone = dominantZone(normalizedWeights());
-  notify();
 }
 
 export function setForestSlideProgress(progress: number) {
   const next = clamp01(progress);
   if (state.forestProgress === next) return;
   state.forestProgress = next;
-  if ((state.weights.forest ?? 0) > 0.001 || state.zone === "forest") {
-    notify();
-  }
 }
 
 export function setVillaProgress(progress: number) {
   const next = clamp01(progress);
   if (state.villaProgress === next) return;
   state.villaProgress = next;
-  if ((state.weights.villa ?? 0) > 0.001 || state.zone === "villa") {
-    notify();
-  }
 }
 
 export function setExperienceWaterNudge(nudge: number) {
   const next = clamp01(nudge);
   if (state.experienceWaterNudge === next) return;
   state.experienceWaterNudge = next;
-  if (
-    (state.weights.experience ?? 0) > 0.001 ||
-    state.zone === "experience"
-  ) {
-    notify();
-  }
 }
 
 export function setExperienceScrollCloseness(closeness: number) {
   const next = clamp01(closeness);
   if (state.experienceScrollCloseness === next) return;
   state.experienceScrollCloseness = next;
-  if (
-    (state.weights.experience ?? 0) > 0.001 ||
-    state.zone === "experience"
-  ) {
-    notify();
-  }
 }
 
 export function setVelocityBump(bump: number) {
   const next = clamp01(bump);
   if (state.velocityBump === next) return;
   state.velocityBump = next;
-  notify();
 }
 
 export function decayVelocityBump(dt: number) {
   if (state.velocityBump <= 0) return;
   state.velocityBump = Math.max(0, state.velocityBump - dt / VELOCITY_DECAY_TAU);
-}
-
-export function subscribeHomepageMix(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
 }
 
 export function resetHomepageMix() {
@@ -517,5 +472,4 @@ export function resetHomepageMix() {
   state.experienceWaterNudge = 0;
   state.experienceScrollCloseness = 0;
   state.velocityBump = 0;
-  notify();
 }

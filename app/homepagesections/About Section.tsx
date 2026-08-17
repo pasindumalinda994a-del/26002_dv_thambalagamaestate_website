@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
+import { usePreloaderComplete } from "../components/SitePreloader";
 
 const ABOUT_COPY =
   "We aren't a hotel. We are a private estate where the only luxury is the silence of the forest. Reserved for one group at a time.";
@@ -13,8 +14,10 @@ const ABOUT_WORDS = ABOUT_COPY.split(" ");
 export function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const preloaderComplete = usePreloaderComplete();
 
   useEffect(() => {
+    if (!preloaderComplete) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!sectionRef.current || !headingRef.current) return;
 
@@ -46,7 +49,7 @@ export function AboutSection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [preloaderComplete]);
 
   return (
     <section

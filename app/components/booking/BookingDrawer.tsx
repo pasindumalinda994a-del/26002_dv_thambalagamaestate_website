@@ -12,7 +12,10 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { createBookingAction } from "@/app/actions/bookings";
+import {
+  createBookingAction,
+  getUnavailableDatesAction,
+} from "@/app/actions/bookings";
 import { Button } from "../Button";
 import { useBooking } from "./BookingProvider";
 import { DateRangeCalendar, type DateRange } from "./DateRangeCalendar";
@@ -188,11 +191,7 @@ function ThankYouView({
   );
 }
 
-export function BookingDrawer({
-  unavailableDateKeys = [],
-}: {
-  unavailableDateKeys?: string[];
-}) {
+export function BookingDrawer() {
   const { isOpen, close } = useBooking();
   const lenis = useLenis();
   const titleId = useId();
@@ -201,6 +200,7 @@ export function BookingDrawer({
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [unavailableDateKeys, setUnavailableDateKeys] = useState<string[]>([]);
 
   const [range, setRange] = useState<DateRange>({ from: null, to: null });
   const [adults, setAdults] = useState(2);
@@ -217,6 +217,18 @@ export function BookingDrawer({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    void getUnavailableDatesAction().then((result) => {
+      if (cancelled || !result.ok) return;
+      setUnavailableDateKeys(result.data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   const unavailableDates = useMemo(
     () =>

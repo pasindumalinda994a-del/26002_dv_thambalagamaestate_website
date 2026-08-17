@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/auth/session";
-import { createBooking, updateBookingStatus } from "@/lib/bookings/repository";
+import {
+  createBooking,
+  listConfirmedUnavailableDates,
+  updateBookingStatus,
+} from "@/lib/bookings/repository";
 import {
   createBookingSchema,
   updateBookingStatusSchema,
@@ -13,6 +17,18 @@ import { sendOwnerBookingEmail } from "@/lib/email/smtp";
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
   | { ok: false; error: string };
+
+export async function getUnavailableDatesAction(): Promise<
+  ActionResult<string[]>
+> {
+  try {
+    const dates = await listConfirmedUnavailableDates();
+    return { ok: true, data: dates };
+  } catch (error) {
+    console.error("getUnavailableDatesAction failed", error);
+    return { ok: false, error: "Could not load availability." };
+  }
+}
 
 export async function createBookingAction(
   input: unknown,

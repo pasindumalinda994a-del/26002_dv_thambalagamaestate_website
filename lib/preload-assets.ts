@@ -1,6 +1,7 @@
-export const HERO_BG_SRC = "/home/hero.webp";
+export const HERO_POSTER_SRC = "/home/hero-poster.webp";
 
-export const HERO_VIDEO_SRC = "/video/home-hero.mp4";
+export const HERO_VIDEO_SRC = "/video/home-hero-desktop.mp4";
+export const HERO_VIDEO_MOBILE_SRC = "/video/home-hero-mobile.mp4";
 
 export const PRELOADER_LOGO_SRC = "/logo/primary.png";
 
@@ -10,10 +11,7 @@ export const FOREST_HERO_SRC = "/forest/hero.webp";
 export const GALLERY_HERO_SRC = "/gallery/01.webp";
 
 /** First-paint assets for the home preloader — not the whole page. */
-export const HOME_CRITICAL_ASSETS = [
-  // HERO_BG_SRC, // commented while the hero uses video
-  PRELOADER_LOGO_SRC,
-] as const;
+export const HOME_CRITICAL_ASSETS = [PRELOADER_LOGO_SRC] as const;
 
 function normalizePath(pathname: string) {
   const path = pathname.split("?")[0]?.split("#")[0] ?? pathname;

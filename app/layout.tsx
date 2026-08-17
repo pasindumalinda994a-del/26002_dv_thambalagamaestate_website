@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Roboto, Space_Grotesk } from "next/font/google";
-import { BookingDrawer } from "./components/booking/BookingDrawer";
+import { Space_Grotesk } from "next/font/google";
+import { AmbientAudioProvider } from "./components/AmbientAudioToggle";
 import { BookingProvider } from "./components/booking/BookingProvider";
+import { LazyBookingDrawer } from "./components/booking/LazyBookingDrawer";
 import { JsonLd } from "./components/JsonLd";
 import { PageTransitionProvider } from "./components/PageTransitionProvider";
 import { SitePreloader } from "./components/SitePreloader";
 import { SmoothScroll } from "./components/SmoothScroll";
-import { listConfirmedUnavailableDates } from "@/lib/bookings/repository";
 import {
   DEFAULT_OG_IMAGE,
   FAVICON_LOGO_PATH,
@@ -18,13 +18,6 @@ import {
   siteUrl,
 } from "@/lib/seo";
 import "./globals.css";
-
-const roboto = Roboto({
-  weight: "500",
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-roboto-face",
-});
 
 const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "700"],
@@ -88,32 +81,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let unavailableDateKeys: string[] = [];
-  try {
-    unavailableDateKeys = await listConfirmedUnavailableDates();
-  } catch (error) {
-    console.error("Failed to load confirmed unavailable dates", error);
-  }
-
   return (
-    <html lang="en-LK" className={`h-full antialiased ${roboto.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en-LK" className={`h-full antialiased ${spaceGrotesk.variable}`}>
       <body className="min-h-full flex flex-col font-primary">
         <JsonLd data={buildSiteJsonLd()} />
-        <SmoothScroll>
+        <AmbientAudioProvider>
           <BookingProvider>
-            <PageTransitionProvider>
-              <SitePreloader>
-                {children}
-                <BookingDrawer unavailableDateKeys={unavailableDateKeys} />
-              </SitePreloader>
-            </PageTransitionProvider>
+            <SitePreloader>
+              <SmoothScroll>
+                <PageTransitionProvider>
+                  {children}
+                  <LazyBookingDrawer />
+                </PageTransitionProvider>
+              </SmoothScroll>
+            </SitePreloader>
           </BookingProvider>
-        </SmoothScroll>
+        </AmbientAudioProvider>
       </body>
     </html>
   );

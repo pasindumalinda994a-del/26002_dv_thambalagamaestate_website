@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/auth/session";
 import {
-  createGalleryImage,
   deleteGalleryImage,
   moveGalleryImage,
   updateGalleryImage,
@@ -12,9 +11,8 @@ import {
   deleteGalleryImageSchema,
   moveGalleryImageSchema,
   updateGalleryImageSchema,
-  validateGalleryFile,
 } from "@/lib/gallery/schema";
-import type { GalleryImageMeta, GalleryMimeType } from "@/lib/gallery/types";
+import type { GalleryImageMeta } from "@/lib/gallery/types";
 
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -23,50 +21,6 @@ export type ActionResult<T = undefined> =
 function revalidateGalleryPaths() {
   revalidatePath("/gallery");
   revalidatePath("/admin/gallery");
-}
-
-export async function uploadGalleryImageAction(
-  formData: FormData,
-): Promise<ActionResult<GalleryImageMeta>> {
-  if (!(await isAdminAuthenticated())) {
-    return { ok: false, error: "Unauthorized" };
-  }
-
-  const file = formData.get("file");
-  const altRaw = formData.get("alt");
-
-  if (!(file instanceof File)) {
-    return { ok: false, error: "Image file is required" };
-  }
-
-  const alt =
-    typeof altRaw === "string" && altRaw.trim()
-      ? altRaw.trim()
-      : file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ") || "Gallery image";
-
-  const fileCheck = validateGalleryFile({
-    type: file.type,
-    size: file.size,
-    name: file.name,
-  });
-  if (!fileCheck.ok) {
-    return { ok: false, error: fileCheck.error };
-  }
-
-  try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const image = await createGalleryImage({
-      alt: alt.slice(0, 200),
-      mimeType: file.type as GalleryMimeType,
-      filename: file.name.slice(0, 200),
-      data: buffer,
-    });
-    revalidateGalleryPaths();
-    return { ok: true, data: image };
-  } catch (error) {
-    console.error("uploadGalleryImageAction failed", error);
-    return { ok: false, error: "Could not upload image" };
-  }
 }
 
 export async function updateGalleryImageAction(
