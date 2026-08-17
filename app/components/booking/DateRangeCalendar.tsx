@@ -148,7 +148,7 @@ function MonthHeader({
       ) : null}
 
       <p className="flex items-baseline gap-1.5 px-0.5 text-[15px] text-forest-green">
-        <span className="font-roboto font-medium">{monthLabel}</span>
+        <span className="font-secondary font-medium">{monthLabel}</span>
         <span className="font-secondary font-medium">{yearLabel}</span>
       </p>
 
@@ -215,7 +215,7 @@ function DayCell({
         })}
         aria-pressed={isEndpoint}
         className={[
-          "relative z-10 flex h-[78%] w-[78%] items-center justify-center font-roboto text-[13px] font-medium transition-colors",
+          "relative z-10 flex h-[78%] w-[78%] items-center justify-center font-secondary text-[13px] font-medium transition-colors",
           unavailable
             ? "cursor-not-allowed text-forest-green line-through opacity-40"
             : isEndpoint
@@ -270,7 +270,7 @@ function MonthGrid({
         {WEEKDAYS.map((day, i) => (
           <span
             key={`${day}-${i}`}
-            className="pb-2 font-roboto text-[12px] font-medium text-forest-green/40"
+            className="pb-2 font-secondary text-[12px] font-medium text-forest-green/40"
           >
             {day}
           </span>

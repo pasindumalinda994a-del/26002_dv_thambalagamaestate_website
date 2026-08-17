@@ -1,7 +1,6 @@
 "use client";
 
 import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
 import {
   forwardRef,
   useLayoutEffect,
@@ -11,8 +10,6 @@ import {
 } from "react";
 import { TransitionLink } from "./TransitionLink";
 
-gsap.registerPlugin(SplitText);
-
 const LABEL_DURATION = 0.35;
 const LABEL_STAGGER = 0.02;
 const LABEL_EASE = "power2.out";
@@ -20,31 +17,14 @@ const LABEL_EASE = "power2.out";
 export type ButtonVariant = "dark" | "light" | "glass";
 export type ButtonSize = "large" | "medium" | "small";
 
-/** @deprecated Use `light` / `dark` instead */
-type LegacyButtonVariant = "onDark" | "onCream";
-
 export type ButtonProps = ComponentProps<"button"> & {
   href?: string;
-  variant?: ButtonVariant | LegacyButtonVariant;
+  variant?: ButtonVariant;
   size?: ButtonSize;
   target?: string;
   rel?: string;
   showArrow?: boolean;
 };
-
-const LEGACY_VARIANT_MAP: Record<LegacyButtonVariant, ButtonVariant> = {
-  onDark: "light",
-  onCream: "dark",
-};
-
-function resolveVariant(
-  variant: ButtonVariant | LegacyButtonVariant,
-): ButtonVariant {
-  if (variant === "onDark" || variant === "onCream") {
-    return LEGACY_VARIANT_MAP[variant];
-  }
-  return variant;
-}
 
 const sizeClasses: Record<ButtonSize, string> = {
   large: "px-[18px] py-[12px] text-sm",
@@ -116,16 +96,30 @@ function ButtonLabel({ children }: { children: ReactNode }) {
     if (!parent) return;
 
     let cancelled = false;
+    let armed = false;
     let ctx: gsap.Context | undefined;
-    let splitPrimary: SplitText | undefined;
-    let splitDuplicate: SplitText | undefined;
+    let splitPrimary: InstanceType<typeof import("gsap/SplitText").SplitText> | undefined;
+    let splitDuplicate: InstanceType<typeof import("gsap/SplitText").SplitText> | undefined;
     let hoverTl: gsap.core.Timeline | undefined;
     let play: (() => void) | undefined;
     let reverse: (() => void) | undefined;
     let onFocusOut: ((event: FocusEvent) => void) | undefined;
 
-    const setup = () => {
+    const setup = async () => {
+      if (cancelled || armed || !primaryRef.current || !duplicateRef.current) {
+        return;
+      }
+      armed = true;
+
+      const { SplitText } = await import("gsap/SplitText");
       if (cancelled || !primaryRef.current || !duplicateRef.current) return;
+
+      if (document.fonts?.status !== "loaded" && document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+      if (cancelled || !primaryRef.current || !duplicateRef.current) return;
+
+      gsap.registerPlugin(SplitText);
 
       ctx = gsap.context(() => {
         splitPrimary = SplitText.create(primary, {
@@ -180,19 +174,20 @@ function ButtonLabel({ children }: { children: ReactNode }) {
       parent.addEventListener("pointerleave", reverse);
       parent.addEventListener("focusin", play);
       parent.addEventListener("focusout", onFocusOut);
+      play();
     };
 
-    const fonts = document.fonts;
-    if (fonts?.status === "loaded") {
-      setup();
-    } else if (fonts?.ready) {
-      fonts.ready.then(setup);
-    } else {
-      setup();
-    }
+    const arm = () => {
+      void setup();
+    };
+
+    parent.addEventListener("pointerenter", arm);
+    parent.addEventListener("focusin", arm);
 
     return () => {
       cancelled = true;
+      parent.removeEventListener("pointerenter", arm);
+      parent.removeEventListener("focusin", arm);
       if (play && reverse && onFocusOut) {
         parent.removeEventListener("pointerenter", play);
         parent.removeEventListener("pointerleave", reverse);
@@ -297,8 +292,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) {
-    const resolvedVariant = resolveVariant(variant);
-    const classes = buttonClasses(resolvedVariant, size, className);
+    const classes = buttonClasses(variant, size, className);
     const content = (
       <ButtonContent size={size} showArrow={showArrow}>
         {children}

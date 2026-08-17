@@ -2,7 +2,11 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
+import {
+  AMBIENT_SOUND_EVENT,
+  type AmbientSoundDetail,
+} from "@/lib/ambient-sound";
 import {
   resetHomepageMix,
   setVelocityBump,
@@ -42,9 +46,8 @@ function visibleFraction(rect: DOMRect, viewportHeight: number) {
   return visible / Math.max(1, viewportHeight);
 }
 
-function zoneWeights(): ZoneWeights {
+function zoneWeights(nodes: NodeListOf<Element>): ZoneWeights {
   const viewportHeight = window.innerHeight;
-  const nodes = document.querySelectorAll("[data-ambient-zone]");
   const weights: ZoneWeights = {};
 
   nodes.forEach((el, index) => {
@@ -61,10 +64,13 @@ function zoneWeights(): ZoneWeights {
   return weights;
 }
 
-function villaScrollProgress() {
-  const el = document.querySelector('[data-ambient-zone="villa"]');
+function villaScrollProgress(nodes: NodeListOf<Element>) {
+  let el: Element | null = null;
+  nodes.forEach((node) => {
+    if (node.getAttribute("data-ambient-zone") === "villa") el = node;
+  });
   if (!el) return 0;
-  const rect = el.getBoundingClientRect();
+  const rect = (el as Element).getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const span = rect.height + viewportHeight;
   if (span <= 0) return 0;
@@ -78,14 +84,47 @@ function velocityToBump(velocity: number) {
 }
 
 export function HomepageAmbientDriver() {
+  const [soundOn, setSoundOn] = useState(false);
+
   useLayoutEffect(() => {
+    const handleAmbientSound = (event: Event) => {
+      const detail = (event as CustomEvent<AmbientSoundDetail>).detail;
+      if (!detail) return;
+      setSoundOn(detail.enabled);
+    };
+
+    window.addEventListener(AMBIENT_SOUND_EVENT, handleAmbientSound);
+    return () => {
+      window.removeEventListener(AMBIENT_SOUND_EVENT, handleAmbientSound);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!soundOn) {
+      resetHomepageMix();
+      return;
+    }
+
     ensureScrollTriggerConfig();
     gsap.registerPlugin(ScrollTrigger);
 
-    const update = (self?: ScrollTrigger) => {
-      setZoneWeights(zoneWeights());
-      setVillaProgress(villaScrollProgress());
+    let raf = 0;
+    let pending: ScrollTrigger | undefined;
+
+    const flush = () => {
+      raf = 0;
+      const self = pending;
+      pending = undefined;
+      const nodes = document.querySelectorAll("[data-ambient-zone]");
+      setZoneWeights(zoneWeights(nodes));
+      setVillaProgress(villaScrollProgress(nodes));
       if (self) setVelocityBump(velocityToBump(self.getVelocity()));
+    };
+
+    const update = (self?: ScrollTrigger) => {
+      pending = self ?? pending;
+      if (raf) return;
+      raf = requestAnimationFrame(flush);
     };
 
     const tick = (_time: number, deltaTime: number) => {
@@ -106,11 +145,12 @@ export function HomepageAmbientDriver() {
     gsap.ticker.add(tick);
 
     return () => {
+      cancelAnimationFrame(raf);
       gsap.ticker.remove(tick);
       trigger.kill();
       resetHomepageMix();
     };
-  }, []);
+  }, [soundOn]);
 
   return null;
 }

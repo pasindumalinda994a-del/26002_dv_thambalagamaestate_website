@@ -14,7 +14,7 @@ export const metadata = buildPageMetadata({
 export default function Home() {
   return (
     <main className="flex min-h-full flex-1 flex-col">
-      <Header ambient="layers" />
+      <Header />
       <HomepageAmbientDriver />
       <HeroSection />
       <AboutSection />

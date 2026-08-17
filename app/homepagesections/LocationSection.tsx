@@ -6,6 +6,7 @@ import Image from "next/image";
 import { forwardRef, useEffect, useState, useRef } from "react";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
+import { useNearViewport } from "@/lib/use-near-viewport";
 
 const LOGO_SRC = "/logo/primary.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
@@ -234,6 +235,8 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     const mapRef = useRef<import("mapbox-gl").Map | null>(null);
     // Default true so mobile never boots Mapbox before the media query resolves.
     const [isMobile, setIsMobile] = useState(true);
+    const [mapReady, setMapReady] = useState(false);
+    const nearViewport = useNearViewport(sectionRef);
 
     const setSectionRef = (node: HTMLElement | null) => {
       sectionRef.current = node;
@@ -253,7 +256,7 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
     }, []);
 
     useEffect(() => {
-      if (!ready || isMobile) return;
+      if (!ready || isMobile || !nearViewport) return;
 
       const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
       const container = mapContainerRef.current;
@@ -332,7 +335,10 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
           .setLngLat([ESTATE_LNG, ESTATE_LAT])
           .addTo(map);
 
-        map.on("load", handleResize);
+        map.on("load", () => {
+          handleResize();
+          setMapReady(true);
+        });
         map.on("error", (event: import("mapbox-gl").ErrorEvent) => {
           if (process.env.NODE_ENV === "development") {
             console.error("LocationSection map error:", event.error);
@@ -384,8 +390,9 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
         marker?.remove();
         map?.remove();
         mapRef.current = null;
+        setMapReady(false);
       };
-    }, [ready, isMobile]);
+    }, [ready, isMobile, nearViewport]);
 
     return (
       <section
@@ -406,11 +413,25 @@ export const LocationSection = forwardRef<HTMLElement, LocationSectionProps>(
             <StaticMapMarker />
           </div>
         ) : (
-          <div
-            ref={mapContainerRef}
-            className="absolute inset-0 z-0 h-full w-full"
-            aria-hidden
-          />
+          <>
+            <div
+              ref={mapContainerRef}
+              className="absolute inset-0 z-0 h-full w-full"
+              aria-hidden
+            />
+            {!mapReady ? (
+              <div className="absolute inset-0 z-[1] h-full w-full" aria-hidden>
+                <Image
+                  src={MAP_STATIC_SRC}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover object-[center_22%]"
+                />
+                <StaticMapMarker />
+              </div>
+            ) : null}
+          </>
         )}
 
         <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end px-5 pb-5 md:px-8 md:pb-8">

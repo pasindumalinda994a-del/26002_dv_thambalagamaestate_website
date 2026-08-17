@@ -23,13 +23,9 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-primary: "Sora Carnel", ui-serif, Georgia, serif;
   --font-secondary: "Satoshi", ui-sans-serif, system-ui, sans-serif;
-  --font-roboto: var(--font-roboto-face), "Roboto", ui-sans-serif, system-ui, sans-serif;
   --font-space-grotesk: var(--font-space-grotesk-face), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-primary);
 
   --color-olive: #606c38;
   --color-tan: #dda15e;
@@ -38,7 +34,6 @@
   --color-deep-forest: #18200e;
   --color-chestnut: #bc6c25;
   --color-sage-muted: #7c7f78;
-  --color-warm-sand: #e4d2b0;
 }
 
 @media (prefers-color-scheme: dark) {

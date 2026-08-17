@@ -12,6 +12,7 @@ import {
 } from "react";
 import {
   AMBIENT_SOUND_EVENT,
+  dispatchAmbientSoundPreference,
   getAmbientSoundPreference,
   type AmbientSoundDetail,
 } from "@/lib/ambient-sound";
@@ -32,26 +33,14 @@ import {
   type LayerMix,
 } from "@/lib/homepage-ambient-mix";
 
-type AmbientAudioToggleProps = {
-  audioSrc?: string;
-  className?: string;
-  buttonRef?: Ref<HTMLButtonElement>;
-};
-
 type AmbientAudioContextValue = {
   isPlaying: boolean;
   toggle: () => void;
 };
 
-export type AmbientMode = "single" | "layers";
-
 const AmbientAudioContext = createContext<AmbientAudioContextValue | null>(
   null,
 );
-
-const DEFAULT_AUDIO_SRC =
-  "/audio/jungle-ambience.mp3";
-const SINGLE_VOLUME = 0.35;
 
 const ZERO_MIX: LayerMix = {
   wind: 0,
@@ -62,19 +51,29 @@ const ZERO_MIX: LayerMix = {
   foliage: 0,
 };
 
-const ZERO_PAN: Record<AmbientLayer, number> = {
-  wind: LAYER_PAN.wind,
-  birds: LAYER_PAN.birds,
-  insects: LAYER_PAN.insects,
-  water: LAYER_PAN.water,
-  waterfall: LAYER_PAN.waterfall,
-  foliage: LAYER_PAN.foliage,
-};
+const ZERO_PAN: Record<AmbientLayer, number> = { ...LAYER_PAN };
+
+const HERO_LAYERS: readonly AmbientLayer[] = [
+  "wind",
+  "birds",
+  "insects",
+  "foliage",
+];
+const DEFERRED_LAYERS: readonly AmbientLayer[] = ["water", "waterfall"];
+const SILENCE_FLOOR = 0.02;
+const FADE_SECONDS = 0.45;
 
 type LayerChain = {
   filter: BiquadFilterNode;
   pan: StereoPannerNode;
   gain: GainNode;
+};
+
+const graph = {
+  ctx: null as AudioContext | null,
+  master: null as GainNode | null,
+  chains: {} as Partial<Record<AmbientLayer, LayerChain>>,
+  hooked: new WeakSet<HTMLAudioElement>(),
 };
 
 function AudioContextCtor(): typeof AudioContext | undefined {
@@ -85,6 +84,10 @@ function AudioContextCtor(): typeof AudioContext | undefined {
   return w.AudioContext ?? w.webkitAudioContext;
 }
 
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
 function scrambleLoopOffset(el: HTMLAudioElement) {
   const apply = () => {
     if (el.duration && Number.isFinite(el.duration) && el.duration > 1) {
@@ -93,6 +96,16 @@ function scrambleLoopOffset(el: HTMLAudioElement) {
   };
   if (el.readyState >= 1) apply();
   else el.addEventListener("loadedmetadata", apply, { once: true });
+}
+
+function useAmbientAudio() {
+  const ctx = useContext(AmbientAudioContext);
+  if (!ctx) {
+    throw new Error(
+      "AmbientAudioButton must be used within AmbientAudioProvider",
+    );
+  }
+  return ctx;
 }
 
 export type SoundButtonVariant = "glass" | "dark" | "light";
@@ -122,30 +135,7 @@ const VARIANT_SLASH: Record<SoundButtonVariant, string> = {
 const DEFAULT_LAYOUT_CLASS =
   "fixed top-4 right-4 z-[502] flex size-12 items-center justify-center transition-opacity hover:opacity-80";
 
-function clamp01(value: number) {
-  return Math.max(0, Math.min(1, value));
-}
-
-function useAmbientAudio() {
-  const ctx = useContext(AmbientAudioContext);
-  if (!ctx) {
-    throw new Error(
-      "AmbientAudioButton must be used within AmbientAudioProvider",
-    );
-  }
-  return ctx;
-}
-
-export function AmbientAudioProvider({
-  audioSrc = DEFAULT_AUDIO_SRC,
-  mode = "single",
-  children,
-}: {
-  audioSrc?: string;
-  mode?: AmbientMode;
-  children: ReactNode;
-}) {
-  const audioRef = useRef<HTMLAudioElement>(null);
+export function AmbientAudioProvider({ children }: { children: ReactNode }) {
   const layerRefs = useRef<Record<AmbientLayer, HTMLAudioElement | null>>({
     wind: null,
     birds: null,
@@ -157,12 +147,7 @@ export function AmbientAudioProvider({
   const currentMixRef = useRef<LayerMix>({ ...ZERO_MIX });
   const currentFilterRef = useRef(12000);
   const currentPanRef = useRef<Record<AmbientLayer, number>>({ ...ZERO_PAN });
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const masterGainRef = useRef<GainNode | null>(null);
-  const chainsRef = useRef<Partial<Record<AmbientLayer, LayerChain>>>({});
-  const webAudioRef = useRef(false);
   const isPlayingRef = useRef(false);
-  const wasPlayingRef = useRef(false);
   const playRef = useRef<(fadeIn?: boolean) => void>(() => {});
   const pauseRef = useRef<() => void>(() => {});
   const [isPlaying, setIsPlaying] = useState(false);
@@ -172,37 +157,49 @@ export function AmbientAudioProvider({
   }, [isPlaying]);
 
   useEffect(() => {
-    const isLayers = mode === "layers";
+    const layerEl = (layer: AmbientLayer) => layerRefs.current[layer];
 
-    const layerElements = () =>
-      AMBIENT_LAYERS.map((layer) => layerRefs.current[layer]).filter(
-        (el): el is HTMLAudioElement => el != null,
-      );
+    const attachSrc = (layer: AmbientLayer) => {
+      const el = layerEl(layer);
+      if (!el) return el;
+      if (!el.getAttribute("src")) {
+        el.src = AMBIENT_LAYER_SRCS[layer];
+      }
+      el.loop = true;
+      return el;
+    };
 
     const applyLayerVolumes = () => {
       const mix = currentMixRef.current;
-      const useGraph = webAudioRef.current;
       for (const layer of AMBIENT_LAYERS) {
-        const el = layerRefs.current[layer];
-        const chain = chainsRef.current[layer];
-        if (useGraph && chain) {
+        const chain = graph.chains[layer];
+        if (chain) {
           chain.gain.gain.value = clamp01(mix[layer]);
-          if (el) el.volume = 1;
           continue;
         }
-        if (!el) continue;
-        el.volume = clamp01(mix[layer] * AMBIENT_MASTER);
+        const el = layerEl(layer);
+        if (el) el.volume = clamp01(mix[layer] * AMBIENT_MASTER);
       }
     };
 
     const applyTone = () => {
-      if (!webAudioRef.current) return;
+      if (!graph.ctx) return;
       for (const layer of AMBIENT_LAYERS) {
-        const chain = chainsRef.current[layer];
+        const chain = graph.chains[layer];
         if (!chain) continue;
         chain.filter.frequency.value = currentFilterRef.current;
         chain.pan.pan.value = currentPanRef.current[layer];
       }
+    };
+
+    const fadeMaster = (to: number, seconds = FADE_SECONDS) => {
+      const master = graph.master;
+      const ctx = graph.ctx;
+      if (!master || !ctx) return;
+      const now = ctx.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setValueAtTime(master.gain.value, now);
+      master.gain.linearRampToValueAtTime(to, now + seconds);
     };
 
     const ensureWebAudio = async () => {
@@ -210,44 +207,57 @@ export function AmbientAudioProvider({
       if (!Ctor) return false;
 
       try {
-        const ctx = audioCtxRef.current ?? new Ctor();
-        audioCtxRef.current = ctx;
+        const ctx = graph.ctx ?? new Ctor();
+        graph.ctx = ctx;
         if (ctx.state === "suspended") await ctx.resume();
 
-        if (!masterGainRef.current) {
+        if (!graph.master) {
           const master = ctx.createGain();
-          master.gain.value = AMBIENT_MASTER;
+          master.gain.value = 0;
           master.connect(ctx.destination);
-          masterGainRef.current = master;
+          graph.master = master;
         }
 
-        const master = masterGainRef.current;
+        const master = graph.master;
         for (const layer of AMBIENT_LAYERS) {
-          const el = layerRefs.current[layer];
-          if (!el || chainsRef.current[layer]) continue;
-          el.volume = 1;
-          const source = ctx.createMediaElementSource(el);
-          const filter = ctx.createBiquadFilter();
-          filter.type = "lowpass";
-          filter.frequency.value = currentFilterRef.current;
-          filter.Q.value = 0.65;
-          const pan = ctx.createStereoPanner();
-          pan.pan.value = LAYER_PAN[layer];
-          const gain = ctx.createGain();
-          gain.gain.value = 0;
-          source.connect(filter);
-          filter.connect(pan);
-          pan.connect(gain);
-          gain.connect(master);
-          chainsRef.current[layer] = { filter, pan, gain };
+          const el = layerEl(layer);
+          if (!el || graph.chains[layer] || graph.hooked.has(el)) continue;
+          try {
+            el.volume = 1;
+            const source = ctx.createMediaElementSource(el);
+            graph.hooked.add(el);
+            const filter = ctx.createBiquadFilter();
+            filter.type = "lowpass";
+            filter.frequency.value = currentFilterRef.current;
+            filter.Q.value = 0.65;
+            const pan = ctx.createStereoPanner();
+            pan.pan.value = LAYER_PAN[layer];
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            source.connect(filter);
+            filter.connect(pan);
+            pan.connect(gain);
+            gain.connect(master);
+            graph.chains[layer] = { filter, pan, gain };
+          } catch {
+            /* already hooked on a previous mount */
+          }
         }
 
-        webAudioRef.current = true;
         return true;
       } catch {
-        webAudioRef.current = false;
         return false;
       }
+    };
+
+    const playLayer = (layer: AmbientLayer, fadeIn: boolean) => {
+      const el = attachSrc(layer);
+      if (!el) return;
+      el.loop = true;
+      if (fadeIn) scrambleLoopOffset(el);
+      void el.play().catch(() => {
+        /* autoplay / decode failure — keep other layers */
+      });
     };
 
     const tick = (time: number, deltaTime: number) => {
@@ -283,154 +293,126 @@ export function AmbientAudioProvider({
             : base;
       }
 
+      for (const layer of DEFERRED_LAYERS) {
+        if (targets[layer] > SILENCE_FLOOR) playLayer(layer, false);
+      }
+
+      for (const layer of AMBIENT_LAYERS) {
+        const el = layerEl(layer);
+        if (!el?.getAttribute("src")) continue;
+        const silent =
+          current[layer] < SILENCE_FLOOR && targets[layer] < SILENCE_FLOOR;
+        if (silent) {
+          if (!el.paused) el.pause();
+        } else if (el.paused) {
+          void el.play().catch(() => {});
+        }
+      }
+
       applyLayerVolumes();
       applyTone();
     };
 
-    const playLayers = (fadeIn: boolean) => {
+    const play = (fadeIn = true) => {
       void (async () => {
-        await ensureWebAudio();
         if (fadeIn) currentMixRef.current = { ...ZERO_MIX };
+        await ensureWebAudio();
         applyLayerVolumes();
+        fadeMaster(AMBIENT_MASTER, fadeIn ? FADE_SECONDS : 0.05);
 
-        const pending = layerElements().map((el) => {
-          el.loop = true;
-          if (fadeIn) scrambleLoopOffset(el);
-          return el.play();
-        });
-
-        try {
-          await Promise.all(pending);
-          setIsPlaying(true);
-          wasPlayingRef.current = true;
-          gsap.ticker.remove(tick);
-          gsap.ticker.add(tick);
-        } catch {
-          setIsPlaying(false);
-          wasPlayingRef.current = false;
-          gsap.ticker.remove(tick);
-          layerElements().forEach((el) => el.pause());
+        for (const layer of HERO_LAYERS) {
+          playLayer(layer, fadeIn);
         }
+
+        const targets = getLayerTargets();
+        for (const layer of DEFERRED_LAYERS) {
+          if (targets[layer] > SILENCE_FLOOR) playLayer(layer, fadeIn);
+        }
+
+        setIsPlaying(true);
+        gsap.ticker.remove(tick);
+        gsap.ticker.add(tick);
       })();
     };
 
-    const pauseLayers = () => {
-      gsap.ticker.remove(tick);
-      layerElements().forEach((el) => el.pause());
-      setIsPlaying(false);
-      wasPlayingRef.current = false;
-      void audioCtxRef.current?.suspend();
-    };
-
-    const playSingle = () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.volume = SINGLE_VOLUME;
-      audio.loop = true;
-      audio
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-          wasPlayingRef.current = true;
-        })
-        .catch(() => {
-          setIsPlaying(false);
-          wasPlayingRef.current = false;
-        });
-    };
-
-    const pauseSingle = () => {
-      const audio = audioRef.current;
-      if (audio) audio.pause();
-      setIsPlaying(false);
-      wasPlayingRef.current = false;
-    };
-
-    const play = (fadeIn = true) => {
-      if (isLayers) playLayers(fadeIn);
-      else playSingle();
-    };
-
     const pause = () => {
-      if (isLayers) pauseLayers();
-      else pauseSingle();
+      fadeMaster(0, FADE_SECONDS);
+      window.setTimeout(() => {
+        if (isPlayingRef.current) return;
+        gsap.ticker.remove(tick);
+        AMBIENT_LAYERS.forEach((layer) => layerEl(layer)?.pause());
+        void graph.ctx?.suspend();
+      }, FADE_SECONDS * 1000);
+      setIsPlaying(false);
     };
 
     playRef.current = play;
     pauseRef.current = pause;
 
-    const applyPreference = (enabled: boolean) => {
-      if (enabled) play(true);
-      else pause();
-    };
-
-    const stored = getAmbientSoundPreference();
-    if (stored === true) applyPreference(true);
-
     const handleAmbientSound = (event: Event) => {
       const detail = (event as CustomEvent<AmbientSoundDetail>).detail;
       if (!detail) return;
-      applyPreference(detail.enabled);
+      if (detail.enabled) play(true);
+      else pause();
     };
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        wasPlayingRef.current = isPlayingRef.current;
-        if (isLayers) {
-          gsap.ticker.remove(tick);
-          layerElements().forEach((el) => {
-            if (!el.paused) el.pause();
-          });
-          void audioCtxRef.current?.suspend();
-        } else {
-          const audio = audioRef.current;
-          if (audio && !audio.paused) audio.pause();
-        }
+        if (!isPlayingRef.current) return;
+        gsap.ticker.remove(tick);
+        AMBIENT_LAYERS.forEach((layer) => {
+          const el = layerEl(layer);
+          if (el && !el.paused) el.pause();
+        });
+        void graph.ctx?.suspend();
         return;
       }
 
-      if (wasPlayingRef.current) play(false);
+      if (getAmbientSoundPreference() === true) play(false);
     };
+
+    let gestureCleanup: (() => void) | undefined;
+    if (getAmbientSoundPreference() === true) {
+      const unlock = () => play(true);
+      window.addEventListener("pointerdown", unlock, { once: true });
+      window.addEventListener("keydown", unlock, { once: true });
+      gestureCleanup = () => {
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      };
+    }
 
     window.addEventListener(AMBIENT_SOUND_EVENT, handleAmbientSound);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
+      gestureCleanup?.();
       window.removeEventListener(AMBIENT_SOUND_EVENT, handleAmbientSound);
       document.removeEventListener(
         "visibilitychange",
         handleVisibilityChange,
       );
       gsap.ticker.remove(tick);
-      if (isLayers) {
-        layerElements().forEach((el) => el.pause());
-      } else {
-        audioRef.current?.pause();
-      }
+      AMBIENT_LAYERS.forEach((layer) => layerEl(layer)?.pause());
     };
-  }, [mode]);
+  }, []);
 
   const toggle = () => {
-    if (isPlaying) pauseRef.current();
-    else playRef.current(true);
+    const next = !isPlaying;
+    dispatchAmbientSoundPreference(next);
   };
 
   return (
     <AmbientAudioContext.Provider value={{ isPlaying, toggle }}>
-      {mode === "layers" ? (
-        AMBIENT_LAYERS.map((layer) => (
-          <audio
-            key={layer}
-            ref={(el) => {
-              layerRefs.current[layer] = el;
-            }}
-            src={AMBIENT_LAYER_SRCS[layer]}
-            preload="none"
-            loop
-          />
-        ))
-      ) : (
-        <audio ref={audioRef} src={audioSrc} preload="none" />
-      )}
+      {AMBIENT_LAYERS.map((layer) => (
+        <audio
+          key={layer}
+          ref={(el) => {
+            layerRefs.current[layer] = el;
+          }}
+          preload="none"
+          loop
+        />
+      ))}
       {children}
     </AmbientAudioContext.Provider>
   );
@@ -484,18 +466,5 @@ export function AmbientAudioButton({
         </span>
       )}
     </button>
-  );
-}
-
-/** Standalone toggle (audio + fixed button). Prefer Header integration. */
-export function AmbientAudioToggle({
-  audioSrc = DEFAULT_AUDIO_SRC,
-  className,
-  buttonRef,
-}: AmbientAudioToggleProps) {
-  return (
-    <AmbientAudioProvider audioSrc={audioSrc}>
-      <AmbientAudioButton className={className} buttonRef={buttonRef} />
-    </AmbientAudioProvider>
   );
 }

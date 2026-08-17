@@ -38,7 +38,6 @@ function maxWidthFor(relPosix) {
     base.includes("hero") ||
     base.includes("cta-bg") ||
     base.includes("villa-bg") ||
-    base.includes("start-experience-bg") ||
     base.includes("forest-slide")
   ) {
     return 1920;

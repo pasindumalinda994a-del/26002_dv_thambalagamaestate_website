@@ -2,14 +2,18 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-// import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/Button";
 import { H1 } from "../components/H1";
 import { Paragraph } from "../components/Paragraph";
 import { ScrollDownHint } from "../components/ScrollDownHint";
-import { HERO_VIDEO_SRC } from "@/lib/preload-assets";
+import { usePreloaderComplete } from "../components/SitePreloader";
+import {
+  HERO_POSTER_SRC,
+  HERO_VIDEO_MOBILE_SRC,
+  HERO_VIDEO_SRC,
+} from "@/lib/preload-assets";
 import { ST_PRIORITY } from "@/lib/scroll-refresh";
 
 const MOBILE_MQ = "(max-width: 767px)";
@@ -22,8 +26,11 @@ export function HeroSection() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const { open: openBooking } = useBooking();
+  const preloaderComplete = usePreloaderComplete();
+  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
+    if (!preloaderComplete) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.registerPlugin(ScrollTrigger);
 
@@ -76,7 +83,7 @@ export function HeroSection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [preloaderComplete]);
 
   return (
     <section
@@ -86,28 +93,39 @@ export function HeroSection() {
       className="relative z-0 flex min-h-screen flex-col items-center justify-center overflow-hidden bg-cream"
     >
       <div ref={mediaWrapRef} className="absolute inset-0 overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        >
-          <source src={HERO_VIDEO_SRC} type="video/mp4" />
-        </video>
-
-        {/* Current still — restore if the video is swapped back out.
-        <Image
-          src={HERO_BG_SRC}
-          alt=""
-          fill
-          priority
-          quality={75}
-          sizes="100vw"
-          className="object-cover object-[90%_center] md:object-center"
-        />
-        */}
+        {preloaderComplete ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={HERO_POSTER_SRC}
+              alt=""
+              width={1920}
+              height={1080}
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={HERO_POSTER_SRC}
+              onCanPlay={() => setVideoReady(true)}
+              className={[
+                "absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500",
+                videoReady ? "opacity-100" : "opacity-0",
+              ].join(" ")}
+            >
+              <source
+                src={HERO_VIDEO_MOBILE_SRC}
+                type="video/mp4"
+                media="(max-width: 767px)"
+              />
+              <source src={HERO_VIDEO_SRC} type="video/mp4" />
+            </video>
+          </>
+        ) : null}
 
         <div aria-hidden className="absolute inset-0 bg-black/20 md:bg-black/29" />
       </div>

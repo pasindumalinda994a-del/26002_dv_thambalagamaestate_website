@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
+import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 import { PinnedScrollHint } from "../components/PinnedScrollHint";
@@ -95,12 +96,9 @@ export function VillaSection() {
   const galleryStripRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
+  const armed = useNearViewport(sectionRef);
 
   useLayoutEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
     const mobileQuery = window.matchMedia(MOBILE_MQ);
 
     const getGalleryScrollDistance = () => {
@@ -120,6 +118,25 @@ export function VillaSection() {
     };
 
     measureGallery();
+
+    const strip = galleryStripRef.current;
+    const resizeObserver =
+      strip &&
+      new ResizeObserver(() => {
+        if (armed) scheduleRefresh();
+        else measureGallery();
+      });
+    if (strip && resizeObserver) resizeObserver.observe(strip);
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return () => resizeObserver?.disconnect();
+    }
+
+    if (!armed) {
+      return () => resizeObserver?.disconnect();
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       const isMobile = mobileQuery.matches;
@@ -212,14 +229,6 @@ export function VillaSection() {
       }
     }, sectionRef);
 
-    const strip = galleryStripRef.current;
-    const resizeObserver =
-      strip &&
-      new ResizeObserver(() => {
-        scheduleRefresh();
-      });
-    if (strip && resizeObserver) resizeObserver.observe(strip);
-
     const onBreakpointChange = () => {
       scheduleRefresh();
     };
@@ -233,7 +242,7 @@ export function VillaSection() {
       resizeObserver?.disconnect();
       ctx.revert();
     };
-  }, []);
+  }, [armed]);
 
   return (
     <section
@@ -273,6 +282,7 @@ export function VillaSection() {
           triggerRef={sectionRef}
           end={() => `+=${spacerRef.current?.offsetHeight ?? 0}`}
           refreshPriority={ST_PRIORITY.villa}
+          enabled={armed}
           compactOnMobile
           className="absolute inset-x-0 top-[18%] z-15 flex justify-center md:top-[22%]"
         />

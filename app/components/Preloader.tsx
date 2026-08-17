@@ -14,7 +14,6 @@ import {
   scrollToHero,
 } from "@/lib/scroll-refresh";
 import { Button } from "./Button";
-import { DecryptedText } from "./DecryptedText";
 
 /** Full progress arc — long enough for each status phase to read. */
 const PROGRESS_DURATION_MS = 7000;
@@ -88,6 +87,119 @@ function statusForProgress(progress: number): string {
   return "COORD: 6°24'N 80°28'E";
 }
 
+function wordRangesOf(text: string) {
+  const ranges: { start: number; end: number }[] = [];
+  const re = /\S+/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    ranges.push({ start: match.index, end: match.index + match[0].length });
+  }
+  return ranges;
+}
+
+const STATUS_CHAR_CLASS =
+  "font-secondary text-base font-medium uppercase tracking-[0.18em]";
+
+/** Sequential word scramble without per-frame React state (Lighthouse TBT). */
+function PreloaderStatusText({ text }: { text: string }) {
+  const hostRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    const chars = Array.from(text);
+    const ranges = wordRangesOf(text);
+    const pool = Array.from(new Set(chars.filter((char) => char !== " ")));
+    const revealed = new Set<number>();
+    let wordIndex = 0;
+
+    host.replaceChildren();
+    const nodes = chars.map((char) => {
+      const span = document.createElement("span");
+      span.textContent = char === " " ? "\u00a0" : char;
+      span.className =
+        char === " " ? "" : `${STATUS_CHAR_CLASS} text-cream/40`;
+      host.appendChild(span);
+      return span;
+    });
+
+    const visibleUntil = () =>
+      wordIndex >= ranges.length
+        ? text.length
+        : (ranges[wordIndex]?.end ?? text.length);
+
+    const paint = () => {
+      const cutoff = visibleUntil();
+      for (let i = 0; i < nodes.length; i++) {
+        const char = chars[i];
+        if (char === " ") continue;
+        if (revealed.has(i)) {
+          nodes[i].textContent = char;
+          nodes[i].className = `${STATUS_CHAR_CLASS} text-cream`;
+          continue;
+        }
+        if (i >= cutoff) {
+          nodes[i].textContent = char;
+          nodes[i].className = `${STATUS_CHAR_CLASS} text-cream/40`;
+          continue;
+        }
+        nodes[i].textContent =
+          pool[Math.floor(Math.random() * pool.length)] ?? char;
+        nodes[i].className = `${STATUS_CHAR_CLASS} text-cream/40`;
+      }
+    };
+
+    paint();
+
+    const id = window.setInterval(() => {
+      if (wordIndex >= ranges.length) {
+        for (let i = 0; i < chars.length; i++) {
+          if (chars[i] === " ") continue;
+          revealed.add(i);
+          nodes[i].textContent = chars[i];
+          nodes[i].className = `${STATUS_CHAR_CLASS} text-cream`;
+        }
+        window.clearInterval(id);
+        return;
+      }
+
+      const word = ranges[wordIndex];
+      let next = -1;
+      for (let i = word.start; i < word.end; i++) {
+        if (chars[i] !== " " && !revealed.has(i)) {
+          next = i;
+          break;
+        }
+      }
+      if (next !== -1) revealed.add(next);
+
+      let wordDone = true;
+      for (let i = word.start; i < word.end; i++) {
+        if (chars[i] !== " " && !revealed.has(i)) {
+          wordDone = false;
+          break;
+        }
+      }
+      if (wordDone) wordIndex += 1;
+      paint();
+    }, 20);
+
+    return () => window.clearInterval(id);
+  }, [text]);
+
+  return (
+    <p className="min-h-[1.25em] text-center font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream">
+      <span className="sr-only">{text}</span>
+      <span
+        ref={hostRef}
+        aria-hidden="true"
+        className="inline-block whitespace-pre-wrap"
+      />
+    </p>
+  );
+}
+
 function HeadphonesIcon() {
   return (
     <svg
@@ -134,6 +246,7 @@ export function Preloader({
   const soundDialogRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const percentRef = useRef<HTMLParagraphElement>(null);
+  const percentGhostRef = useRef<HTMLParagraphElement>(null);
   const progressRef = useRef(0);
   const statusTextRef = useRef(statusForProgress(0));
   const setProgressSafe = useRef<(value: number) => void>(() => {});
@@ -143,16 +256,18 @@ export function Preloader({
   const exitTlRef = useRef<gsap.core.Timeline | null>(null);
 
   const [mounted, setMounted] = useState(true);
-  const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState(statusForProgress(0));
   const [showSoundPrompt, setShowSoundPrompt] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
   setProgressSafe.current = (value: number) => {
     const next = Math.round(Math.min(100, Math.max(0, value)));
-    if (next === progressRef.current) return;
-    progressRef.current = next;
-    setProgress(next);
+    if (next !== progressRef.current) {
+      progressRef.current = next;
+      const label = `${next}%`;
+      if (percentRef.current) percentRef.current.textContent = label;
+      if (percentGhostRef.current) percentGhostRef.current.textContent = label;
+    }
 
     const nextStatus = statusForProgress(next);
     if (nextStatus === statusTextRef.current) return;
@@ -342,8 +457,12 @@ export function Preloader({
       if (cancelled || exitingRef.current) return;
 
       const existingPreference = getAmbientSoundPreference();
-      if (existingPreference !== null) {
-        dispatchAmbientSoundPreference(existingPreference);
+      if (existingPreference === false) {
+        dispatchAmbientSoundPreference(false);
+        runWipeExitRef.current();
+        return;
+      }
+      if (existingPreference === true) {
         runWipeExitRef.current();
         return;
       }
@@ -398,8 +517,12 @@ export function Preloader({
           className="flex flex-col items-center gap-5 px-6"
         >
           <div className="relative min-w-[3.2ch] font-space-grotesk text-[95px] font-bold leading-none tracking-tight tabular-nums">
-            <p className="select-none text-cream/20" aria-hidden="true">
-              {progress}%
+            <p
+              ref={percentGhostRef}
+              className="select-none text-cream/20"
+              aria-hidden="true"
+            >
+              0%
             </p>
             <p
               ref={percentRef}
@@ -409,7 +532,7 @@ export function Preloader({
                 maskImage: percentMaskImage(0),
               }}
             >
-              {progress}%
+              0%
             </p>
           </div>
           <div className="h-0.5 w-44 overflow-hidden bg-cream/20 md:w-52">
@@ -423,19 +546,7 @@ export function Preloader({
               {status}
             </p>
           ) : (
-            <DecryptedText
-              key={status}
-              text={status}
-              sequential
-              revealUnit="word"
-              revealDirection="start"
-              animateOn="view"
-              speed={20}
-              useOriginalCharsOnly
-              className="font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream"
-              encryptedClassName="font-secondary text-base font-medium uppercase tracking-[0.18em] text-cream/40"
-              parentClassName="min-h-[1.25em] text-center"
-            />
+            <PreloaderStatusText key={status} text={status} />
           )}
         </div>
       )}

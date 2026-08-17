@@ -196,23 +196,3 @@ export async function moveGalleryImage(
   );
   return true;
 }
-
-export async function findGalleryImageByFilename(
-  filename: string,
-): Promise<GalleryImageMeta | null> {
-  const collection = await getCollection();
-  const doc = await collection.findOne(
-    { filename },
-    {
-      projection: {
-        alt: 1,
-        mimeType: 1,
-        filename: 1,
-        order: 1,
-        createdAt: 1,
-        updatedAt: 1,
-      },
-    },
-  );
-  return doc ? toMeta(doc as WithId<GalleryImageDocument>) : null;
-}
