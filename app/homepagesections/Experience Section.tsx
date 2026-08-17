@@ -13,8 +13,15 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { setExperienceWaterNudge } from "@/lib/homepage-ambient-mix";
-import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
+import {
+  setExperienceScrollCloseness,
+  setExperienceWaterNudge,
+} from "@/lib/homepage-ambient-mix";
+import {
+  ensureScrollTriggerConfig,
+  refreshScrollTriggers,
+  ST_PRIORITY,
+} from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
@@ -35,6 +42,7 @@ const OVERLAY_FADE_DURATION = 0.9;
 const OVERLAY_HIDE_DURATION = 0.4;
 const OVERLAY_EASE = "power2.out";
 const OVERLAY_HIDE_EASE = "power2.inOut";
+const EXPERIENCE_WATER_HOVER_NUDGE = 0.45;
 
 type ExperienceImage = {
   src: string;
@@ -45,17 +53,17 @@ type ExperienceImage = {
 
 const EXPERIENCE_IMAGES: ExperienceImage[] = [
   {
-    src: "/homepageimages/experience-waterfall-pools.webp",
+    src: "/home/experience-01.webp",
     alt: "Cascading waterfall over dark rocks surrounded by lush rainforest",
     heading: "Forest bathing by private waterfalls and pools.",
   },
   {
-    src: "/homepageimages/experience-guided-trails.webp",
+    src: "/home/experience-02.webp",
     alt: "Hikers walking along a forest trail with lush greenery",
     heading: "Guided trails through the estate and Sinharaja.",
   },
   {
-    src: "/homepageimages/experience-private-dining.webp",
+    src: "/home/experience-03.webp",
     alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     heading: "Bespoke dining prepared by a private chef.",
   },
@@ -159,7 +167,9 @@ function ExperienceMobileCarousel({
         setExperienceWaterNudge(0);
         return;
       }
-      setExperienceWaterNudge(activeIndex === 0 ? 1 : 0);
+      setExperienceWaterNudge(
+        activeIndex === 0 ? EXPERIENCE_WATER_HOVER_NUDGE : 0,
+      );
     };
     apply();
     mobileQuery.addEventListener("change", apply);
@@ -277,8 +287,8 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         revealTimeline.fromTo(
           overlay,
           { opacity: 0 },
-          { opacity: 1, ease: "none", duration: 0.8 },
-          0.2,
+          { opacity: 1, ease: "none", duration: 1 },
+          0,
         );
       }, sectionRef);
 
@@ -295,6 +305,35 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
         ctx.revert();
       };
     }, [overlayTargetRef, armed]);
+
+    useLayoutEffect(() => {
+      const section = sectionRef.current;
+      if (!section) return;
+
+      ensureScrollTriggerConfig();
+      gsap.registerPlugin(ScrollTrigger);
+
+      const trigger = ScrollTrigger.create({
+        trigger: section,
+        start: "top 85%",
+        end: "center center",
+        invalidateOnRefresh: true,
+        refreshPriority: ST_PRIORITY.experience,
+        onUpdate: (self) => {
+          setExperienceScrollCloseness(self.progress);
+        },
+        onRefresh: (self) => {
+          setExperienceScrollCloseness(self.progress);
+        },
+      });
+
+      setExperienceScrollCloseness(trigger.progress);
+
+      return () => {
+        trigger.kill();
+        setExperienceScrollCloseness(0);
+      };
+    }, []);
 
     useEffect(() => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -325,7 +364,7 @@ export const ExperienceSection = forwardRef<HTMLElement, ExperienceSectionProps>
       };
 
       const animateToHovered = (index: number) => {
-        if (index === 0) setExperienceWaterNudge(1);
+        if (index === 0) setExperienceWaterNudge(EXPERIENCE_WATER_HOVER_NUDGE);
         else setExperienceWaterNudge(0);
         timeline?.kill();
         const tl = gsap.timeline();

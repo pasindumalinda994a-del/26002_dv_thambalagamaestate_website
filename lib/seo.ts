@@ -12,15 +12,13 @@ export const SITE_KEYWORDS = [
   "Travel Sri Lanka",
 ] as const;
 
-export const DEFAULT_OG_IMAGE = "/homepageimages/DSC_0471.jpg_2K_202607261120.webp";
-export const FOREST_OG_IMAGE = "/forestpageimages/forest-hero.webp";
-export const BUNGALOW_OG_IMAGE =
-  "/balgalowpageimages/0C8A9933.webp";
-export const EXPERIENCES_OG_IMAGE =
-  "/experiencepageimages/experiences-hero.webp";
-export const LOGO_PATH = "/Logo/ThambalagamaLogo.png";
+export const DEFAULT_OG_IMAGE = "/home/hero.webp";
+export const FOREST_OG_IMAGE = "/forest/hero.webp";
+export const BUNGALOW_OG_IMAGE = "/bungalow/hero.webp";
+export const EXPERIENCES_OG_IMAGE = "/experiences/og.webp";
+export const LOGO_PATH = "/logo/primary.png";
 /** Dark mark for browser tab / search favicons (readable on light chrome). */
-export const FAVICON_LOGO_PATH = "/Logo/Thambalagama%20Logo%203.png";
+export const FAVICON_LOGO_PATH = "/logo/favicon.png";
 
 /** Estate coordinates (Sinharaja buffer zone) — matches LocationSection map. */
 export const ESTATE_GEO = {

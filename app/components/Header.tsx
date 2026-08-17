@@ -14,7 +14,7 @@ import { useBooking } from "./booking/BookingProvider";
 import { HeaderMenuDrawer } from "./HeaderMenuDrawer";
 import { TransitionLink } from "./TransitionLink";
 
-const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
+const LOGO_SRC = "/logo/primary.png";
 const COLLAPSED_WIDTH = 64;
 const COLLAPSED_PAD_X = 8;
 const MENU_BTN_WIDTH = 40; // size-10

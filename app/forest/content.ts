@@ -8,7 +8,7 @@ export const FOREST_HERO = {
     { label: "Reserve area", value: "8,900 ha" },
   ],
   heroImage: {
-    src: "/forestpageimages/forest-hero.webp",
+    src: "/forest/hero.webp",
     alt: "Aerial view of dense tropical rainforest with a river and waterfall",
   },
   introLead:
@@ -124,7 +124,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/why-visit.webp",
+        src: "/forest/why-visit.webp",
         alt: "Moss-covered tree branch in a dense, shaded rainforest",
       },
     ],
@@ -139,7 +139,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/what-makes-unique.webp",
+        src: "/forest/what-makes-unique.webp",
         alt: "Colorful forest bird perched on a branch",
       },
     ],
@@ -259,7 +259,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/things-to-do.webp",
+        src: "/forest/things-to-do.webp",
         alt: "Hikers walking single-file along a narrow trail through dense rainforest",
       },
     ],
@@ -274,7 +274,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/wildlife.webp",
+        src: "/forest/wildlife.webp",
         alt: "Wildlife photographer with a telephoto lens in dense forest foliage",
       },
     ],
@@ -289,7 +289,7 @@ export const FOREST_SECTIONS: GuideSection[] = [
       },
       {
         type: "image",
-        src: "/forestpageimages/trekking.webp",
+        src: "/forest/trekking.webp",
         alt: "Dirt trail winding through dense rainforest with wet foliage",
       },
     ],

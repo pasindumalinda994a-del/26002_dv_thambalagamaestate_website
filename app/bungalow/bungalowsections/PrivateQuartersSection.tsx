@@ -38,7 +38,7 @@ export function PrivateQuartersSection() {
         {BUNGALOW_QUARTERS.headline}
       </H2>
 
-      <div className="bungalow-marquee relative overflow-hidden md:-mx-8 md:w-[calc(100%+4rem)]">
+      <div className="bungalow-marquee relative -mx-5 w-[calc(100%+2.5rem)] overflow-hidden md:-mx-8 md:w-[calc(100%+4rem)]">
         <div className="bungalow-marquee-track flex w-max gap-3">
           <MarqueeSet />
           <MarqueeSet ariaHidden />

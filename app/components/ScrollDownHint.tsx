@@ -46,7 +46,7 @@ export function ScrollDownHint({
       </span>
       <span ref={iconRef} className="inline-flex shrink-0">
         <Image
-          src="/Icons/bi_arrow-up.svg"
+          src="/icons/scroll-hint.svg"
           alt=""
           width={38}
           height={38}

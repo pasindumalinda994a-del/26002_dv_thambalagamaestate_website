@@ -25,19 +25,17 @@ const IMAGE_EXT = new Set([
 
 /** Folders where JPG/PNG should become WebP (not logos / icons). */
 const CONVERT_DIRS = new Set([
-  "balgalowpageimages",
-  "homepageimages",
+  "home",
+  "bungalow",
   "gallery",
-  "forestpageimages",
-  "experiencepageimages",
+  "forest",
+  "experiences",
 ]);
 
 function maxWidthFor(relPosix) {
   const base = path.posix.basename(relPosix).toLowerCase();
   if (
     base.includes("hero") ||
-    base.includes("dsc_0471") ||
-    base.includes("0c8a") ||
     base.includes("cta-bg") ||
     base.includes("villa-bg") ||
     base.includes("start-experience-bg") ||
@@ -61,7 +59,7 @@ function maxWidthFor(relPosix) {
 function qualityFor(relPosix) {
   if (relPosix.includes("/gallery/")) return 72;
   const base = path.posix.basename(relPosix).toLowerCase();
-  if (base.includes("hero") || base.includes("dsc_0471")) return 72;
+  if (base.includes("hero")) return 72;
   return 75;
 }
 
@@ -91,7 +89,7 @@ async function optimizeFile(fullPath) {
   const before = (await fs.stat(fullPath)).size;
 
   // Keep small logo PNGs as-is (email + header).
-  if (topDir === "Logo") {
+  if (topDir === "logo" || topDir === "icons") {
     return { rel, skipped: true, reason: "logo" };
   }
 

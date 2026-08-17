@@ -7,10 +7,10 @@ import { forwardRef, useEffect, useState, useRef } from "react";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 
-const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
+const LOGO_SRC = "/logo/primary.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
-const MAP_STATIC_SRC = "/homepageimages/location-map.webp";
+const MAP_STATIC_SRC = "/home/location-map.webp";
 const ESTATE_LNG = 80.403;
 const ESTATE_LAT = 6.383;
 const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${ESTATE_LAT},${ESTATE_LNG}`;

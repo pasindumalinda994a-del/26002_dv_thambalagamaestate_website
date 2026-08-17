@@ -9,13 +9,13 @@ import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/Button";
 
-const BG_SRC = "/homepageimages/cta-bg.webp";
+const BG_SRC = "/home/cta-bg.webp";
 
 const HEADLINE_CLASS =
   "w-full font-space-grotesk text-[clamp(24px,6.15vw,36px)] font-normal uppercase leading-[130%] tracking-[0.5px] text-cream";
 
-const HEADLINE_HOLD = 0.08;
-const HEADLINE_TRANSITION = 1;
+const HEADLINE_HOLD = 0.32;
+const HEADLINE_TRANSITION = 0.55;
 const HEADLINE_EASE = "power1.inOut";
 const WHEEL_RADIUS_SCALE = 3;
 
@@ -77,7 +77,7 @@ export function CTASection() {
           trigger: section,
           start: "top bottom",
           end: "top top",
-          scrub: 1,
+          scrub: true,
           invalidateOnRefresh: true,
           refreshPriority: ST_PRIORITY.cta,
         },
@@ -157,7 +157,7 @@ export function CTASection() {
             end: () => `+=${window.innerHeight * pinDuration}`,
             pin: section,
             pinSpacing: true,
-            scrub: 1,
+            scrub: true,
             anticipatePin: 1,
             id: "cta-headlines",
             invalidateOnRefresh: true,
@@ -191,7 +191,7 @@ export function CTASection() {
               start: () =>
                 ScrollTrigger.getById("cta-headlines")?.end ?? "top top",
               end: () => `+=${window.innerHeight}`,
-              scrub: 1,
+              scrub: true,
               invalidateOnRefresh: true,
               refreshPriority: ST_PRIORITY.cta,
             },
@@ -208,7 +208,7 @@ export function CTASection() {
               trigger: section,
               start: "top top",
               end: "bottom top",
-              scrub: 1,
+              scrub: true,
               invalidateOnRefresh: true,
               refreshPriority: ST_PRIORITY.cta,
             },
