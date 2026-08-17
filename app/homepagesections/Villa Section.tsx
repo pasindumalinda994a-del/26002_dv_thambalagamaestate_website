@@ -7,6 +7,7 @@ import { useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
+import { PinnedScrollHint } from "../components/PinnedScrollHint";
 
 const BG_SRC = "/home/villa-bg.webp";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
@@ -267,6 +268,14 @@ export function VillaSection() {
             ))}
           </div>
         </div>
+
+        <PinnedScrollHint
+          triggerRef={sectionRef}
+          end={() => `+=${spacerRef.current?.offsetHeight ?? 0}`}
+          refreshPriority={ST_PRIORITY.villa}
+          compactOnMobile
+          className="absolute inset-x-0 top-[18%] z-15 flex justify-center md:top-[22%]"
+        />
 
         <div ref={contentRef} className="absolute inset-0 z-10">
           <div className="relative z-10 flex min-h-screen flex-col justify-end gap-10 px-4 pb-[78px] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-[94px]">

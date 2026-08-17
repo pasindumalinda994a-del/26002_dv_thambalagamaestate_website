@@ -6,7 +6,6 @@ export type ExperiencesImage = {
 export const EXPERIENCES_HERO = {
   headlineDesktop: "Into the rhythm of forest",
   headlineMobile: "A Glimpse Beyond the Border.",
-  scrollLabel: "scroll to explore",
   image: {
     src: "/forest/why-visit.webp",
     alt: "Aerial view of misty rainforest canopy surrounding Thambalagama Estate",

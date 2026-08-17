@@ -8,6 +8,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { useBooking } from "../components/booking/BookingProvider";
 import { Button } from "../components/Button";
+import { PinnedScrollHint } from "../components/PinnedScrollHint";
 
 const BG_SRC = "/home/cta-bg.webp";
 
@@ -285,6 +286,19 @@ export function CTASection() {
 
         <Button variant="glass" onClick={openBooking}>Check Availability</Button>
       </div>
+
+      <PinnedScrollHint
+        triggerRef={sectionRef}
+        end={() => {
+          const n = CTA_HEADLINES.length;
+          const pinDuration =
+            n * HEADLINE_HOLD + (n - 1) * HEADLINE_TRANSITION;
+          return `+=${window.innerHeight * pinDuration}`;
+        }}
+        refreshPriority={ST_PRIORITY.cta}
+        enabled={armed}
+        className="absolute inset-x-0 bottom-20 z-10 flex justify-center md:bottom-10"
+      />
     </section>
   );
 }
