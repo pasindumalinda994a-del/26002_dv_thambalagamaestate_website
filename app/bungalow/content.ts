@@ -5,7 +5,6 @@ export type BungalowImage = {
 
 export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
-  scrollLabel: "scroll to explore",
   image: {
     src: "/bungalow/hero.webp",
     alt: "Thambalagama Estate bungalow at dusk",

@@ -15,6 +15,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { useNearViewport } from "@/lib/use-near-viewport";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
+import { PinnedScrollHint } from "../components/PinnedScrollHint";
 
 const FOREST_CTA = {
   label: "Explore the forest",
@@ -774,6 +775,17 @@ export function ForestSection({
             </div>
           </div>
         </div>
+
+        {!isMobileLayout ? (
+          <PinnedScrollHint
+            triggerRef={sectionRef}
+            end={() => `+=${getSlideScrollDistance() + window.innerHeight}`}
+            refreshPriority={ST_PRIORITY.forest}
+            enabled={armed}
+            direction="right"
+            className="absolute right-5 bottom-16 z-25 hidden md:right-8 md:bottom-20 md:flex"
+          />
+        ) : null}
 
         {isMobileLayout && slideNavReady ? (
           <div className="pointer-events-none absolute inset-y-0 inset-x-0 z-40 flex items-center justify-between px-5 md:hidden">

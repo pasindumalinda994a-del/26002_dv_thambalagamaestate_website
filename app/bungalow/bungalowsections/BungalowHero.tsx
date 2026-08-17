@@ -95,7 +95,7 @@ export function BungalowHero() {
       </div>
 
       <div className="absolute inset-x-0 bottom-20 z-10 flex justify-center md:bottom-10">
-        <ScrollDownHint label={BUNGALOW_HERO.scrollLabel} />
+        <ScrollDownHint />
       </div>
     </section>
   );
