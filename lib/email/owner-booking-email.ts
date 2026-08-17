@@ -67,7 +67,7 @@ function siteUrl(): string {
 }
 
 function logoUrl(): string {
-  return `${siteUrl()}/Logo/ThambalagamaLogo.png`;
+  return `${siteUrl()}/logo/primary.png`;
 }
 
 export function bookingDetailUrl(bookingId: string): string {

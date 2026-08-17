@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useBooking } from "../components/booking/BookingProvider";
 import { TransitionLink } from "../components/TransitionLink";
 
-const LOGO_SRC = "/Logo/ThambalagamaLogo.png";
+const LOGO_SRC = "/logo/primary.png";
 
 const NAV_LINKS = [
   { href: "/bungalow", label: "Sanctuary" },

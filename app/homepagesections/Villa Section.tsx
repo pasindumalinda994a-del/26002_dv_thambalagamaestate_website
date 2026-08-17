@@ -8,7 +8,7 @@ import { refreshScrollTriggers, ST_PRIORITY } from "@/lib/scroll-refresh";
 import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 
-const BG_SRC = "/homepageimages/villa-bg.webp";
+const BG_SRC = "/home/villa-bg.webp";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
 const VILLA_FG_TRAVEL = 48; // 240 * 0.2
 const MOBILE_MQ = "(max-width: 767px)";
@@ -22,19 +22,19 @@ const VILLA_FEATURES = [
 
 const VILLA_GALLERY_IMAGES = [
   {
-    src: "/homepageimages/villa-gallery-bedroom.webp",
+    src: "/home/villa-gallery-01.webp",
     alt: "Villa bedroom",
   },
   {
-    src: "/balgalowpageimages/DSC_0568.webp",
+    src: "/bungalow/quarters-01.webp",
     alt: "Villa bedroom",
   },
   {
-    src: "/homepageimages/villa-gallery-living-room.webp",
+    src: "/home/villa-gallery-02.webp",
     alt: "Villa living room",
   },
-  { src: "/homepageimages/villa-gallery-dining-room.webp", alt: "Villa dining room" },
-  { src: "/homepageimages/villa-gallery-indoor-outdoor.webp", alt: "Villa indoor-outdoor living" },
+  { src: "/home/villa-gallery-03.webp", alt: "Villa dining room" },
+  { src: "/home/villa-gallery-04.webp", alt: "Villa indoor-outdoor living" },
 ] as const;
 
 function VillaBackground({
@@ -102,12 +102,15 @@ export function VillaSection() {
 
     const mobileQuery = window.matchMedia(MOBILE_MQ);
 
-    const measureGallery = () => {
-      if (!galleryStripRef.current || !spacerRef.current) return;
+    const getGalleryScrollDistance = () => {
+      const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
+      // End when the last image's bottom reaches mid-viewport (no empty tail).
+      return stripHeight + window.innerHeight * 0.5;
+    };
 
-      const stripHeight = galleryStripRef.current.offsetHeight;
-      const viewportHeight = window.innerHeight;
-      spacerRef.current.style.height = `${stripHeight + viewportHeight}px`;
+    const measureGallery = () => {
+      if (!spacerRef.current) return;
+      spacerRef.current.style.height = `${getGalleryScrollDistance()}px`;
     };
 
     const scheduleRefresh = () => {
@@ -145,10 +148,7 @@ export function VillaSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: () => {
-            const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
-            return `+=${(stripHeight + window.innerHeight) * 0.2}`;
-          },
+          end: () => `+=${getGalleryScrollDistance() * 0.2}`,
           scrub: true,
           invalidateOnRefresh: true,
           refreshPriority: ST_PRIORITY.villa,
@@ -194,15 +194,14 @@ export function VillaSection() {
           galleryRef.current,
           { y: () => window.innerHeight },
           {
-            y: () => -(galleryStripRef.current?.offsetHeight ?? 0),
+            y: () =>
+              window.innerHeight * 0.5 -
+              (galleryStripRef.current?.offsetHeight ?? 0),
             ease: "none",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top top",
-              end: () => {
-                const stripHeight = galleryStripRef.current?.offsetHeight ?? 0;
-                return `+=${stripHeight + window.innerHeight}`;
-              },
+              end: () => `+=${getGalleryScrollDistance()}`,
               scrub: true,
               invalidateOnRefresh: true,
               refreshPriority: ST_PRIORITY.villa,

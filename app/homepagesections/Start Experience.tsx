@@ -8,10 +8,10 @@ import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { Button } from "../components/Button";
 import { Paragraph } from "../components/Paragraph";
 
-const BG_SRC = "/homepageimages/start-experience-bg.webp";
-const LOGO_SRC = "/Logo/Thambalagama%20Logo%202.png";
-const CLOUD_LEFT_SRC = "/homepageimages/start-experience-cloud-left.webp";
-const CLOUD_RIGHT_SRC = "/homepageimages/start-experience-cloud-right.webp";
+const BG_SRC = "/home/start-experience-bg.webp";
+const LOGO_SRC = "/logo/start-experience.png";
+const CLOUD_LEFT_SRC = "/home/start-experience-cloud-left.webp";
+const CLOUD_RIGHT_SRC = "/home/start-experience-cloud-right.webp";
 
 export function StartExperience() {
   const lenis = useLenis();

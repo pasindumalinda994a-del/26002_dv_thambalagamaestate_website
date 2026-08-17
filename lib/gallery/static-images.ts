@@ -4,48 +4,48 @@ import type { GalleryDisplayImage } from "./types";
 export const STATIC_GALLERY_IMAGES: GalleryDisplayImage[] = [
   {
     id: "static-0",
-    src: "/gallery/Gallery%20Image%207.webp",
-    alt: "Gallery image 7",
-  },
-  {
-    id: "static-1",
-    src: "/gallery/Gallery%20Image%201.webp",
+    src: "/gallery/01.webp",
     alt: "Gallery image 1",
   },
   {
+    id: "static-1",
+    src: "/gallery/02.webp",
+    alt: "Gallery image 2",
+  },
+  {
     id: "static-2",
-    src: "/gallery/Gallery%20Image%208.webp",
-    alt: "Gallery image 8",
+    src: "/gallery/03.webp",
+    alt: "Gallery image 3",
   },
   {
     id: "static-3",
-    src: "/gallery/Gallery%20Image%205.webp",
-    alt: "Gallery image 5",
+    src: "/gallery/04.webp",
+    alt: "Gallery image 4",
   },
   {
     // Focus cell (row 2, center) — fills the viewport at gallery start.
     id: "static-4",
-    src: "/gallery/Gallery%20Image%206.webp",
-    alt: "Gallery image 6",
+    src: "/gallery/05.webp",
+    alt: "Gallery image 5",
   },
   {
     id: "static-5",
-    src: "/gallery/Gallery%20Image%204.webp",
-    alt: "Gallery image 4",
+    src: "/gallery/06.webp",
+    alt: "Gallery image 6",
   },
   {
     id: "static-6",
-    src: "/gallery/Gallery%20Image%209.webp",
-    alt: "Gallery image 9",
+    src: "/gallery/07.webp",
+    alt: "Gallery image 7",
   },
   {
     id: "static-7",
-    src: "/gallery/Gallery%20Image%203.webp",
-    alt: "Gallery image 3",
+    src: "/gallery/08.webp",
+    alt: "Gallery image 8",
   },
   {
     id: "static-8",
-    src: "/gallery/Gallery%20Image%202.webp",
-    alt: "Gallery image 2",
+    src: "/gallery/09.webp",
+    alt: "Gallery image 9",
   },
 ];

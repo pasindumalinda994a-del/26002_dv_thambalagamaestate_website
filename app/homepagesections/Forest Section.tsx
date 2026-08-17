@@ -23,16 +23,16 @@ const FOREST_CTA = {
 
 const SLIDES = [
   {
-    bg: "/homepageimages/forest-slide-estate-bg.webp",
+    bg: "/home/forest-slide-01.webp",
     heading:
       "An exclusive estate bordering the UNESCO Sinharaja Rainforest.",
   },
   {
-    bg: "/homepageimages/forest-slide-waterfalls-bg.webp",
+    bg: "/home/forest-slide-02.webp",
     heading: "Two private waterfalls and a natural jungle pool.",
   },
   {
-    bg: "/homepageimages/forest-slide-trails-bg.webp",
+    bg: "/home/forest-slide-03.webp",
     heading:
       "Guided rainforest trails uncovering rare endemic wildlife species.",
   },
@@ -117,7 +117,7 @@ const HEADING_ENTER_BG_REVEAL = 0.55;
 const HEADING_CHAR_STAGGER_SPAN = 0.22;
 /** Forest-only: tight gap so the next line starts before the previous finishes. */
 const HEADING_LINE_STAGGER = 0.04;
-const SLIDE_SCROLL_VH = 280;
+const SLIDE_SCROLL_VH = 180;
 
 function getSlideScrollDistance() {
   return (
@@ -516,7 +516,7 @@ export function ForestSection({
             trigger: sectionRef.current,
             start: "top bottom",
             end: "top top",
-            scrub: 1,
+            scrub: true,
             invalidateOnRefresh: true,
             refreshPriority: ST_PRIORITY.forest,
             onUpdate(self: ScrollTrigger) {

@@ -43,7 +43,7 @@ export function ImageMosaic({ large, top, bottom }: ImageMosaicProps) {
           scrollTrigger: {
             trigger: largeEl,
             start: "top 50%",
-            toggleActions: "play none none reset",
+            toggleActions: "play none none reverse",
           },
         });
       }
@@ -56,7 +56,7 @@ export function ImageMosaic({ large, top, bottom }: ImageMosaicProps) {
           scrollTrigger: {
             trigger: bottomEl,
             start: "top 50%",
-            toggleActions: "play none none reset",
+            toggleActions: "play none none reverse",
           },
         });
       }

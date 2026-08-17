@@ -50,7 +50,7 @@ const AmbientAudioContext = createContext<AmbientAudioContextValue | null>(
 );
 
 const DEFAULT_AUDIO_SRC =
-  "/audio/emycutiepants-jungle-ambience-339096.mp3";
+  "/audio/jungle-ambience.mp3";
 const SINGLE_VOLUME = 0.35;
 
 const ZERO_MIX: LayerMix = {
@@ -58,6 +58,7 @@ const ZERO_MIX: LayerMix = {
   birds: 0,
   insects: 0,
   water: 0,
+  waterfall: 0,
   foliage: 0,
 };
 
@@ -66,6 +67,7 @@ const ZERO_PAN: Record<AmbientLayer, number> = {
   birds: LAYER_PAN.birds,
   insects: LAYER_PAN.insects,
   water: LAYER_PAN.water,
+  waterfall: LAYER_PAN.waterfall,
   foliage: LAYER_PAN.foliage,
 };
 
@@ -95,8 +97,8 @@ function scrambleLoopOffset(el: HTMLAudioElement) {
 
 export type SoundButtonVariant = "glass" | "dark" | "light";
 
-const SINE_WAVE_CREAM = "/Icons/mdi-sine-wave.svg";
-const SINE_WAVE_FOREST = "/Icons/mdi-sine-wave-forest.svg";
+const SINE_WAVE_CREAM = "/icons/sine-wave.svg";
+const SINE_WAVE_FOREST = "/icons/sine-wave-forest.svg";
 
 const VARIANT_SHELL: Record<SoundButtonVariant, string> = {
   glass:
@@ -149,6 +151,7 @@ export function AmbientAudioProvider({
     birds: null,
     insects: null,
     water: null,
+    waterfall: null,
     foliage: null,
   });
   const currentMixRef = useRef<LayerMix>({ ...ZERO_MIX });

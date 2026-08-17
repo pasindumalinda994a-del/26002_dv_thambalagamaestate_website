@@ -36,7 +36,7 @@ export function HeroSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=100%",
+          end: "+=75%",
           pin: true,
           scrub: true,
           anticipatePin: 1,
@@ -47,7 +47,7 @@ export function HeroSection() {
       timeline.to(
         mediaWrapRef.current,
         {
-          scale: 0.6,
+          scale: 0.45,
           ease: "none",
           duration: 1,
         },

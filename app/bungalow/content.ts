@@ -7,7 +7,7 @@ export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
   scrollLabel: "scroll to explore",
   image: {
-    src: "/balgalowpageimages/0C8A9933.webp",
+    src: "/bungalow/hero.webp",
     alt: "Thambalagama Estate bungalow at dusk",
   } satisfies BungalowImage,
 } as const;
@@ -17,25 +17,25 @@ export const BUNGALOW_COMFORT = {
   body: "Architecture designed to dissolve the boundary between refined luxury and the untamed rainforest. Every space is engineered for absolute solitude, ensuring an uninterrupted connection with nature without ever compromising on modern comfort.",
   accents: [
     {
-      src: "/homepageimages/villa-gallery-bedroom.webp",
+      src: "/home/villa-gallery-01.webp",
       alt: "Master suite bedroom",
     },
     {
-      src: "/balgalowpageimages/DSC_0568.webp",
+      src: "/bungalow/quarters-01.webp",
       alt: "Twin beds with teal accents and wooden headboard",
     },
   ] as const satisfies readonly BungalowImage[],
   mosaic: [
     {
-      src: "/homepageimages/villa-gallery-living-room.webp",
+      src: "/home/villa-gallery-02.webp",
       alt: "Living space opening to the forest",
     },
     {
-      src: "/homepageimages/villa-gallery-dining-room.webp",
+      src: "/home/villa-gallery-03.webp",
       alt: "Dining area in the bungalow",
     },
     {
-      src: "/homepageimages/villa-gallery-indoor-outdoor.webp",
+      src: "/home/villa-gallery-04.webp",
       alt: "Indoor-outdoor living at the estate",
     },
   ] as const satisfies readonly BungalowImage[],
@@ -66,15 +66,15 @@ export const BUNGALOW_SPECS = {
   ] as const,
   mosaic: [
     {
-      src: "/homepageimages/villa-bg.webp",
+      src: "/home/villa-bg.webp",
       alt: "Estate bungalow exterior",
     },
     {
-      src: "/balgalowpageimages/0C8A9906.webp",
+      src: "/bungalow/specs-01.webp",
       alt: "Evening patio dining under string lights and wagon-wheel chandeliers",
     },
     {
-      src: "/balgalowpageimages/0C8A0018.webp",
+      src: "/bungalow/specs-02.webp",
       alt: "Ensuite bathroom with vessel sink, rainfall shower, and warm lighting",
     },
   ] as const satisfies readonly BungalowImage[],
@@ -88,7 +88,7 @@ export const BUNGALOW_SPECS = {
 export const BUNGALOW_POOL = {
   label: "Spring-fed natural pool",
   image: {
-    src: "/balgalowpageimages/0C8A0086.webp",
+    src: "/bungalow/pool.webp",
     alt: "Spring-fed natural pool with rock waterfall and mountain views",
   } satisfies BungalowImage,
 } as const;
@@ -97,35 +97,35 @@ export const BUNGALOW_QUARTERS = {
   headline: "private quarters",
   images: [
     {
-      src: "/balgalowpageimages/DSC_0568.webp",
+      src: "/bungalow/quarters-01.webp",
       alt: "Twin beds with teal accents and wooden headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0572.webp",
+      src: "/bungalow/quarters-02.webp",
       alt: "Twin beds with leaf-pattern bedding and tufted headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0577.webp",
+      src: "/bungalow/quarters-03.webp",
       alt: "Bedside detail with floating nightstand and warm lighting",
     },
     {
-      src: "/balgalowpageimages/DSC_0585.webp",
+      src: "/bungalow/quarters-04.webp",
       alt: "Twin beds with pink floral bedding",
     },
     {
-      src: "/balgalowpageimages/DSC_0593.webp",
+      src: "/bungalow/quarters-05.webp",
       alt: "Twin beds with sage green bedding and floral wall art",
     },
     {
-      src: "/balgalowpageimages/DSC_0596.webp",
+      src: "/bungalow/quarters-06.webp",
       alt: "Double bed suite with botanical bedding and wooden headboard",
     },
     {
-      src: "/balgalowpageimages/DSC_0599.webp",
+      src: "/bungalow/quarters-07.webp",
       alt: "Double bed with floral art and amber reading lamps",
     },
     {
-      src: "/balgalowpageimages/DSC_0611.webp",
+      src: "/bungalow/quarters-08.webp",
       alt: "Floral suite with tufted headboard and wall art",
     },
   ] as const satisfies readonly BungalowImage[],

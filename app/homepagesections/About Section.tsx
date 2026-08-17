@@ -29,8 +29,8 @@ export function AboutSection() {
         .timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top center",
-            end: "center center",
+            start: "top 70%",
+            end: "center 40%",
             scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
