@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLayoutEffect } from "react";
+import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { usePreloaderComplete } from "../components/SitePreloader";
 
 const VillaSection = dynamic(() =>
@@ -16,6 +18,12 @@ const ForestExperienceLocationStack = dynamic(() =>
 /** Below-fold home sections — separate client chunks from hero/header. */
 export function HomeBelowFold() {
   const ready = usePreloaderComplete();
+
+  useLayoutEffect(() => {
+    if (!ready) return;
+    refreshScrollTriggers();
+  }, [ready]);
+
   if (!ready) return null;
 
   return (

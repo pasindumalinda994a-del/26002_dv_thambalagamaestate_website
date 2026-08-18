@@ -94,8 +94,8 @@ export function BungalowHero() {
         </H1>
       </div>
 
-      <div className="absolute inset-x-0 bottom-20 z-10 flex justify-center md:inset-x-auto md:right-8 md:bottom-10 md:justify-end">
-        <ScrollDownHint direction="right" />
+      <div className="absolute inset-x-0 bottom-20 z-10 flex justify-center md:bottom-10">
+        <ScrollDownHint />
       </div>
     </section>
   );

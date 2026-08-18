@@ -2,7 +2,6 @@ import { Header } from "./components/Header";
 import { AboutSection } from "./homepagesections/About Section";
 import { HeroSection } from "./homepagesections/Hero Section";
 import { HomeBelowFold } from "./homepagesections/HomeBelowFold";
-import { HomepageAmbientDriver } from "./homepagesections/HomepageAmbientDriver";
 import { buildPageMetadata, SITE_DESCRIPTION } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
@@ -15,7 +14,6 @@ export default function Home() {
   return (
     <main className="flex min-h-full flex-1 flex-col">
       <Header />
-      <HomepageAmbientDriver />
       <HeroSection />
       <AboutSection />
       <HomeBelowFold />

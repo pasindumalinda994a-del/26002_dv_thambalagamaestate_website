@@ -20,7 +20,7 @@ const HEADLINE = (
 const FOCUS_ID = "static-4";
 
 const CELL_CLASS =
-  "relative min-w-0 cursor-pointer overflow-hidden border-0 bg-sage-muted/25 p-0 active:opacity-85";
+  "relative min-w-0 overflow-hidden bg-sage-muted/25";
 
 type CellAspect = "4/5" | "16/10";
 
@@ -105,19 +105,19 @@ function GalleryCell({
   aspect: CellAspect;
   sizes: string;
   priority?: boolean;
-  onSelect: (image: GalleryDisplayImage) => void;
+  onSelect: (item: GalleryDisplayImage) => void;
 }) {
   return (
     <button
       type="button"
       data-fade-in
+      aria-label={item.alt || "View gallery image"}
       onClick={() => onSelect(item)}
-      aria-label={`View ${item.alt || "gallery image"}`}
-      className={`${CELL_CLASS} ${ASPECT_CLASS[aspect]} ${span === 2 ? "col-span-2" : ""}`}
+      className={`${CELL_CLASS} ${ASPECT_CLASS[aspect]} ${span === 2 ? "col-span-2" : ""} cursor-pointer appearance-none border-0 p-0`}
     >
       <Image
         src={item.src}
-        alt={item.alt}
+        alt=""
         fill
         sizes={sizes}
         className="object-cover"
@@ -133,7 +133,7 @@ export function GalleryMobile({
   onSelect,
 }: {
   items: GalleryDisplayImage[];
-  onSelect: (image: GalleryDisplayImage) => void;
+  onSelect: (item: GalleryDisplayImage) => void;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const bgImageRef = useRef<HTMLDivElement>(null);

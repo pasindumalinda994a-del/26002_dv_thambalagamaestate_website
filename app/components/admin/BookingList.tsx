@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Booking } from "@/lib/bookings/types";
+import type { Booking, BookingStatus } from "@/lib/bookings/types";
 import { BookingCardList } from "./BookingCardList";
 import { BookingTable } from "./BookingTable";
+import type { PeriodKey } from "./booking-filters";
+import { PERIOD_ITEMS, statusPeriodHref } from "./constants";
 
 function matchesQuery(booking: Booking, query: string) {
   const q = query.trim().toLowerCase();
@@ -21,11 +24,13 @@ export function BookingList({
   today,
   emptyMessage = "No booking requests yet.",
   searchable = false,
+  filters,
 }: {
   bookings: Booking[];
   today: string;
   emptyMessage?: string;
   searchable?: boolean;
+  filters?: { status: BookingStatus; period: PeriodKey };
 }) {
   const [query, setQuery] = useState("");
 
@@ -42,6 +47,33 @@ export function BookingList({
 
   return (
     <div>
+      {filters ? (
+        <div
+          className="mb-4 flex flex-wrap gap-2"
+          role="navigation"
+          aria-label="Filter by period"
+        >
+          {PERIOD_ITEMS.map((item) => {
+            const isActive = filters.period === item.value;
+            return (
+              <Link
+                key={item.value}
+                href={statusPeriodHref(filters.status, item.value)}
+                aria-current={isActive ? "page" : undefined}
+                className={[
+                  "px-3 py-1.5 font-secondary text-[12px] font-medium transition-colors",
+                  isActive
+                    ? "bg-forest-green text-cream"
+                    : "border border-forest-green/20 text-forest-green hover:border-forest-green/45",
+                ].join(" ")}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
+
       {searchable && bookings.length > 0 ? (
         <label className="mb-4 block">
           <span className="sr-only">Search bookings</span>

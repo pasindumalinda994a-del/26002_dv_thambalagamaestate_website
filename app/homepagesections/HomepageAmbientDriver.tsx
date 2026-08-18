@@ -2,9 +2,11 @@
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePathname } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
 import {
   AMBIENT_SOUND_EVENT,
+  getAmbientSoundPreference,
   type AmbientSoundDetail,
 } from "@/lib/ambient-sound";
 import {
@@ -30,7 +32,8 @@ const ZONES = new Set<AmbientZone>([
 ]);
 
 const VISIBLE_FLOOR = 0.02;
-const LATER_ZONE_BIAS = 0.12;
+const FOCUS_FLOOR = 0.35;
+const FOCUS_SPAN = 0.65;
 
 function zoneFromElement(el: Element): AmbientZone | null {
   const zone = el.getAttribute("data-ambient-zone");
@@ -48,17 +51,21 @@ function visibleFraction(rect: DOMRect, viewportHeight: number) {
 
 function zoneWeights(nodes: NodeListOf<Element>): ZoneWeights {
   const viewportHeight = window.innerHeight;
+  const viewportCenter = viewportHeight / 2;
   const weights: ZoneWeights = {};
 
-  nodes.forEach((el, index) => {
+  nodes.forEach((el) => {
     const zone = zoneFromElement(el);
     if (!zone) return;
     const rect = el.getBoundingClientRect();
     const frac = visibleFraction(rect, viewportHeight);
     if (frac <= VISIBLE_FLOOR) return;
     const eased = smoothstep01((frac - VISIBLE_FLOOR) / (1 - VISIBLE_FLOOR));
-    const boosted = eased * (1 + index * LATER_ZONE_BIAS);
-    weights[zone] = Math.max(weights[zone] ?? 0, boosted);
+    const mid = (rect.top + rect.bottom) / 2;
+    const centerDist = Math.abs(mid - viewportCenter) / viewportHeight;
+    const focus = 1 - Math.max(0, Math.min(1, centerDist));
+    const weight = eased * (FOCUS_FLOOR + FOCUS_SPAN * focus);
+    weights[zone] = Math.max(weights[zone] ?? 0, weight);
   });
 
   return weights;
@@ -84,9 +91,15 @@ function velocityToBump(velocity: number) {
 }
 
 export function HomepageAmbientDriver() {
-  const [soundOn, setSoundOn] = useState(false);
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+  const [soundOn, setSoundOn] = useState(
+    () => getAmbientSoundPreference() === true,
+  );
 
   useLayoutEffect(() => {
+    if (getAmbientSoundPreference() === true) setSoundOn(true);
+
     const handleAmbientSound = (event: Event) => {
       const detail = (event as CustomEvent<AmbientSoundDetail>).detail;
       if (!detail) return;
@@ -100,7 +113,7 @@ export function HomepageAmbientDriver() {
   }, []);
 
   useLayoutEffect(() => {
-    if (!soundOn) {
+    if (!soundOn || !onHome) {
       resetHomepageMix();
       return;
     }
@@ -150,7 +163,7 @@ export function HomepageAmbientDriver() {
       trigger.kill();
       resetHomepageMix();
     };
-  }, [soundOn]);
+  }, [soundOn, onHome]);
 
   return null;
 }

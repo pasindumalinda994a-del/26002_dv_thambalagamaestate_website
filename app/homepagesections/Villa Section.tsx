@@ -283,7 +283,6 @@ export function VillaSection() {
           end={() => `+=${spacerRef.current?.offsetHeight ?? 0}`}
           refreshPriority={ST_PRIORITY.villa}
           enabled={armed}
-          compactOnMobile
           className="absolute inset-x-0 top-[18%] z-15 flex justify-center md:top-[22%]"
         />
 

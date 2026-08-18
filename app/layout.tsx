@@ -7,6 +7,7 @@ import { JsonLd } from "./components/JsonLd";
 import { PageTransitionProvider } from "./components/PageTransitionProvider";
 import { SitePreloader } from "./components/SitePreloader";
 import { SmoothScroll } from "./components/SmoothScroll";
+import { HomepageAmbientDriver } from "./homepagesections/HomepageAmbientDriver";
 import {
   DEFAULT_OG_IMAGE,
   FAVICON_LOGO_PATH,
@@ -91,6 +92,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-primary">
         <JsonLd data={buildSiteJsonLd()} />
         <AmbientAudioProvider>
+          <HomepageAmbientDriver />
           <BookingProvider>
             <SitePreloader>
               <SmoothScroll>
