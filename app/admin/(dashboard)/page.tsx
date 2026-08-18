@@ -1,8 +1,14 @@
+import { BookingActivityChart } from "@/app/components/admin/BookingActivityChart";
 import { BookingList } from "@/app/components/admin/BookingList";
+import { BookingOpsCard } from "@/app/components/admin/BookingOpsCard";
+import { buildActivitySeries } from "@/app/components/admin/booking-chart";
+import { countByStatus } from "@/app/components/admin/booking-counts";
 import {
-  countByStatus,
-  emptyMessageForStatus,
-} from "@/app/components/admin/booking-counts";
+  emptyMessageForList,
+  filterByPeriod,
+  resolvePeriod,
+  submittedOn,
+} from "@/app/components/admin/booking-filters";
 import {
   formatOpsDate,
   formatOpsSummary,
@@ -12,7 +18,6 @@ import {
 } from "@/app/components/admin/booking-ops";
 import { STATUS_LABELS } from "@/app/components/admin/constants";
 import { OpsStats } from "@/app/components/admin/DashboardStats";
-import { TodayBoard } from "@/app/components/admin/TodayBoard";
 import { listBookings } from "@/lib/bookings/repository";
 import {
   BOOKING_STATUSES,
@@ -20,17 +25,16 @@ import {
   type BookingStatus,
 } from "@/lib/bookings/types";
 
-type SearchParams = Promise<{ status?: string }>;
+type SearchParams = Promise<{ status?: string; period?: string }>;
 
-type DashboardView = "today" | "all" | BookingStatus;
+type DashboardView = "dashboard" | BookingStatus;
 
 function resolveView(value: string | undefined): DashboardView {
-  if (!value) return "today";
-  if (value === "all") return "all";
+  if (!value || value === "all" || value === "today") return "dashboard";
   if ((BOOKING_STATUSES as readonly string[]).includes(value)) {
     return value as BookingStatus;
   }
-  return "today";
+  return "dashboard";
 }
 
 export default async function AdminBookingsPage({
@@ -40,6 +44,7 @@ export default async function AdminBookingsPage({
 }) {
   const params = await searchParams;
   const view = resolveView(params.status);
+  const period = resolvePeriod(params.period);
   const today = todayISO();
   let allBookings: Booking[] = [];
   let loadError: string | null = null;
@@ -57,10 +62,7 @@ export default async function AdminBookingsPage({
   if (loadError) {
     return (
       <>
-        <DashboardHeader
-          title="Today"
-          subtitle={formatOpsDate(today)}
-        />
+        <DashboardHeader title="Dashboard" subtitle={formatOpsDate(today)} />
         <p
           className="border border-chestnut/30 bg-white px-6 py-8 text-center font-secondary text-sm text-chestnut"
           role="alert"
@@ -71,11 +73,16 @@ export default async function AdminBookingsPage({
     );
   }
 
-  if (view === "today") {
+  if (view === "dashboard") {
+    const todayRequests = allBookings.filter((booking) =>
+      submittedOn(booking, today),
+    );
+    const series = buildActivitySeries(allBookings, today);
+
     return (
       <>
         <DashboardHeader
-          title="Today"
+          title="Dashboard"
           subtitle={formatOpsDate(today)}
           summary={formatOpsSummary(partition, counts.new)}
         />
@@ -87,28 +94,69 @@ export default async function AdminBookingsPage({
             newCount={counts.new}
           />
         </div>
-        <TodayBoard partition={partition} today={today} />
+
+        <section className="mb-10">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 className="font-secondary text-[13px] font-semibold uppercase tracking-[0.12em] text-forest-green">
+              Booking requests
+            </h2>
+            <span className="font-secondary text-[12px] text-forest-green/50">
+              Last 30 days
+            </span>
+          </div>
+          <BookingActivityChart series={series} />
+        </section>
+
+        <section>
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 className="font-secondary text-[13px] font-semibold uppercase tracking-[0.12em] text-forest-green">
+              Today&apos;s booking requests
+            </h2>
+            <span className="font-secondary text-[12px] font-semibold tabular-nums text-forest-green/50">
+              {todayRequests.length}
+            </span>
+          </div>
+          {todayRequests.length === 0 ? (
+            <p className="border border-forest-green/10 bg-white px-4 py-5 font-secondary text-[13px] text-forest-green/50">
+              No booking requests today.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {todayRequests.map((booking) => (
+                <li key={booking.id}>
+                  <BookingOpsCard
+                    booking={booking}
+                    today={today}
+                    showBadge
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </>
     );
   }
 
   const status = view;
-  const bookings =
-    status === "all"
-      ? allBookings
-      : allBookings.filter((b) => b.status === status);
+  const bookings = filterByPeriod(
+    allBookings.filter((booking) => booking.status === status),
+    period,
+    today,
+  );
 
   return (
     <>
       <DashboardHeader
-        title={status === "all" ? "All bookings" : STATUS_LABELS[status]}
+        title={STATUS_LABELS[status]}
         subtitle="Stay requests submitted from the website."
       />
       <BookingList
         bookings={sortByStayDate(bookings, today)}
         today={today}
-        emptyMessage={emptyMessageForStatus(status)}
+        emptyMessage={emptyMessageForList(status, period)}
         searchable
+        filters={{ status, period }}
       />
     </>
   );

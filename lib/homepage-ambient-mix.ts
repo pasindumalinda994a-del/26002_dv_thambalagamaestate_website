@@ -41,39 +41,69 @@ export const AMBIENT_LAYER_SRCS: Record<AmbientLayer, string> = {
   foliage: "/audio/optimized/foliage.mp3",
 };
 
-export const AMBIENT_MASTER = 0.3;
+export const AMBIENT_MASTER = 0.38;
 export const AMBIENT_LERP_TAU = 3.4;
-export const FILTER_LERP_TAU = 2.8;
-export const WEIGHT_LERP_TAU = 1.75;
+export const FILTER_LERP_TAU = 1.8;
+export const WEIGHT_LERP_TAU = 1.05;
 export const VELOCITY_DECAY_TAU = 1.8;
 
-/** Stream and waterfall arrive slowly; foliage still reacts a little faster. */
+/** Stream and waterfall arrive a beat after birds; foliage tracks scroll. */
 export const LAYER_LERP_TAU: Record<AmbientLayer, number> = {
-  wind: 3.5,
-  birds: 3.3,
-  insects: 3.6,
-  water: 4.5,
-  waterfall: 6.0,
-  foliage: 2.0,
+  wind: 2.2,
+  birds: 1.8,
+  insects: 2.4,
+  water: 2.8,
+  waterfall: 3.2,
+  foliage: 1.4,
+};
+
+export const LAYER_TRIM: Record<AmbientLayer, number> = {
+  wind: 0.55,
+  birds: 1.15,
+  insects: 0.7,
+  water: 0.9,
+  waterfall: 1.05,
+  foliage: 0.85,
 };
 
 export const LAYER_PAN: Record<AmbientLayer, number> = {
-  wind: -0.14,
+  wind: -0.22,
   birds: 0,
   insects: 0.1,
-  water: 0.22,
-  waterfall: -0.12,
-  foliage: 0.18,
+  water: 0.32,
+  waterfall: -0.22,
+  foliage: 0.28,
 };
 
-export const BIRD_PAN_LFO_HZ = 0.032;
-export const BIRD_PAN_LFO_AMP = 0.34;
+export const LAYER_HIGHPASS_HZ: Record<AmbientLayer, number> = {
+  wind: 100,
+  birds: 400,
+  insects: 2000,
+  water: 150,
+  waterfall: 80,
+  foliage: 200,
+};
+
+export const LAYER_LOWPASS_FLOOR_HZ: Record<AmbientLayer, number> = {
+  wind: 4000,
+  birds: 9000,
+  insects: 7000,
+  water: 3000,
+  waterfall: 2500,
+  foliage: 5000,
+};
+
+export const BIRD_PAN_LFO_HZ = 0.018;
+export const BIRD_PAN_LFO_AMP = 0.14;
+export const INSECT_PAN_LFO_HZ = 0.021;
+export const INSECT_PAN_LFO_AMP = 0.08;
+export const INSECT_PAN_LFO_PHASE = 1.7;
 
 const EXPERIENCE_SCROLL_TO_CLOSE = 0.72;
 const EXPERIENCE_HOVER_TO_CLOSE = 0.4;
 const VILLA_WATER_START = 0.5;
 const VILLA_WATER_RAMP = 0.22;
-const VILLA_WATER_AMOUNT = 0.16;
+const VILLA_WATER_AMOUNT = 0.22;
 
 const ZERO_MIX: LayerMix = {
   wind: 0,
@@ -86,82 +116,89 @@ const ZERO_MIX: LayerMix = {
 
 const MIX: Record<Exclude<AmbientZone, "forest">, LayerMix> = {
   hero: {
-    wind: 0.78,
-    birds: 0.38,
+    wind: 0.4,
+    birds: 0.62,
+    insects: 0.12,
+    water: 0,
+    waterfall: 0,
+    foliage: 0.28,
+  },
+  about: {
+    wind: 0.28,
+    birds: 0.7,
+    insects: 0.32,
+    water: 0,
+    waterfall: 0,
+    foliage: 0.38,
+  },
+  villa: {
+    wind: 0.18,
+    birds: 0.4,
     insects: 0.16,
     water: 0,
     waterfall: 0,
-    foliage: 0.2,
-  },
-  about: {
-    wind: 0.4,
-    birds: 0.36,
-    insects: 0.26,
-    water: 0,
-    waterfall: 0,
-    foliage: 0.22,
-  },
-  villa: {
-    wind: 0.32,
-    birds: 0.28,
-    insects: 0.22,
-    water: 0,
-    waterfall: 0,
-    foliage: 0.16,
+    foliage: 0.14,
   },
   experience: {
-    wind: 0.38,
-    birds: 0.36,
-    insects: 0.3,
-    water: 0.28,
-    waterfall: 0.22,
-    foliage: 0.24,
+    wind: 0.22,
+    birds: 0.45,
+    insects: 0.28,
+    water: 0.32,
+    waterfall: 0.38,
+    foliage: 0.28,
   },
   locationCta: {
-    wind: 0.28,
-    birds: 0.18,
-    insects: 0.14,
-    water: 0.06,
+    wind: 0.2,
+    birds: 0.22,
+    insects: 0.1,
+    water: 0.04,
     waterfall: 0,
-    foliage: 0.12,
+    foliage: 0.08,
   },
-  footer: ZERO_MIX,
+  footer: {
+    wind: 0.08,
+    birds: 0.04,
+    insects: 0.05,
+    water: 0,
+    waterfall: 0,
+    foliage: 0,
+  },
 };
 
 const FOREST_MIX = {
   estate: {
-    wind: 0.4,
-    birds: 0.52,
-    insects: 0.4,
-    water: 0.52,
-    waterfall: 0.04,
-    foliage: 0.36,
+    wind: 0.22,
+    birds: 0.72,
+    insects: 0.48,
+    water: 0.38,
+    waterfall: 0.08,
+    foliage: 0.52,
   },
   waterfalls: {
-    wind: 0.32,
-    birds: 0.28,
-    insects: 0.22,
-    water: 0.24,
-    waterfall: 0.72,
-    foliage: 0.2,
+    wind: 0.14,
+    birds: 0.22,
+    insects: 0.12,
+    water: 0.28,
+    waterfall: 0.88,
+    foliage: 0.18,
   },
   trails: {
-    wind: 0.46,
-    birds: 0.5,
-    insects: 0.44,
-    water: 0.22,
-    waterfall: 0.12,
-    foliage: 0.4,
+    wind: 0.32,
+    birds: 0.68,
+    insects: 0.5,
+    water: 0.16,
+    waterfall: 0.1,
+    foliage: 0.48,
   },
 } as const satisfies Record<string, LayerMix>;
 
 const LOWPASS_HZ: Record<Exclude<AmbientZone, "forest">, number> = {
-  hero: 8200,
-  about: 7800,
-  villa: 6200,
-  experience: 10000,
-  locationCta: 5200,
-  footer: 1400,
+  hero: 12000,
+  about: 10000,
+  villa: 5500,
+  experience: 11000,
+  locationCta: 4500,
+  footer: 1800,
 };
 
 const FOREST_LOWPASS = {
@@ -172,18 +209,18 @@ const FOREST_LOWPASS = {
 
 const FOREST_HOLD = {
   estateEnd: 0.12,
-  waterfallStart: 0.42,
-  waterfallEnd: 0.58,
+  waterfallStart: 0.38,
+  waterfallEnd: 0.64,
   trailsStart: 0.88,
 } as const;
 
 const EXPERIENCE_CLOSE: LayerMix = {
-  wind: 0.3,
-  birds: 0.26,
+  wind: 0.18,
+  birds: 0.28,
   insects: 0.2,
-  water: 0.2,
-  waterfall: 0.55,
-  foliage: 0.18,
+  water: 0.4,
+  waterfall: 0.7,
+  foliage: 0.22,
 };
 
 type MixState = {
@@ -387,13 +424,21 @@ export function getLayerTargets(): LayerMix {
   return mix;
 }
 
-export function getToneTargets(): { lowpass: number } {
+export function getToneTargets(): {
+  lowpass: number;
+  layerLowpass: Record<AmbientLayer, number>;
+} {
   const weights = normalizedWeights();
   let logSum = 0;
   for (const [zone, weight] of weights) {
     logSum += Math.log(Math.max(200, lowpassForZone(zone))) * weight;
   }
-  return { lowpass: Math.exp(logSum) };
+  const lowpass = Math.exp(logSum);
+  const layerLowpass = {} as Record<AmbientLayer, number>;
+  for (const layer of AMBIENT_LAYERS) {
+    layerLowpass[layer] = Math.max(LAYER_LOWPASS_FLOOR_HZ[layer], lowpass);
+  }
+  return { lowpass, layerLowpass };
 }
 
 export function setZoneWeights(weights: ZoneWeights) {

@@ -23,8 +23,13 @@ import {
   BIRD_PAN_LFO_AMP,
   BIRD_PAN_LFO_HZ,
   FILTER_LERP_TAU,
+  INSECT_PAN_LFO_AMP,
+  INSECT_PAN_LFO_HZ,
+  INSECT_PAN_LFO_PHASE,
+  LAYER_HIGHPASS_HZ,
   LAYER_LERP_TAU,
   LAYER_PAN,
+  LAYER_TRIM,
   decayVelocityBump,
   getLayerTargets,
   getToneTargets,
@@ -64,6 +69,7 @@ const SILENCE_FLOOR = 0.02;
 const FADE_SECONDS = 0.45;
 
 type LayerChain = {
+  highpass: BiquadFilterNode;
   filter: BiquadFilterNode;
   pan: StereoPannerNode;
   gain: GainNode;
@@ -82,10 +88,6 @@ function AudioContextCtor(): typeof AudioContext | undefined {
     webkitAudioContext?: typeof AudioContext;
   };
   return w.AudioContext ?? w.webkitAudioContext;
-}
-
-function clamp01(value: number) {
-  return Math.max(0, Math.min(1, value));
 }
 
 function scrambleLoopOffset(el: HTMLAudioElement) {
@@ -145,7 +147,14 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
     foliage: null,
   });
   const currentMixRef = useRef<LayerMix>({ ...ZERO_MIX });
-  const currentFilterRef = useRef(12000);
+  const currentLayerFilterRef = useRef<Record<AmbientLayer, number>>({
+    wind: 12000,
+    birds: 12000,
+    insects: 12000,
+    water: 12000,
+    waterfall: 12000,
+    foliage: 12000,
+  });
   const currentPanRef = useRef<Record<AmbientLayer, number>>({ ...ZERO_PAN });
   const isPlayingRef = useRef(false);
   const playRef = useRef<(fadeIn?: boolean) => void>(() => {});
@@ -172,13 +181,14 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
     const applyLayerVolumes = () => {
       const mix = currentMixRef.current;
       for (const layer of AMBIENT_LAYERS) {
+        const level = Math.max(0, mix[layer] * LAYER_TRIM[layer]);
         const chain = graph.chains[layer];
         if (chain) {
-          chain.gain.gain.value = clamp01(mix[layer]);
+          chain.gain.gain.value = level;
           continue;
         }
         const el = layerEl(layer);
-        if (el) el.volume = clamp01(mix[layer] * AMBIENT_MASTER);
+        if (el) el.volume = Math.min(1, level * AMBIENT_MASTER);
       }
     };
 
@@ -186,8 +196,9 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
       if (!graph.ctx) return;
       for (const layer of AMBIENT_LAYERS) {
         const chain = graph.chains[layer];
-        if (!chain) continue;
-        chain.filter.frequency.value = currentFilterRef.current;
+        if (!chain?.highpass || !chain.filter) continue;
+        chain.highpass.frequency.value = LAYER_HIGHPASS_HZ[layer];
+        chain.filter.frequency.value = currentLayerFilterRef.current[layer];
         chain.pan.pan.value = currentPanRef.current[layer];
       }
     };
@@ -226,19 +237,24 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
             el.volume = 1;
             const source = ctx.createMediaElementSource(el);
             graph.hooked.add(el);
+            const highpass = ctx.createBiquadFilter();
+            highpass.type = "highpass";
+            highpass.frequency.value = LAYER_HIGHPASS_HZ[layer];
+            highpass.Q.value = 0.7;
             const filter = ctx.createBiquadFilter();
             filter.type = "lowpass";
-            filter.frequency.value = currentFilterRef.current;
+            filter.frequency.value = currentLayerFilterRef.current[layer];
             filter.Q.value = 0.65;
             const pan = ctx.createStereoPanner();
             pan.pan.value = LAYER_PAN[layer];
             const gain = ctx.createGain();
             gain.gain.value = 0;
-            source.connect(filter);
+            source.connect(highpass);
+            highpass.connect(filter);
             filter.connect(pan);
             pan.connect(gain);
             gain.connect(master);
-            graph.chains[layer] = { filter, pan, gain };
+            graph.chains[layer] = { highpass, filter, pan, gain };
           } catch {
             /* already hooked on a previous mount */
           }
@@ -276,21 +292,36 @@ export function AmbientAudioProvider({ children }: { children: ReactNode }) {
       }
 
       const tone = getToneTargets();
-      currentFilterRef.current = lerpToward(
-        currentFilterRef.current,
-        tone.lowpass,
-        dt,
-        FILTER_LERP_TAU,
-      );
+      for (const layer of AMBIENT_LAYERS) {
+        currentLayerFilterRef.current[layer] = lerpToward(
+          currentLayerFilterRef.current[layer],
+          tone.layerLowpass[layer],
+          dt,
+          FILTER_LERP_TAU,
+        );
+      }
 
       const birdLfo =
         Math.sin(time * Math.PI * 2 * BIRD_PAN_LFO_HZ) * BIRD_PAN_LFO_AMP;
+      const insectLfo =
+        Math.sin(
+          time * Math.PI * 2 * INSECT_PAN_LFO_HZ + INSECT_PAN_LFO_PHASE,
+        ) * INSECT_PAN_LFO_AMP;
       for (const layer of AMBIENT_LAYERS) {
         const base = LAYER_PAN[layer];
-        currentPanRef.current[layer] =
-          layer === "birds"
-            ? Math.max(-1, Math.min(1, base + birdLfo))
-            : base;
+        if (layer === "birds") {
+          currentPanRef.current[layer] = Math.max(
+            -1,
+            Math.min(1, base + birdLfo),
+          );
+        } else if (layer === "insects") {
+          currentPanRef.current[layer] = Math.max(
+            -1,
+            Math.min(1, base + insectLfo),
+          );
+        } else {
+          currentPanRef.current[layer] = base;
+        }
       }
 
       for (const layer of DEFERRED_LAYERS) {

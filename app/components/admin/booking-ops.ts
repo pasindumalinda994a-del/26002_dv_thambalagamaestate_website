@@ -25,19 +25,24 @@ function toISODate(year: number, month: number, day: number) {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
-/** Today's calendar date in the estate timezone as YYYY-MM-DD. */
-export function todayISO(timeZone = ESTATE_TIMEZONE): string {
+/** Calendar date in the estate timezone as YYYY-MM-DD. */
+export function dateToISO(date: Date, timeZone = ESTATE_TIMEZONE): string {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).formatToParts(new Date());
+  }).formatToParts(date);
 
   const year = Number(parts.find((p) => p.type === "year")?.value);
   const month = Number(parts.find((p) => p.type === "month")?.value);
   const day = Number(parts.find((p) => p.type === "day")?.value);
   return toISODate(year, month, day);
+}
+
+/** Today's calendar date in the estate timezone as YYYY-MM-DD. */
+export function todayISO(timeZone = ESTATE_TIMEZONE): string {
+  return dateToISO(new Date(), timeZone);
 }
 
 export function addDaysISO(iso: string, days: number): string {

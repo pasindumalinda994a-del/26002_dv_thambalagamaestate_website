@@ -36,12 +36,11 @@ function resolveActiveNav(
   statusParam: string | null,
 ): AdminNavKey | null {
   if (pathname !== "/admin") return null;
-  if (!statusParam) return "today";
-  if (statusParam === "all") return "all";
+  if (!statusParam || statusParam === "all") return "dashboard";
   if ((BOOKING_STATUSES as readonly string[]).includes(statusParam)) {
     return statusParam as BookingStatus;
   }
-  return "today";
+  return "dashboard";
 }
 
 type AdminSidebarProps = {

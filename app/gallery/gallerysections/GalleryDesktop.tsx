@@ -6,6 +6,10 @@ import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
 import { refreshScrollTriggers } from "@/lib/scroll-refresh";
 import { H1 } from "../../components/H1";
+import {
+  HoverHeadingReveal,
+  type HoverHeadingRevealHandle,
+} from "../../components/HoverHeadingReveal";
 import { ScrollDownHint } from "../../components/ScrollDownHint";
 import type { GalleryDisplayImage } from "@/lib/gallery/types";
 
@@ -65,6 +69,66 @@ function mapRange(
   return Math.min(outMin, Math.max(outMax, mapped));
 }
 
+function GalleryDesktopCell({
+  item,
+  flex,
+  isFocus,
+  priority,
+  onSelect,
+}: {
+  item: GalleryDisplayImage;
+  flex: number;
+  isFocus: boolean;
+  priority: boolean;
+  onSelect: (item: GalleryDisplayImage) => void;
+}) {
+  const headingRef = useRef<HoverHeadingRevealHandle>(null);
+
+  return (
+    <button
+      type="button"
+      data-gallery-cell
+      style={{ flex }}
+      aria-label={item.alt || "View gallery image"}
+      onClick={() => onSelect(item)}
+      onMouseEnter={() => headingRef.current?.play()}
+      onMouseLeave={() => headingRef.current?.hide()}
+      className="group relative aspect-video min-w-0 cursor-pointer appearance-none overflow-hidden border-0 bg-sage-muted/25 p-0"
+    >
+      <Image
+        data-gallery-img
+        src={item.src}
+        alt=""
+        fill
+        sizes="40vw"
+        className="object-cover"
+        priority={priority}
+        unoptimized={item.src.startsWith("/api/")}
+      />
+      {isFocus ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-1 bg-black/29"
+        />
+      ) : null}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-2 bg-[linear-gradient(to_top,rgba(8,10,12,0.72)_0%,rgba(8,10,12,0.45)_40%,rgba(8,10,12,0.32)_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:duration-0"
+      />
+      <div className="pointer-events-none absolute inset-0 z-3 flex items-center justify-center px-3">
+        <HoverHeadingReveal
+          ref={headingRef}
+          as="h2"
+          aria-hidden
+          className="max-w-[96%] text-center font-space-grotesk text-[clamp(10px,0.95vw,13px)] font-medium uppercase leading-[130%] tracking-[0.2px] text-cream"
+        >
+          CLICK TO VIEW
+        </HoverHeadingReveal>
+      </div>
+    </button>
+  );
+}
+
 function GalleryGrid({
   items,
   priorityCount = 0,
@@ -72,7 +136,7 @@ function GalleryGrid({
 }: {
   items: GalleryDisplayImage[];
   priorityCount?: number;
-  onSelect: (image: GalleryDisplayImage) => void;
+  onSelect: (item: GalleryDisplayImage) => void;
 }) {
   const rows = chunkRows(items);
   let cellIndex = 0;
@@ -95,32 +159,14 @@ function GalleryGrid({
               const isFocus = rowIndex === 1 && colIndex === 1;
 
               return (
-                <button
+                <GalleryDesktopCell
                   key={item.id}
-                  type="button"
-                  data-gallery-cell
-                  style={{ flex }}
-                  onClick={() => onSelect(item)}
-                  aria-label={`View ${item.alt || "gallery image"}`}
-                  className="relative aspect-video min-w-0 cursor-pointer overflow-hidden border-0 bg-sage-muted/25 p-0"
-                >
-                  <Image
-                    data-gallery-img
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    sizes="40vw"
-                    className="object-cover"
-                    priority={index < priorityCount}
-                    unoptimized={item.src.startsWith("/api/")}
-                  />
-                  {isFocus ? (
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 z-1 bg-black/29"
-                    />
-                  ) : null}
-                </button>
+                  item={item}
+                  flex={flex}
+                  isFocus={isFocus}
+                  priority={index < priorityCount}
+                  onSelect={onSelect}
+                />
               );
             })}
           </div>
@@ -135,7 +181,7 @@ export function GalleryDesktop({
   onSelect,
 }: {
   items: GalleryDisplayImage[];
-  onSelect: (image: GalleryDisplayImage) => void;
+  onSelect: (item: GalleryDisplayImage) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -170,9 +216,12 @@ export function GalleryDesktop({
       gsap.set(rows, { x: 0 });
       gsap.set(overlay, { opacity: 1 });
       gsap.set(scrollHint, { opacity: 1 });
+      spotlight.style.pointerEvents = "auto";
       track.style.height = "auto";
       return;
     }
+
+    spotlight.style.pointerEvents = "none";
 
     let metrics = {
       gridHeight: 0,
@@ -277,6 +326,8 @@ export function GalleryDesktop({
           const zoomEnd = zoomRunway / total;
           const p = self.progress;
 
+          spotlight.style.pointerEvents = p >= zoomEnd ? "auto" : "none";
+
           if (p <= zoomEnd) {
             const zoomT = zoomEnd === 0 ? 1 : p / zoomEnd;
             // Scale only — hold x/y so the focus image stays centered the whole way.
@@ -347,11 +398,7 @@ export function GalleryDesktop({
       <div ref={trackRef} className="relative w-full">
         <div className="sticky top-0 h-dvh overflow-hidden">
           <div ref={spotlightRef} className="w-full will-change-transform">
-            <GalleryGrid
-              items={items}
-              priorityCount={6}
-              onSelect={onSelect}
-            />
+            <GalleryGrid items={items} priorityCount={6} onSelect={onSelect} />
           </div>
 
           <div
