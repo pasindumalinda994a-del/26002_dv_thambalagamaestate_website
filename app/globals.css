@@ -48,28 +48,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-primary);
 }
-
-@keyframes bungalow-marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.bungalow-marquee-track {
-  animation: bungalow-marquee 45s linear infinite;
-  will-change: transform;
-}
-
-.bungalow-marquee:hover .bungalow-marquee-track,
-.bungalow-marquee:focus-within .bungalow-marquee-track {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bungalow-marquee-track {
-    animation: none;
-  }
-}
