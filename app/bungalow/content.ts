@@ -26,15 +26,15 @@ export const BUNGALOW_COMFORT = {
   ] as const satisfies readonly BungalowImage[],
   mosaic: [
     {
-      src: "/home/villa-gallery-02.webp",
+      src: "/home/villa-gallery-03.webp",
       alt: "Living space opening to the forest",
     },
     {
-      src: "/home/villa-gallery-03.webp",
+      src: "/home/villa-gallery-04.webp",
       alt: "Dining area in the bungalow",
     },
     {
-      src: "/home/villa-gallery-04.webp",
+      src: "/home/villa-gallery-05.webp",
       alt: "Indoor-outdoor living at the estate",
     },
   ] as const satisfies readonly BungalowImage[],

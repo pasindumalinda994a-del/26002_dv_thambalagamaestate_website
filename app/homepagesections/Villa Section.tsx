@@ -24,19 +24,29 @@ const VILLA_FEATURES = [
 
 const VILLA_GALLERY_IMAGES = [
   {
-    src: "/home/villa-gallery-01.webp",
-    alt: "Villa bedroom",
+    src: "/home/0C8A9859.JPG",
+    alt: "Villa bedroom with balcony and mountain views",
   },
   {
-    src: "/bungalow/quarters-01.webp",
-    alt: "Villa bedroom",
+    src: "/home/0C8A9902.JPG",
+    alt: "Villa bedroom with twin beds",
   },
   {
-    src: "/home/villa-gallery-02.webp",
-    alt: "Villa living room",
+    src: "/home/0C8A0117.JPG",
+    alt: "Villa living room with forest views",
   },
-  { src: "/home/villa-gallery-03.webp", alt: "Villa dining room" },
-  { src: "/home/villa-gallery-04.webp", alt: "Villa indoor-outdoor living" },
+  {
+    src: "/home/0C8A0121.JPG",
+    alt: "Villa dining room with forest views",
+  },
+  {
+    src: "/home/0C8A9920.JPG",
+    alt: "Villa dining and living area opening to the forest balcony",
+  },
+  {
+    src: "/home/0C8A0018.JPG",
+    alt: "Villa outdoor dining patio at night with fairy lights",
+  },
 ] as const;
 
 function VillaBackground({

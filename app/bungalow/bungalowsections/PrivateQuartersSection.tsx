@@ -51,16 +51,17 @@ export function PrivateQuartersSection() {
     ).matches;
 
     const proxy = document.createElement("div");
+    const setTrackX = gsap.quickSetter(track, "x", "px");
     let loopWidth = 0;
     let paused = false;
+
+    gsap.set(track, { force3D: true });
 
     const getProxyX = () => Number(gsap.getProperty(proxy, "x")) || 0;
 
     const applyWrap = () => {
       if (!loopWidth) return;
-      gsap.set(track, {
-        x: gsap.utils.wrap(-loopWidth, 0, getProxyX()),
-      });
+      setTrackX(gsap.utils.wrap(-loopWidth, 0, getProxyX()));
     };
 
     const measure = () => {
@@ -90,8 +91,8 @@ export function PrivateQuartersSection() {
       inertia: true,
       cursor: "grab",
       activeCursor: "grabbing",
-      lockAxis: true,
-      allowNativeTouchScrolling: true,
+      allowNativeTouchScrolling: false,
+      minimumMovement: 0,
       zIndexBoost: false,
       onPress() {
         paused = true;
@@ -131,9 +132,9 @@ export function PrivateQuartersSection() {
 
       <div
         ref={viewportRef}
-        className="relative -mx-5 w-[calc(100%+2.5rem)] cursor-grab overflow-hidden touch-pan-y select-none active:cursor-grabbing md:-mx-8 md:w-[calc(100%+4rem)]"
+        className="relative -mx-5 w-[calc(100%+2.5rem)] cursor-grab overflow-hidden touch-none select-none active:cursor-grabbing md:-mx-8 md:w-[calc(100%+4rem)]"
       >
-        <div ref={trackRef} className="flex w-max gap-3 will-change-transform">
+        <div ref={trackRef} className="flex w-max gap-3">
           <MarqueeSet />
           <MarqueeSet ariaHidden />
         </div>
