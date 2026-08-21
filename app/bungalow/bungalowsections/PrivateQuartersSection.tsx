@@ -1,8 +1,14 @@
 "use client";
 
+import gsap from "gsap";
+import { Draggable } from "gsap/Draggable";
+import { InertiaPlugin } from "gsap/InertiaPlugin";
 import Image from "next/image";
+import { useLayoutEffect, useRef } from "react";
 import { H2 } from "../../components/H2";
 import { BUNGALOW_QUARTERS } from "../content";
+
+const LOOP_DURATION_SEC = 45;
 
 function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
   return (
@@ -20,7 +26,8 @@ function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
             alt={ariaHidden ? "" : image.alt}
             fill
             sizes="(max-width: 768px) 82vw, 468px"
-            className="object-cover"
+            draggable={false}
+            className="pointer-events-none select-none object-cover"
           />
         </div>
       ))}
@@ -29,6 +36,90 @@ function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
 }
 
 export function PrivateQuartersSection() {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!viewport || !track) return;
+
+    gsap.registerPlugin(Draggable, InertiaPlugin);
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const proxy = document.createElement("div");
+    let loopWidth = 0;
+    let paused = false;
+
+    const getProxyX = () => Number(gsap.getProperty(proxy, "x")) || 0;
+
+    const applyWrap = () => {
+      if (!loopWidth) return;
+      gsap.set(track, {
+        x: gsap.utils.wrap(-loopWidth, 0, getProxyX()),
+      });
+    };
+
+    const measure = () => {
+      const first = track.children[0] as HTMLElement | undefined;
+      const second = track.children[1] as HTMLElement | undefined;
+      if (!first || !second) return;
+      loopWidth = second.offsetLeft - first.offsetLeft;
+      applyWrap();
+    };
+
+    measure();
+
+    const tick = () => {
+      if (paused || reduceMotion || !loopWidth) return;
+      const pixelsPerSecond = loopWidth / LOOP_DURATION_SEC;
+      gsap.set(proxy, {
+        x: getProxyX() - (pixelsPerSecond / 60) * gsap.ticker.deltaRatio(60),
+      });
+      applyWrap();
+    };
+
+    gsap.ticker.add(tick);
+
+    const [draggable] = Draggable.create(proxy, {
+      trigger: viewport,
+      type: "x",
+      inertia: true,
+      cursor: "grab",
+      activeCursor: "grabbing",
+      lockAxis: true,
+      allowNativeTouchScrolling: true,
+      zIndexBoost: false,
+      onPress() {
+        paused = true;
+        gsap.killTweensOf(proxy);
+      },
+      onDrag: applyWrap,
+      onThrowUpdate: applyWrap,
+      onThrowComplete() {
+        paused = false;
+      },
+      onRelease() {
+        if (!this.tween) paused = false;
+      },
+    });
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    observer.observe(track);
+
+    return () => {
+      gsap.ticker.remove(tick);
+      observer.disconnect();
+      draggable.kill();
+      gsap.killTweensOf(proxy);
+      gsap.set(track, { x: 0 });
+    };
+  }, []);
+
   return (
     <section
       aria-label="Private quarters"
@@ -38,8 +129,11 @@ export function PrivateQuartersSection() {
         {BUNGALOW_QUARTERS.headline}
       </H2>
 
-      <div className="bungalow-marquee relative -mx-5 w-[calc(100%+2.5rem)] overflow-hidden md:-mx-8 md:w-[calc(100%+4rem)]">
-        <div className="bungalow-marquee-track flex w-max gap-3">
+      <div
+        ref={viewportRef}
+        className="relative -mx-5 w-[calc(100%+2.5rem)] cursor-grab overflow-hidden touch-pan-y select-none active:cursor-grabbing md:-mx-8 md:w-[calc(100%+4rem)]"
+      >
+        <div ref={trackRef} className="flex w-max gap-3 will-change-transform">
           <MarqueeSet />
           <MarqueeSet ariaHidden />
         </div>
