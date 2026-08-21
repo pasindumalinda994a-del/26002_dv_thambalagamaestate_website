@@ -22,8 +22,8 @@ export const FAVICON_LOGO_PATH = "/logo/favicon.png";
 
 /** Estate coordinates (Sinharaja buffer zone) — matches LocationSection map. */
 export const ESTATE_GEO = {
-  latitude: 6.383,
-  longitude: 80.403,
+  latitude: 6.380333,
+  longitude: 80.396222,
 } as const;
 
 export function siteUrl(): string {

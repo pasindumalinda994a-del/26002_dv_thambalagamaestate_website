@@ -12,8 +12,8 @@ const LOGO_SRC = "/logo/primary.png";
 const LOGO_TAN = "#dda15e"; // --color-tan
 const MAP_STYLE = "mapbox://styles/mapbox/dark-v11";
 const MAP_STATIC_SRC = "/home/location-map.webp";
-const ESTATE_LNG = 80.403;
-const ESTATE_LAT = 6.383;
+const ESTATE_LNG = 80.396222;
+const ESTATE_LAT = 6.380333;
 const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${ESTATE_LAT},${ESTATE_LNG}`;
 const MAPBOX_WORKER_URL = "/mapbox-gl-csp-worker.js";
 const MOBILE_MQ = "(max-width: 767px)";
