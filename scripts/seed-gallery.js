@@ -1,6 +1,7 @@
 /**
- * Idempotent seed: inserts gallery images 10–14 from public/others/
- * into MongoDB. Skips files that already exist (matched by filename).
+ * Idempotent seed: upserts leftover gallery WebPs from public/others/
+ * into MongoDB. Matched by filename — inserts new docs or refreshes
+ * binary + alt on existing ones.
  *
  * Usage: npm run seed:gallery
  */
@@ -36,29 +37,119 @@ loadEnvFile(path.join(__dirname, "..", ".env"));
 
 const SEED_IMAGES = [
   {
-    filename: "Villa Image 4.webp",
-    alt: "Villa terrace",
+    filename: "0C8A0033.webp",
+    alt: "Night pavilion with fairy lights, chandeliers, and a glowing moon wall",
     order: 0,
   },
   {
-    filename: "Forest Section Bg 3.webp",
-    alt: "Deep forest",
+    filename: "0C8A9867.webp",
+    alt: "Warmly lit guest bedroom with twin beds and tufted headboards",
     order: 1,
   },
   {
-    filename: "Experience Image 6.webp",
-    alt: "Forest experience",
+    filename: "0C8A9902.webp",
+    alt: "Sage-green twin bedroom with wooden headboards and tulip artwork",
     order: 2,
   },
   {
-    filename: "Start Experience BG.webp",
-    alt: "Morning on the estate",
+    filename: "0C8A9996.webp",
+    alt: "Dusk terrace overlooking the forest, with a circular chandelier and estate sign",
     order: 3,
   },
   {
-    filename: "Villa Image 2.webp",
-    alt: "Villa living space",
+    filename: "0C8A9920.webp",
+    alt: "Open-plan dining, living, and bar area looking out to the forest",
     order: 4,
+  },
+  {
+    filename: "0C8A9945.webp",
+    alt: "Terracotta guest bedroom with pendant lights and a forest balcony",
+    order: 5,
+  },
+  {
+    filename: "0C8A9948.webp",
+    alt: "Twin bedroom with terracotta quilts, pendant lights, and a hillside view",
+    order: 6,
+  },
+  {
+    filename: "0C8A0040.webp",
+    alt: "Daytime stone-clad villa exterior with palms and a retaining wall",
+    order: 7,
+  },
+  {
+    filename: "0C8A0065.webp",
+    alt: "Garden lawn with a wooden swing and white patio furniture",
+    order: 8,
+  },
+  {
+    filename: "0C8A0069.webp",
+    alt: "Afternoon tea and snacks on a rock overlooking the waterfall",
+    order: 9,
+  },
+  {
+    filename: "0C8A0072.webp",
+    alt: "Rectangular pool with lounge chairs, umbrellas, and the villa beyond",
+    order: 10,
+  },
+  {
+    filename: "0C8A0084.webp",
+    alt: "Infinity pool and rock waterfall with misty hills",
+    order: 11,
+  },
+  {
+    filename: "0C8A0088.webp",
+    alt: "Rock waterfall cascading into the dark pool",
+    order: 12,
+  },
+  {
+    filename: "0C8A9924.webp",
+    alt: "Twilight villa exterior with lit windows and a paved courtyard",
+    order: 13,
+  },
+  {
+    filename: "DSC_0456.webp",
+    alt: "Pool, waterfall, and lounge umbrellas against the forest",
+    order: 14,
+  },
+  {
+    filename: "DSC_0469.webp",
+    alt: "Wide pool and waterfall view toward misty mountains",
+    order: 15,
+  },
+  {
+    filename: "DSC_0477.webp",
+    alt: "Pavilion dining with the glowing moon wall and forest beyond",
+    order: 16,
+  },
+  {
+    filename: "DSC_0483.webp",
+    alt: "Infinity pool, waterfall, and hillside estate sign",
+    order: 17,
+  },
+  {
+    filename: "DSC_0642.webp",
+    alt: "Tea poured from a black teapot at an outdoor table",
+    order: 18,
+  },
+  {
+    filename: "DSC_0664_1.webp",
+    alt: "Poolside waterfall with lounge chairs and green umbrellas",
+    order: 19,
+  },
+  {
+    filename: "0C8A0159.webp",
+    alt: "Guests gathered by the rock waterfall and pool on the estate lawn",
+    order: 20,
+  },
+  {
+    filename: "0C8A0176.webp",
+    alt: "Family sitting on the wooden garden swing with citrus fruit",
+    order: 21,
+  },
+  {
+    filename: "0C8A0194.webp",
+    alt: "Guests seated on the stone ledge in front of the waterfall",
+    order: 22,
   },
 ];
 
@@ -84,16 +175,9 @@ async function main() {
     ]);
 
     let inserted = 0;
-    let skipped = 0;
+    let updated = 0;
 
     for (const item of SEED_IMAGES) {
-      const existing = await collection.findOne({ filename: item.filename });
-      if (existing) {
-        console.log(`skip  ${item.filename} (already seeded)`);
-        skipped += 1;
-        continue;
-      }
-
       const filePath = path.join(imagesDir, item.filename);
       if (!fs.existsSync(filePath)) {
         console.error(`missing file: ${filePath}`);
@@ -102,6 +186,25 @@ async function main() {
 
       const buffer = fs.readFileSync(filePath);
       const now = new Date();
+      const existing = await collection.findOne({ filename: item.filename });
+
+      if (existing) {
+        await collection.updateOne(
+          { _id: existing._id },
+          {
+            $set: {
+              alt: item.alt,
+              mimeType: "image/webp",
+              order: item.order,
+              data: new Binary(buffer),
+              updatedAt: now,
+            },
+          },
+        );
+        console.log(`update ${item.filename}`);
+        updated += 1;
+        continue;
+      }
 
       await collection.insertOne({
         alt: item.alt,
@@ -113,11 +216,19 @@ async function main() {
         updatedAt: now,
       });
 
-      console.log(`ok    ${item.filename}`);
+      console.log(`ok     ${item.filename}`);
       inserted += 1;
     }
 
-    console.log(`\nDone. inserted=${inserted} skipped=${skipped}`);
+    console.log(`\nDone. inserted=${inserted} updated=${updated}`);
+
+    const movedToStatic = ["0C8A9912.webp"];
+    for (const filename of movedToStatic) {
+      const result = await collection.deleteOne({ filename });
+      if (result.deletedCount) {
+        console.log(`removed ${filename} (now in first 9)`);
+      }
+    }
   } finally {
     await client.close();
   }

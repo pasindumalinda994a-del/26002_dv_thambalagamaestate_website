@@ -60,12 +60,12 @@ export const EXPERIENCES_DINING = {
       alt: "Private chef grilling skewers and corn over an outdoor barbecue",
     },
     {
-      src: "/home/villa-gallery-03.webp",
-      alt: "Dining area overlooking the rainforest",
+      src: "/experiences/dining-01.webp",
+      alt: "Chicken, sausages, shrimp skewers, and corn grilling over charcoal for a private chef dinner",
     },
     {
-      src: "/home/villa-gallery-04.webp",
-      alt: "Indoor-outdoor dining at the estate",
+      src: "/experiences/dining-02.webp",
+      alt: "Black teapot and teacup with golden tea and fresh tea leaves on stone, prepared for a private dining experience",
     },
   ] as const satisfies readonly ExperiencesImage[],
   features: [

@@ -375,7 +375,7 @@ export function GalleryManager({ images }: { images: GalleryManagerItem[] }) {
           <p className="border border-forest-green/15 bg-white px-6 py-10 text-center font-secondary text-sm text-forest-green/60">
             No dashboard images yet. Upload above, or run{" "}
             <code className="text-forest-green">npm run seed:gallery</code> to
-            load the original extras.
+            load the extra gallery photos.
           </p>
         ) : (
           <ul className="flex flex-col gap-3">

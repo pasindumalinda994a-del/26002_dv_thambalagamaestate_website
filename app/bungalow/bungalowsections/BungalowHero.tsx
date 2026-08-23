@@ -81,7 +81,7 @@ export function BungalowHero() {
             priority
             quality={75}
             sizes="100vw"
-            className="object-cover"
+            className="object-cover object-[80%_center] md:object-center"
             onLoad={() => refreshScrollTriggers()}
           />
         </div>
