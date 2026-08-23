@@ -233,12 +233,15 @@ export function GalleryMobile({
                 priority
                 quality={75}
                 sizes="100vw"
-                className="object-cover"
+                className="object-cover object-[70%_center]"
                 unoptimized={hero.src.startsWith("/api/")}
               />
             </div>
           ) : null}
-          <div aria-hidden className="absolute inset-0 bg-black/20" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-2 bg-[linear-gradient(to_top,rgba(8,10,12,0.72)_0%,rgba(8,10,12,0.45)_40%,rgba(8,10,12,0.32)_100%)]"
+          />
         </div>
 
         <div className="relative z-10 flex w-full min-w-0 flex-col items-center justify-center px-4 text-center">

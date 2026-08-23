@@ -8,7 +8,7 @@ export const PRELOADER_LOGO_SRC = "/logo/primary.png";
 export const BUNGALOW_HERO_SRC = "/bungalow/hero.webp";
 export const EXPERIENCES_HERO_SRC = "/forest/why-visit.webp";
 export const FOREST_HERO_SRC = "/forest/hero.webp";
-export const GALLERY_HERO_SRC = "/gallery/01.webp";
+export const GALLERY_HERO_SRC = "/gallery/main.webp";
 
 /** First-paint assets for the home preloader — not the whole page. */
 export const HOME_CRITICAL_ASSETS = [PRELOADER_LOGO_SRC] as const;

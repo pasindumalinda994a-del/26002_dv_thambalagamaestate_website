@@ -10,6 +10,14 @@ import { BUNGALOW_QUARTERS } from "../content";
 
 const LOOP_DURATION_SEC = 45;
 
+const ROOM_ROMAN: Record<number, string> = {
+  1: "I",
+  2: "II",
+  3: "III",
+  4: "IV",
+  5: "V",
+};
+
 function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
   return (
     <div
@@ -19,16 +27,26 @@ function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
       {BUNGALOW_QUARTERS.images.map((image) => (
         <div
           key={`${ariaHidden ? "dup-" : ""}${image.src}`}
-          className="relative aspect-[468/326] w-[min(82vw,468px)] shrink-0 overflow-hidden bg-[#A6A6A6] md:w-[min(85vw,468px)]"
+          className="flex w-[min(82vw,468px)] shrink-0 flex-col gap-2 md:w-[min(85vw,468px)] md:gap-3"
         >
-          <Image
-            src={image.src}
-            alt={ariaHidden ? "" : image.alt}
-            fill
-            sizes="(max-width: 768px) 82vw, 468px"
-            draggable={false}
-            className="pointer-events-none select-none object-cover"
-          />
+          <div className="relative aspect-468/326 overflow-hidden bg-[#A6A6A6]">
+            <Image
+              src={image.src}
+              alt={ariaHidden ? "" : image.alt}
+              fill
+              sizes="(max-width: 768px) 82vw, 468px"
+              draggable={false}
+              className="pointer-events-none select-none object-cover"
+            />
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="font-secondary text-xs font-medium uppercase leading-[150%] tracking-[0.2px] text-cream md:text-[13px]">
+              Room {ROOM_ROMAN[image.room]}
+            </p>
+            <p className="text-right font-secondary text-xs font-medium uppercase leading-[150%] tracking-[0.2px] text-cream md:text-[13px]">
+              {image.name}
+            </p>
+          </div>
         </div>
       ))}
     </div>

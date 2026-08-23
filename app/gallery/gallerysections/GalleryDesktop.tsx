@@ -72,13 +72,11 @@ function mapRange(
 function GalleryDesktopCell({
   item,
   flex,
-  isFocus,
   priority,
   onSelect,
 }: {
   item: GalleryDisplayImage;
   flex: number;
-  isFocus: boolean;
   priority: boolean;
   onSelect: (item: GalleryDisplayImage) => void;
 }) {
@@ -105,12 +103,6 @@ function GalleryDesktopCell({
         priority={priority}
         unoptimized={item.src.startsWith("/api/")}
       />
-      {isFocus ? (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-1 bg-black/29"
-        />
-      ) : null}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-2 bg-[linear-gradient(to_top,rgba(8,10,12,0.72)_0%,rgba(8,10,12,0.45)_40%,rgba(8,10,12,0.32)_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:duration-0"
@@ -155,15 +147,12 @@ function GalleryGrid({
             {rowItems.map((item, colIndex) => {
               const index = cellIndex++;
               const flex = pattern[colIndex] ?? 1;
-              // Matches scroll focus: 2nd row, 2nd cell.
-              const isFocus = rowIndex === 1 && colIndex === 1;
 
               return (
                 <GalleryDesktopCell
                   key={item.id}
                   item={item}
                   flex={flex}
-                  isFocus={isFocus}
                   priority={index < priorityCount}
                   onSelect={onSelect}
                 />
@@ -403,7 +392,7 @@ export function GalleryDesktop({
 
           <div
             ref={overlayRef}
-            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6 text-center"
+            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[linear-gradient(to_top,rgba(8,10,12,0.72)_0%,rgba(8,10,12,0.45)_40%,rgba(8,10,12,0.32)_100%)] px-6 text-center"
           >
             <H1
               ref={headlineRef}
