@@ -30,6 +30,12 @@ function toISODate(d: Date) {
 
 const MAX_GUESTS = 18;
 
+type BookingStep = 1 | 2 | 3;
+
+function isMobileBooking() {
+  return !window.matchMedia("(min-width: 768px)").matches;
+}
+
 const COUNTRY_CODES = [
   { code: "+94", flag: "🇱🇰", label: "Sri Lanka" },
   { code: "+1", flag: "🇺🇸", label: "United States" },
@@ -58,12 +64,19 @@ function formatShortDate(d: Date) {
 function SectionRow({
   title,
   children,
+  className,
+  current,
 }: {
   title: string;
   children: ReactNode;
+  className?: string;
+  current?: boolean;
 }) {
   return (
-    <section className="grid gap-6 border-t border-forest-green/15 py-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] md:gap-10">
+    <section
+      aria-current={current ? "step" : undefined}
+      className={`gap-6 py-8 md:grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] md:gap-10 md:border-t md:border-forest-green/15 ${className ?? ""}`}
+    >
       <h3 className="font-secondary text-[24px] font-semibold leading-tight text-deep-forest">
         {title}
       </h3>
@@ -198,8 +211,10 @@ export function BookingDrawer() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [step, setStep] = useState<BookingStep>(1);
   const [unavailableDateKeys, setUnavailableDateKeys] = useState<string[]>([]);
 
   const [range, setRange] = useState<DateRange>({ from: null, to: null });
@@ -247,6 +262,14 @@ export function BookingDrawer() {
 
   const canSubmit =
     Boolean(range.from && range.to) &&
+    fullName.trim().length > 0 &&
+    email.trim().length > 0 &&
+    whatsapp.length === 9 &&
+    guestTotal > 0 &&
+    guestTotal <= MAX_GUESTS;
+
+  const canAdvanceDate = Boolean(range.from && range.to);
+  const canAdvanceContact =
     fullName.trim().length > 0 &&
     email.trim().length > 0 &&
     whatsapp.length === 9 &&
@@ -364,6 +387,7 @@ export function BookingDrawer() {
     setSubmitError(null);
     setSubmitSuccess(false);
     setIsSubmitting(false);
+    setStep(1);
   };
 
   const dismiss = () => {
@@ -397,8 +421,27 @@ export function BookingDrawer() {
     setChildrenCount(Math.max(0, Math.min(max, next)));
   };
 
+  useEffect(() => {
+    bodyRef.current?.scrollTo(0, 0);
+  }, [step]);
+
+  const goBack = () => {
+    setOpenDropdown(null);
+    setStep((current) => (current === 1 ? 1 : ((current - 1) as BookingStep)));
+  };
+
+  const goNext = () => {
+    setOpenDropdown(null);
+    setStep((current) => (current === 3 ? 3 : ((current + 1) as BookingStep)));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isMobileBooking() && step < 3) {
+      if (step === 1 && canAdvanceDate) goNext();
+      if (step === 2 && canAdvanceContact) goNext();
+      return;
+    }
     if (!canSubmit || !range.from || !range.to || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -470,10 +513,14 @@ export function BookingDrawer() {
             </button>
 
             <form
+              noValidate
               onSubmit={handleSubmit}
               className="flex min-h-0 flex-1 flex-col"
             >
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pt-8 pb-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-10 md:pt-10">
+              <div
+                ref={bodyRef}
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pt-8 pb-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-10 md:pt-10"
+              >
                 <div className="min-w-0 pr-12 pb-2">
                   <h2
                     id={titleId}
@@ -487,7 +534,20 @@ export function BookingDrawer() {
                   </p>
                 </div>
 
-                <SectionRow title="Plan your stay.">
+                <div className="mt-6 md:hidden" aria-hidden>
+                  <div className="h-px bg-forest-green/15">
+                    <div
+                      className="h-px bg-forest-green transition-[width] duration-300 ease-out motion-reduce:transition-none"
+                      style={{ width: `${(step / 3) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <SectionRow
+                  title="Plan your stay."
+                  current={step === 1}
+                  className={step === 1 ? "grid" : "hidden md:grid"}
+                >
                   <div>
                     <FieldLabel>Dates</FieldLabel>
                     <div className="bg-cream/80">
@@ -500,7 +560,11 @@ export function BookingDrawer() {
                   </div>
                 </SectionRow>
 
-                <SectionRow title="Who is joining you?">
+                <SectionRow
+                  title="Who is joining you?"
+                  current={step === 2}
+                  className={step === 2 ? "grid" : "hidden md:grid"}
+                >
                   <div>
                     <FieldLabel>Guest Count</FieldLabel>
                     <p className="mb-4 font-secondary text-[16px] font-semibold text-[#7C7F78]">
@@ -525,7 +589,14 @@ export function BookingDrawer() {
                   </div>
                 </SectionRow>
 
-                <SectionRow title="How can we reach you?">
+                <SectionRow
+                  title="How can we reach you?"
+                  className={
+                    step === 2
+                      ? "grid border-t border-forest-green/15"
+                      : "hidden md:grid"
+                  }
+                >
                   <div>
                     <FieldLabel>Contact Details</FieldLabel>
                     <div className="flex flex-col gap-3">
@@ -611,7 +682,11 @@ export function BookingDrawer() {
                   </div>
                 </SectionRow>
 
-                <SectionRow title="Personalize your stay.">
+                <SectionRow
+                  title="Personalize your stay."
+                  current={step === 3}
+                  className={step === 3 ? "grid" : "hidden md:grid"}
+                >
                   <div className="flex flex-col gap-5">
                     <div>
                       <FieldLabel>Purpose of Stay</FieldLabel>
@@ -677,16 +752,52 @@ export function BookingDrawer() {
                     {statusText}
                   </p>
                 )}
-                <div className="flex sm:justify-end">
-                  <Button
-                    type="submit"
-                    variant="dark"
-                    size="medium"
-                    disabled={!canSubmit || isSubmitting}
-                    showArrow={!isSubmitting}
-                  >
-                    {isSubmitting ? "Sending…" : "Request to Book"}
-                  </Button>
+                <div className="flex items-center justify-end gap-3">
+                  {step > 1 ? (
+                    <button
+                      type="button"
+                      onClick={goBack}
+                      className="mr-auto font-secondary text-[12px] font-medium uppercase tracking-[0.12em] text-forest-green md:hidden"
+                    >
+                      Back
+                    </button>
+                  ) : null}
+                  <div className="hidden md:block">
+                    <Button
+                      type="submit"
+                      variant="dark"
+                      size="medium"
+                      disabled={!canSubmit || isSubmitting}
+                      showArrow={!isSubmitting}
+                    >
+                      {isSubmitting ? "Sending…" : "Request to Book"}
+                    </Button>
+                  </div>
+                  <div className="md:hidden">
+                    {step < 3 ? (
+                      <Button
+                        type="button"
+                        variant="dark"
+                        size="medium"
+                        disabled={
+                          step === 1 ? !canAdvanceDate : !canAdvanceContact
+                        }
+                        onClick={goNext}
+                      >
+                        Continue
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        variant="dark"
+                        size="medium"
+                        disabled={!canSubmit || isSubmitting}
+                        showArrow={!isSubmitting}
+                      >
+                        {isSubmitting ? "Sending…" : "Request to Book"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </form>
