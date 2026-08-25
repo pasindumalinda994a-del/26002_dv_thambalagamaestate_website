@@ -22,7 +22,7 @@ export const BUNGALOW_COMFORT = {
   accents: [
     {
       src: "/bungalow/comfort-01.webp",
-      alt: "Master suite bedroom",
+      alt: "Guest bedroom",
     },
     {
       src: "/bungalow/comfort-02.webp",
@@ -44,7 +44,7 @@ export const BUNGALOW_COMFORT = {
     },
   ] as const satisfies readonly BungalowImage[],
   features: [
-    "master suites & living spaces",
+    "family rooms & living spaces",
     "uninterrupted FOREST VIEWS",
     "climate controlled",
   ] as const,
@@ -54,10 +54,10 @@ export const BUNGALOW_SPECS = {
   headline: "Estate specifications.",
   rows: [
     { label: "capacity", value: "Up to 18 Guests" },
-    { label: "quarters", value: "6 Master Suites, 2 Twin Rooms" },
+    { label: "quarters", value: "4 Family Rooms with 2 Queen Beds Each, 1 King Double" },
     {
       label: "bathrooms",
-      value: "En-suite with freestanding tubs & rainfall showers",
+      value: "Private En-suite Bathrooms",
     },
     {
       label: "service",
@@ -79,7 +79,7 @@ export const BUNGALOW_SPECS = {
     },
     {
       src: "/bungalow/specs-03.webp",
-      alt: "Ensuite bathroom with vessel sink, rainfall shower, and warm lighting",
+      alt: "Ensuite bathroom with vessel sink and warm lighting",
     },
   ] as const satisfies readonly BungalowImage[],
   features: [
