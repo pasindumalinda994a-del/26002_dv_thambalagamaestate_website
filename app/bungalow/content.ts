@@ -119,18 +119,6 @@ export const BUNGALOW_QUARTERS = {
       room: 1,
     },
     {
-      src: "/bungalow/quarters-malkoha-04.webp",
-      alt: "Red-faced Malkoha print beneath a wall sconce",
-      name: "Red-faced Malkoha",
-      room: 1,
-    },
-    {
-      src: "/bungalow/quarters-malkoha-05.webp",
-      alt: "Wooden Red-faced Malkoha room nameplate",
-      name: "Red-faced Malkoha",
-      room: 1,
-    },
-    {
       src: "/bungalow/quarters-hornbill-01.webp",
       alt: "Twin beds with sage bedding, wooden headboard, and tulip wall art",
       name: "Gray Hornbill",
@@ -139,18 +127,6 @@ export const BUNGALOW_QUARTERS = {
     {
       src: "/bungalow/quarters-hornbill-02.webp",
       alt: "Gray Hornbill bedroom with twin beds, armchair, and forest-facing curtains",
-      name: "Gray Hornbill",
-      room: 2,
-    },
-    {
-      src: "/bungalow/quarters-hornbill-03.webp",
-      alt: "Sri Lanka Gray Hornbill print beneath a wall sconce",
-      name: "Gray Hornbill",
-      room: 2,
-    },
-    {
-      src: "/bungalow/quarters-hornbill-04.webp",
-      alt: "Wooden Gray Hornbill room nameplate",
       name: "Gray Hornbill",
       room: 2,
     },
@@ -167,18 +143,6 @@ export const BUNGALOW_QUARTERS = {
       room: 3,
     },
     {
-      src: "/bungalow/quarters-barbet-03.webp",
-      alt: "Yellow-fronted Barbet print beneath a wall sconce",
-      name: "Yellow-fronted Barbet",
-      room: 3,
-    },
-    {
-      src: "/bungalow/quarters-barbet-04.webp",
-      alt: "Wooden Yellow-fronted Barbet room nameplate",
-      name: "Yellow-fronted Barbet",
-      room: 3,
-    },
-    {
       src: "/bungalow/quarters-magpie-01.webp",
       alt: "Twin beds with leaf-pattern bedding, balcony, and forest views",
       name: "Blue Magpie",
@@ -187,18 +151,6 @@ export const BUNGALOW_QUARTERS = {
     {
       src: "/bungalow/quarters-magpie-02.webp",
       alt: "Twin beds with amber bedside lamps and floral wall art",
-      name: "Blue Magpie",
-      room: 4,
-    },
-    {
-      src: "/bungalow/quarters-magpie-03.webp",
-      alt: "Blue Magpie print, wooden door plaque, and console with round mirror",
-      name: "Blue Magpie",
-      room: 4,
-    },
-    {
-      src: "/bungalow/quarters-magpie-04.webp",
-      alt: "Wooden Blue Magpie room nameplate",
       name: "Blue Magpie",
       room: 4,
     },
@@ -217,18 +169,6 @@ export const BUNGALOW_QUARTERS = {
     {
       src: "/bungalow/quarters-spurfowl-03.webp",
       alt: "Floating nightstand with globe lamp beside floral bedding",
-      name: "Spurfowl",
-      room: 5,
-    },
-    {
-      src: "/bungalow/quarters-spurfowl-04.webp",
-      alt: "Sri Lankan Spurfowl print on the bedroom wall",
-      name: "Spurfowl",
-      room: 5,
-    },
-    {
-      src: "/bungalow/quarters-spurfowl-05.webp",
-      alt: "Wooden Spurfowl room nameplate",
       name: "Spurfowl",
       room: 5,
     },
