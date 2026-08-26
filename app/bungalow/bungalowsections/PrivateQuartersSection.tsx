@@ -8,7 +8,7 @@ import { useLayoutEffect, useRef } from "react";
 import { H2 } from "../../components/H2";
 import { BUNGALOW_QUARTERS } from "../content";
 
-const LOOP_DURATION_SEC = 45;
+const LOOP_DURATION_SEC = 75;
 
 const ROOM_ROMAN: Record<number, string> = {
   1: "I",
