@@ -11,8 +11,8 @@ export type BungalowQuarterImage = BungalowImage & {
 export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
   image: {
-    src: "/bungalow/villa-bg.webp",
-    alt: "Thambalagama Estate bungalow at dusk",
+    src: "/bungalow/hero.webp",
+    alt: "Infinity pool and lounge deck at Thambalagama Estate, with rainforest hills beyond",
   } satisfies BungalowImage,
 } as const;
 
@@ -101,8 +101,8 @@ export const BUNGALOW_QUARTERS = {
   headline: "private quarters",
   images: [
     {
-      src: "/bungalow/quarters-malkoha-01.webp",
-      alt: "Twin beds with teal pillows, wooden headboard, and floral wall art",
+      src: "/bungalow/quarters-malkoha-05.webp",
+      alt: "Wood-slice door sign engraved with a Red-faced Malkoha",
       name: "Red-faced Malkoha",
       room: 1,
     },
@@ -119,6 +119,12 @@ export const BUNGALOW_QUARTERS = {
       room: 1,
     },
     {
+      src: "/bungalow/quarters-hornbill-04.webp",
+      alt: "Wood-slice door sign engraved with a Gray Hornbill",
+      name: "Gray Hornbill",
+      room: 2,
+    },
+    {
       src: "/bungalow/quarters-hornbill-01.webp",
       alt: "Twin beds with sage bedding, wooden headboard, and tulip wall art",
       name: "Gray Hornbill",
@@ -131,16 +137,22 @@ export const BUNGALOW_QUARTERS = {
       room: 2,
     },
     {
+      src: "/bungalow/quarters-barbet-04.webp",
+      alt: "Wood-slice door sign engraved with a Yellow-fronted Barbet",
+      name: "Yellow-fronted Barbet",
+      room: 3,
+    },
+    {
       src: "/bungalow/quarters-barbet-01.webp",
       alt: "Twin beds with pink floral bedding, mauve headboards, and floral wall art",
       name: "Yellow-fronted Barbet",
       room: 3,
     },
     {
-      src: "/bungalow/quarters-barbet-02.webp",
-      alt: "Mauve armchair and ottoman beside pink floral bedding",
-      name: "Yellow-fronted Barbet",
-      room: 3,
+      src: "/bungalow/quarters-magpie-04.webp",
+      alt: "Wood-slice door sign engraved with a Blue Magpie",
+      name: "Blue Magpie",
+      room: 4,
     },
     {
       src: "/bungalow/quarters-magpie-01.webp",
@@ -153,6 +165,12 @@ export const BUNGALOW_QUARTERS = {
       alt: "Twin beds with amber bedside lamps and floral wall art",
       name: "Blue Magpie",
       room: 4,
+    },
+    {
+      src: "/bungalow/quarters-spurfowl-05.webp",
+      alt: "Wood-slice door sign engraved with a Spurfowl",
+      name: "Spurfowl",
+      room: 5,
     },
     {
       src: "/bungalow/quarters-spurfowl-01.webp",
