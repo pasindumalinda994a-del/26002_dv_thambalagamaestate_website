@@ -14,6 +14,10 @@ export const BUNGALOW_HERO = {
     src: "/bungalow/hero.webp",
     alt: "Infinity pool and lounge deck at Thambalagama Estate, with rainforest hills beyond",
   } satisfies BungalowImage,
+  desktopImage: {
+    src: "/bungalow/WhatsApp Image 2026-08-18 at 19.58.21.jpeg",
+    alt: "Two-story bungalow in daylight with grey stone pillars, a large shade tree, and a paved walkway",
+  } satisfies BungalowImage,
 } as const;
 
 export const BUNGALOW_COMFORT = {
