@@ -126,13 +126,13 @@ export const BUNGALOW_QUARTERS = {
     },
     {
       src: "/bungalow/quarters-hornbill-01.webp",
-      alt: "Twin beds with sage bedding, wooden headboard, and tulip wall art",
+      alt: "Twin beds with sage bedding, grey armchair, vanity, and tulip wall art",
       name: "Gray Hornbill",
       room: 2,
     },
     {
       src: "/bungalow/quarters-hornbill-02.webp",
-      alt: "Gray Hornbill bedroom with twin beds, armchair, and forest-facing curtains",
+      alt: "Twin beds with cream floral bedding, grey armchair, and forest views through the balcony",
       name: "Gray Hornbill",
       room: 2,
     },
@@ -145,6 +145,12 @@ export const BUNGALOW_QUARTERS = {
     {
       src: "/bungalow/quarters-barbet-01.webp",
       alt: "Twin beds with pink floral bedding, mauve headboards, and floral wall art",
+      name: "Yellow-fronted Barbet",
+      room: 3,
+    },
+    {
+      src: "/bungalow/quarters-barbet-02.webp",
+      alt: "Twin beds with terracotta floral bedding, armchair, and forest views through the balcony",
       name: "Yellow-fronted Barbet",
       room: 3,
     },
