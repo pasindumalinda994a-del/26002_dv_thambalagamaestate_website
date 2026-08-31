@@ -42,7 +42,7 @@ function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
           </div>
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-secondary text-xs font-medium uppercase leading-[150%] tracking-[0.2px] text-cream md:text-[13px]">
-              {image.room != null
+              {"room" in image && image.room != null
                 ? `Room ${ROOM_ROMAN[image.room]}`
                 : "Bathroom"}
             </p>
