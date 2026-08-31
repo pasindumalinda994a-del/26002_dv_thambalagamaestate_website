@@ -10,7 +10,7 @@ import { Button } from "../components/Button";
 import { H2 } from "../components/H2";
 import { PinnedScrollHint } from "../components/PinnedScrollHint";
 
-const BG_SRC = "/home/villa-bg.webp";
+const BG_SRC = "/home/WhatsApp Image 2026-08-18 at 19.58.21.jpeg";
 const VILLA_BG_TRAVEL = 360; // 240 * 1.5
 const VILLA_FG_TRAVEL = 48; // 240 * 0.2
 const MOBILE_MQ = "(max-width: 767px)";
@@ -64,7 +64,7 @@ function VillaBackground({
           alt=""
           fill
           sizes="100vw"
-          className="object-cover object-[75%_center] md:object-center"
+          className="object-cover object-[65%_center] md:object-center"
         />
       </div>
       <div aria-hidden className="absolute inset-0 bg-black/29" />
