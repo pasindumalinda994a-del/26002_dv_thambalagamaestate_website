@@ -81,17 +81,7 @@ export function BungalowHero() {
             priority
             quality={75}
             sizes="100vw"
-            className="object-cover object-[98%_center] md:hidden"
-            onLoad={() => refreshScrollTriggers()}
-          />
-          <Image
-            src={BUNGALOW_HERO.desktopImage.src}
-            alt={BUNGALOW_HERO.desktopImage.alt}
-            fill
-            priority
-            quality={75}
-            sizes="100vw"
-            className="hidden object-cover object-center md:block"
+            className="object-cover object-center"
             onLoad={() => refreshScrollTriggers()}
           />
         </div>

@@ -27,21 +27,24 @@ function MarqueeSet({ ariaHidden }: { ariaHidden?: boolean }) {
       {BUNGALOW_QUARTERS.images.map((image) => (
         <div
           key={`${ariaHidden ? "dup-" : ""}${image.src}`}
-          className="flex w-[min(82vw,468px)] shrink-0 flex-col gap-2 md:w-[min(85vw,468px)] md:gap-3"
+          className="flex w-[min(85vw,468px)] shrink-0 flex-col gap-2 md:gap-3"
         >
-          <div className="relative aspect-468/326 overflow-hidden bg-[#A6A6A6]">
+          <div className="relative aspect-3/2 overflow-hidden bg-[#A6A6A6]">
             <Image
               src={image.src}
               alt={ariaHidden ? "" : image.alt}
               fill
-              sizes="(max-width: 768px) 82vw, 468px"
+              quality={75}
+              sizes="468px"
               draggable={false}
-              className="pointer-events-none select-none object-cover"
+              className="pointer-events-none select-none object-cover object-center"
             />
           </div>
           <div className="flex items-baseline justify-between gap-3">
             <p className="font-secondary text-xs font-medium uppercase leading-[150%] tracking-[0.2px] text-cream md:text-[13px]">
-              Room {ROOM_ROMAN[image.room]}
+              {image.room != null
+                ? `Room ${ROOM_ROMAN[image.room]}`
+                : "Bathroom"}
             </p>
             <p className="text-right font-secondary text-xs font-medium uppercase leading-[150%] tracking-[0.2px] text-cream md:text-[13px]">
               {image.name}
