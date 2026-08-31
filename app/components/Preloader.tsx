@@ -81,7 +81,7 @@ function delay(ms: number) {
 }
 
 function statusForProgress(progress: number): string {
-  if (progress >= 100) return "WELCOME TO THAMBALAGAMA";
+  if (progress >= 100) return "WELCOME TO THAMBALAGAMA ESTATE";
   if (progress >= 50) return "ESTABLISHING CONNECTION TO THE FOREST...";
   if (progress >= 25) return "UNESCO BUFFER ZONE: ACTIVE";
   return "COORD: 6°24'N 80°28'E";
