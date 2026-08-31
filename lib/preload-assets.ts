@@ -5,9 +5,9 @@ export const HERO_VIDEO_MOBILE_SRC = "/video/home-hero-mobile.mp4";
 
 export const PRELOADER_LOGO_SRC = "/logo/primary.png";
 
-export const BUNGALOW_HERO_SRC = "/bungalow/hero.webp";
-export const BUNGALOW_HERO_DESKTOP_SRC =
+export const BUNGALOW_HERO_SRC =
   "/bungalow/WhatsApp Image 2026-08-18 at 19.58.21.jpeg";
+export const BUNGALOW_HERO_DESKTOP_SRC = BUNGALOW_HERO_SRC;
 export const EXPERIENCES_HERO_SRC = "/forest/why-visit.webp";
 export const FOREST_HERO_SRC = "/forest/hero.webp";
 export const GALLERY_HERO_SRC = "/gallery/main.webp";

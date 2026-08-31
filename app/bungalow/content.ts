@@ -5,14 +5,14 @@ export type BungalowImage = {
 
 export type BungalowQuarterImage = BungalowImage & {
   name: string;
-  room: number;
+  room?: number;
 };
 
 export const BUNGALOW_HERO = {
   headline: "a heaven in the wild",
   image: {
-    src: "/bungalow/hero.webp",
-    alt: "Infinity pool and lounge deck at Thambalagama Estate, with rainforest hills beyond",
+    src: "/bungalow/WhatsApp Image 2026-08-18 at 19.58.21.jpeg",
+    alt: "Two-story bungalow in daylight with grey stone pillars, a large shade tree, and a paved walkway",
   } satisfies BungalowImage,
   desktopImage: {
     src: "/bungalow/WhatsApp Image 2026-08-18 at 19.58.21.jpeg",
@@ -199,6 +199,21 @@ export const BUNGALOW_QUARTERS = {
       alt: "Floating nightstand with globe lamp beside floral bedding",
       name: "Spurfowl",
       room: 5,
+    },
+    {
+      src: "/bungalow/quarters-bath-01.webp",
+      alt: "Ensuite bathroom with vessel sink, toilet, towel rack, and a glass walk-in shower",
+      name: "Ensuite",
+    },
+    {
+      src: "/bungalow/quarters-bath-02.webp",
+      alt: "Ensuite vanity with a white vessel sink, wall-mounted faucet, and grey stone counter",
+      name: "Ensuite",
+    },
+    {
+      src: "/bungalow/quarters-bath-03.webp",
+      alt: "Dental kit and vanity kit on the ensuite counter beside a vessel sink",
+      name: "Ensuite",
     },
   ] as const satisfies readonly BungalowQuarterImage[],
 } as const;
