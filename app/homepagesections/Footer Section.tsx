@@ -113,7 +113,23 @@ export function FooterSection() {
           Info@thambalagamaestate.com
         </Link>
 
-        <p>Crafted by Hyke || Malinda & Sameera</p>
+        <div className="flex items-center gap-3">
+          <p>
+            <span className="text-cream/50">Design</span>{" "}
+            <a
+              href="https://www.hykecreative.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-cream/40 underline-offset-4 transition-[opacity,text-decoration-color] hover:opacity-80 hover:decoration-cream"
+            >
+              Hyke
+            </a>
+          </p>
+          <span aria-hidden className="h-3 w-px bg-cream/30" />
+          <p>
+            <span className="text-cream/50">Dev</span> ARC.malinda
+          </p>
+        </div>
       </div>
     </footer>
   );
