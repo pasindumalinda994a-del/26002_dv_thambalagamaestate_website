@@ -122,7 +122,7 @@ export function FooterSection() {
               rel="noopener noreferrer"
               className="underline decoration-cream/40 underline-offset-4 transition-[opacity,text-decoration-color] hover:opacity-80 hover:decoration-cream"
             >
-              Hyke
+              HYKE Creative
             </a>
           </p>
           <span aria-hidden className="h-3 w-px bg-cream/30" />
