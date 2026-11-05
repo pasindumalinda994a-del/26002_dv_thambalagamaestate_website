@@ -23,19 +23,28 @@ Copy `.env.example` to `.env.local` and fill in values:
 | Variable | Purpose |
 |----------|---------|
 | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | Mapbox map on the homepage |
-| `MONGODB_URI` | MongoDB connection string |
+| `MONGODB_URI` | MongoDB connection string (same DB as before) |
 | `MONGODB_DB` | Database name (default: `thambalagama_estate`) |
-| `ADMIN_PASSWORD` | Shared password for the owner dashboard |
-| `AUTH_SECRET` | Long random string used to sign the admin session cookie |
-| `RESEND_API_KEY` | Resend API key for sending booking notification emails |
-| `EMAIL_FROM` | Sender shown in booking emails; must use an address on your verified Resend domain (e.g. `Thambalagama Estate <bookings@booking.thambalagamaestate.com>`) |
+| `PAYLOAD_SECRET` | Long random string for Payload CMS |
+| `RESEND_API_KEY` | Resend API key for booking notification emails |
+| `EMAIL_FROM` | Sender on your verified Resend domain |
 | `OWNER_EMAIL` | Inbox that receives new booking notifications |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL used in owner emails |
 
-Owner dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+### Payload CMS (inquiries + gallery)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+- On first visit, create your Payload admin user (email + password).
+- **Inquiries** collection manages booking requests (status updates block calendar dates when set to Confirmed).
+- **Gallery Images** collection manages extra `/gallery` photos (files stored under `media/gallery`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If you still have legacy Binary images in `gallery_images`, migrate once:
+
+```bash
+npm run migrate:gallery
+```
+
+Then manage new uploads in Payload.
 
 ## Learn More
 

@@ -20,6 +20,10 @@
 # production
 /build
 
+# Payload uploads
+/media
+!/media/.gitkeep
+
 # misc
 .DS_Store
 *.pem
