@@ -550,6 +550,11 @@ export function BookingDrawer() {
                 >
                   <div>
                     <FieldLabel>Dates</FieldLabel>
+                    {unavailableDates.length > 0 ? (
+                      <p className="mb-3 font-secondary text-[12px] leading-relaxed text-forest-green/55">
+                        Shaded dates are already reserved.
+                      </p>
+                    ) : null}
                     <div className="bg-cream/80">
                       <DateRangeCalendar
                         value={range}

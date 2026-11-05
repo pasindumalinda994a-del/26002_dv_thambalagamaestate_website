@@ -1,5 +1,3 @@
-import type { Binary } from "mongodb";
-
 export const GALLERY_ALLOWED_MIME_TYPES = [
   "image/webp",
   "image/jpeg",
@@ -10,29 +8,16 @@ export type GalleryMimeType = (typeof GALLERY_ALLOWED_MIME_TYPES)[number];
 
 export const GALLERY_MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-export type GalleryImageDocument = {
-  alt: string;
-  mimeType: GalleryMimeType;
-  filename: string;
-  order: number;
-  data: Binary;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-/** Public/admin list item — no binary payload. */
+/** Public/admin list item. */
 export type GalleryImageMeta = {
   id: string;
   alt: string;
-  mimeType: GalleryMimeType;
+  mimeType: string;
   filename: string;
   order: number;
+  url: string;
   createdAt: Date;
   updatedAt: Date;
-};
-
-export type GalleryImageWithData = GalleryImageMeta & {
-  data: Buffer;
 };
 
 /** Shape passed into the public gallery grid. */
@@ -42,6 +27,6 @@ export type GalleryDisplayImage = {
   alt: string;
 };
 
-export function galleryPublicSrc(id: string): string {
-  return `/api/gallery/${id}`;
+export function galleryPublicSrc(url: string): string {
+  return url;
 }

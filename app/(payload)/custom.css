@@ -1,0 +1,593 @@
+/* Occupancy calendar — Payload admin (Inquiries list + edit) */
+
+.te-cal {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.15rem 1.1rem;
+  border: 1px solid var(--theme-elevation-150, #e0e0e0);
+  border-radius: 6px;
+  background: var(--theme-elevation-0, #fff);
+}
+
+.te-cal--field {
+  margin: 0 0 1.25rem;
+}
+
+.te-cal--conflict {
+  border-color: var(--theme-warning-500, #d8a200);
+  background: color-mix(in srgb, var(--theme-warning-500, #d8a200) 8%, transparent);
+}
+
+.te-cal__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.te-cal__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme-text, #1a1a1a);
+}
+
+.te-cal__caption {
+  margin: 0.25rem 0 0;
+  max-width: 42rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--theme-elevation-800, #4a4a4a);
+}
+
+.te-cal__error {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--theme-error-500, #c40000);
+}
+
+.te-cal__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.te-cal__nav-btn {
+  appearance: none;
+  border: 1px solid var(--theme-elevation-250, #ccc);
+  border-radius: 4px;
+  background: var(--theme-elevation-50, #f7f7f7);
+  color: var(--theme-text, #1a1a1a);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+}
+
+.te-cal__nav-btn:hover:not(:disabled) {
+  background: var(--theme-elevation-100, #eee);
+}
+
+.te-cal__nav-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.te-cal__months {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+@media (max-width: 860px) {
+  .te-cal__months {
+    grid-template-columns: 1fr;
+  }
+}
+
+.te-cal-month__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.te-cal-weekdays,
+.te-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.te-cal-weekdays {
+  margin-bottom: 2px;
+}
+
+.te-cal-weekdays span {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--theme-elevation-600, #666);
+  padding: 0.15rem 0;
+}
+
+.te-cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--theme-text, #1a1a1a);
+  background: var(--theme-elevation-50, #f7f7f7);
+}
+
+.te-cal-day--muted {
+  opacity: 0.35;
+}
+
+.te-cal-day--blocked {
+  background: color-mix(in srgb, #283618 78%, #fff);
+  color: #fefae0;
+  font-weight: 600;
+}
+
+.te-cal-day--preview {
+  background: color-mix(in srgb, #606c38 55%, #fff);
+  color: #18200e;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #606c38;
+}
+
+.te-cal-day--conflict {
+  background: color-mix(in srgb, #bc6c25 70%, #fff);
+  color: #18200e;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px #bc6c25;
+}
+
+.te-cal__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.15rem;
+  margin-top: 0.85rem;
+  font-size: 0.75rem;
+  color: var(--theme-elevation-700, #555);
+}
+
+.te-cal__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.te-cal-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.te-cal-swatch--blocked {
+  background: #283618;
+}
+
+.te-cal-swatch--preview {
+  background: color-mix(in srgb, #606c38 55%, #fff);
+  box-shadow: inset 0 0 0 1px #606c38;
+}
+
+.te-cal-swatch--conflict {
+  background: color-mix(in srgb, #bc6c25 70%, #fff);
+  box-shadow: inset 0 0 0 1px #bc6c25;
+}
+
+/* Status pills (list + dashboard) */
+
+.te-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.te-status--new {
+  background: color-mix(in srgb, #bc6c25 22%, #fff);
+  color: #6b3a0e;
+}
+
+.te-status--contacted {
+  background: color-mix(in srgb, #606c38 22%, #fff);
+  color: #2f3618;
+}
+
+.te-status--confirmed {
+  background: #283618;
+  color: #fefae0;
+}
+
+.te-status--declined {
+  background: var(--theme-elevation-150, #e8e8e8);
+  color: var(--theme-elevation-800, #444);
+}
+
+.te-status--unknown {
+  background: var(--theme-elevation-100, #f0f0f0);
+  color: var(--theme-elevation-700, #555);
+}
+
+/* Inquiry quick filters */
+
+.te-filters {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--theme-elevation-150, #e0e0e0);
+  border-radius: 6px;
+  background: var(--theme-elevation-0, #fff);
+}
+
+.te-filters__label {
+  margin: 0 0 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--theme-elevation-700, #555);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.te-filters__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.te-filter-pill {
+  appearance: none;
+  border: 1px solid var(--theme-elevation-250, #ccc);
+  border-radius: 999px;
+  background: var(--theme-elevation-50, #f7f7f7);
+  color: var(--theme-text, #1a1a1a);
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+.te-filter-pill:hover {
+  background: var(--theme-elevation-100, #eee);
+}
+
+.te-filter-pill--active {
+  border-color: #283618;
+  background: #283618;
+  color: #fefae0;
+  font-weight: 650;
+}
+
+.te-filter-pill--active.te-filter-pill--new {
+  border-color: #bc6c25;
+  background: #bc6c25;
+  color: #fff;
+}
+
+.te-filter-pill--active.te-filter-pill--contacted {
+  border-color: #606c38;
+  background: #606c38;
+  color: #fff;
+}
+
+.te-filter-pill--active.te-filter-pill--declined {
+  border-color: #666;
+  background: #666;
+  color: #fff;
+}
+
+/* Admin branding — Thambalagama marks */
+
+.te-admin-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.te-admin-logo {
+  display: block;
+  width: auto;
+  max-width: 180px;
+  max-height: 120px;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+/* Dashboard nav — keep Overview/Dashboard group at the very top of the sidebar */
+
+.te-nav-dash {
+  order: -1;
+  width: 100%;
+  margin: 0 0 0.35rem;
+}
+
+.nav__wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.te-nav-dash .nav-group {
+  margin-bottom: 0.75rem;
+}
+
+/* Estate dashboard — width comes from Payload Gutter (same as other admin pages) */
+
+.te-dash {
+  width: 100%;
+  padding-bottom: 2rem;
+}
+
+.te-dash__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.te-dash__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--theme-text, #1a1a1a);
+}
+
+.te-dash__subtitle {
+  margin: 0.35rem 0 0;
+  max-width: 36rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--theme-elevation-700, #555);
+}
+
+.te-dash__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .te-dash__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.te-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--theme-elevation-150, #e0e0e0);
+  background: var(--theme-elevation-0, #fff);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.te-kpi:hover {
+  border-color: #606c38;
+  transform: translateY(-1px);
+}
+
+.te-kpi__label {
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--theme-elevation-700, #555);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.te-kpi__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #283618;
+}
+
+.te-kpi--new .te-kpi__value {
+  color: #bc6c25;
+}
+
+.te-dash__attention {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, #bc6c25 35%, #e0e0e0);
+  background: color-mix(in srgb, #bc6c25 10%, #fff);
+}
+
+.te-dash__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.te-dash__section-copy {
+  margin: 0.3rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--theme-elevation-800, #444);
+}
+
+.te-dash__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  background: #283618;
+  color: #fefae0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.te-dash__cta:hover {
+  background: #18200e;
+}
+
+.te-dash__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .te-dash__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.te-dash__panel {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--theme-elevation-150, #e0e0e0);
+  border-radius: 8px;
+  background: var(--theme-elevation-0, #fff);
+}
+
+.te-dash__panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.te-dash__text-link {
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: #283618;
+  text-decoration: none;
+}
+
+.te-dash__text-link:hover {
+  text-decoration: underline;
+}
+
+.te-dash__empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--theme-elevation-600, #666);
+}
+
+.te-dash__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.te-dash__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--theme-elevation-100, #eee);
+  text-decoration: none;
+  color: inherit;
+}
+
+.te-dash__list li:last-child .te-dash__row {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.te-dash__row:hover .te-dash__row-name {
+  color: #283618;
+}
+
+.te-dash__row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.te-dash__row-name {
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.te-dash__row-meta {
+  font-size: 0.75rem;
+  color: var(--theme-elevation-650, #666);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.te-dash__big {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #283618;
+  line-height: 1;
+}
+
+.te-dash__big-unit {
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--theme-elevation-700, #555);
+}
+
+.te-dash__actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .te-dash__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.te-action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--theme-elevation-150, #e0e0e0);
+  background: color-mix(in srgb, #283618 6%, #fff);
+  text-decoration: none;
+  color: inherit;
+}
+
+.te-action-card:hover {
+  border-color: #606c38;
+}
+
+.te-action-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #283618;
+}
+
+.te-action-card__copy {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--theme-elevation-700, #555);
+}

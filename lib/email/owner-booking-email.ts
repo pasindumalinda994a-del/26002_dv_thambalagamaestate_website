@@ -94,7 +94,7 @@ function logoUrl(): string {
 }
 
 export function bookingDetailUrl(bookingId: string): string {
-  return `${siteUrl()}/admin/bookings/${bookingId}`;
+  return `${siteUrl()}/admin/collections/bookings/${bookingId}`;
 }
 
 export function ownerBookingEmailSubject(booking: Booking): string {
