@@ -12,11 +12,11 @@ export const GalleryImages: CollectionConfig = {
     singular: "Gallery Image",
     plural: "Gallery Images",
   },
+  defaultSort: "order",
   admin: {
     group: "Estate",
     useAsTitle: "alt",
     defaultColumns: ["filename", "alt", "order", "updatedAt"],
-    defaultSort: "order",
     description:
       "Extra gallery photos shown after the static homepage set on /gallery.",
   },

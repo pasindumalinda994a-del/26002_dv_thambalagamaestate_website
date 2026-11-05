@@ -94,6 +94,7 @@ export const Bookings: CollectionConfig = {
     singular: "Inquiry",
     plural: "Inquiries",
   },
+  defaultSort: "-createdAt",
   admin: {
     group: "Estate",
     useAsTitle: "fullName",
@@ -106,7 +107,6 @@ export const Bookings: CollectionConfig = {
       "createdAt",
     ],
     listSearchableFields: ["fullName", "email", "whatsapp"],
-    defaultSort: "-createdAt",
     description:
       "Use status filters to triage requests. Confirming blocks nights on the website calendar (see occupancy calendar below).",
     components: {
