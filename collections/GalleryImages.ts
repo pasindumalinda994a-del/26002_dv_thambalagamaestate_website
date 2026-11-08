@@ -18,7 +18,7 @@ export const GalleryImages: CollectionConfig = {
     useAsTitle: "alt",
     defaultColumns: ["filename", "alt", "order", "updatedAt"],
     description:
-      "Extra gallery photos shown after the static homepage set on /gallery.",
+      "Extra gallery photos shown after the static set on /gallery. Production files are stored in Vercel Blob.",
   },
   access: {
     read: () => true,

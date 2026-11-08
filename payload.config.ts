@@ -1,5 +1,6 @@
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import path from "path";
 import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
@@ -58,4 +59,20 @@ export default buildConfig({
     autoPluralization: false,
   }),
   sharp,
+  plugins: [
+    vercelBlobStorage({
+      // No token locally: plugin stays off and uploads stay in media/gallery.
+      // On Vercel, BLOB_READ_WRITE_TOKEN is set when a Blob store is connected.
+      collections: {
+        "gallery-images": {
+          // Public blob URL on the document, so the gallery does not proxy
+          // every photo through a serverless function.
+          disablePayloadAccessControl: true,
+        },
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      // Vercel rejects request bodies over 4.5MB. Gallery files may be 5MB.
+      clientUploads: true,
+    }),
+  ],
 });

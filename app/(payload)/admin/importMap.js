@@ -7,6 +7,7 @@ import { AdminLogo as AdminLogo_cd28fb8b2e477b11f10921390c6a6167 } from '../../.
 import { DashboardNavLink as DashboardNavLink_d613d941578c0e4a8862d90f3a922516 } from '../../../components/payload/DashboardNavLink'
 import { EstateDashboard as EstateDashboard_39d79e37f6eb432ae5246434fb4bb5fb } from '../../../components/payload/EstateDashboard'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -18,5 +19,6 @@ export const importMap = {
   "/components/payload/AdminLogo#AdminLogo": AdminLogo_cd28fb8b2e477b11f10921390c6a6167,
   "/components/payload/DashboardNavLink#DashboardNavLink": DashboardNavLink_d613d941578c0e4a8862d90f3a922516,
   "/components/payload/EstateDashboard#EstateDashboard": EstateDashboard_39d79e37f6eb432ae5246434fb4bb5fb,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e
 }
