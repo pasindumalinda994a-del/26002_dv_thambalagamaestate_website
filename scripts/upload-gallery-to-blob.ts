@@ -59,23 +59,30 @@ if (!fs.existsSync(galleryDir)) {
   process.exit(1);
 }
 
-const files = fs
-  .readdirSync(galleryDir)
-  .filter((name) => MIME_BY_EXT[path.extname(name).toLowerCase()]);
+async function main() {
+  const files = fs
+    .readdirSync(galleryDir)
+    .filter((name) => MIME_BY_EXT[path.extname(name).toLowerCase()]);
 
-let uploaded = 0;
-for (const filename of files) {
-  const filePath = path.join(galleryDir, filename);
-  const body = await fs.openAsBlob(filePath);
-  const result = await put(filename, body, {
-    access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: MIME_BY_EXT[path.extname(filename).toLowerCase()],
-    token,
-  });
-  uploaded += 1;
-  console.log(`uploaded: ${filename} -> ${result.url}`);
+  let uploaded = 0;
+  for (const filename of files) {
+    const filePath = path.join(galleryDir, filename);
+    const body = await fs.openAsBlob(filePath);
+    const result = await put(filename, body, {
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: MIME_BY_EXT[path.extname(filename).toLowerCase()],
+      token,
+    });
+    uploaded += 1;
+    console.log(`uploaded: ${filename} -> ${result.url}`);
+  }
+
+  console.log(`Done. uploaded=${uploaded}`);
 }
 
-console.log(`Done. uploaded=${uploaded}`);
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -33,7 +33,7 @@ export const LENIS_OPTIONS: LenisOptions = {
    *   0.15+ = snappy, near-native
    * When set, `duration` and `easing` below are not used for wheel scroll.
    */
-  lerp: 0.03,
+  lerp: 0.07,
 
   /**
    * Smooth mouse-wheel and trackpad input instead of jumping instantly.
@@ -48,7 +48,7 @@ export const LENIS_OPTIONS: LenisOptions = {
    *   0.75 = very slow, highly controlled
    *   1.2+ = faster than default
    */
-  wheelMultiplier: 0.55,
+  wheelMultiplier: 0.85,
 
   /**
    * Same as wheelMultiplier but for touch gestures.
