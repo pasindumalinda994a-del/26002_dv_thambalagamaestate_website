@@ -7,7 +7,7 @@ import { ST_PRIORITY } from "@/lib/scroll-refresh";
 import { usePreloaderComplete } from "../components/SitePreloader";
 
 const ABOUT_COPY =
-  "We aren't a hotel. We are a private estate where the only luxury is the silence of the forest. Reserved for one group at a time.";
+  "We aren’t just a hotel. We are a private estate where modern luxury blends with the tranquility of the forest. Exclusively reserved for one group at a time.";
 
 const ABOUT_WORDS = ABOUT_COPY.split(" ");
 

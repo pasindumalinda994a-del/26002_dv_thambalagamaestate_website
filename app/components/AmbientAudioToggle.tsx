@@ -112,9 +112,6 @@ function useAmbientAudio() {
 
 export type SoundButtonVariant = "glass" | "dark" | "light";
 
-const SINE_WAVE_CREAM = "/icons/sine-wave.svg";
-const SINE_WAVE_FOREST = "/icons/sine-wave-forest.svg";
-
 const VARIANT_SHELL: Record<SoundButtonVariant, string> = {
   glass:
     "rounded-full bg-cream/16 shadow-[0_4px_10px_0] shadow-black/8 ring-1 ring-inset ring-cream/32 backdrop-blur-[5px]",
@@ -122,20 +119,55 @@ const VARIANT_SHELL: Record<SoundButtonVariant, string> = {
   light: "rounded-full bg-cream shadow-[0_4px_10px_0] shadow-black/8",
 };
 
-const VARIANT_ICON: Record<SoundButtonVariant, string> = {
-  glass: SINE_WAVE_CREAM,
-  dark: SINE_WAVE_CREAM,
-  light: SINE_WAVE_FOREST,
-};
-
-const VARIANT_SLASH: Record<SoundButtonVariant, string> = {
-  glass: "bg-cream",
-  dark: "bg-cream",
-  light: "bg-forest-green",
+/** Material Icons volume_up / volume_off use currentColor via these classes. */
+const VARIANT_ICON_COLOR: Record<SoundButtonVariant, string> = {
+  glass: "text-cream",
+  dark: "text-cream",
+  light: "text-forest-green",
 };
 
 const DEFAULT_LAYOUT_CLASS =
   "fixed top-4 right-4 z-[502] flex size-12 items-center justify-center transition-opacity hover:opacity-80";
+
+const ICON_TOGGLE_DURATION = 0.3;
+
+/** Google Material Icons — volume_up (baseline). */
+function VolumeUpIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden
+    >
+      <path
+        fill="currentColor"
+        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+      />
+    </svg>
+  );
+}
+
+/** Google Material Icons — volume_off (baseline). */
+function VolumeOffIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden
+    >
+      <path
+        fill="currentColor"
+        d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27L7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09L12 8.18V4z"
+      />
+    </svg>
+  );
+}
 
 export function AmbientAudioProvider({ children }: { children: ReactNode }) {
   const layerRefs = useRef<Record<AmbientLayer, HTMLAudioElement | null>>({
@@ -459,6 +491,68 @@ export function AmbientAudioButton({
   variant?: SoundButtonVariant;
 }) {
   const { isPlaying, toggle } = useAmbientAudio();
+  const iconSlotRef = useRef<HTMLSpanElement>(null);
+  const onIconRef = useRef<HTMLSpanElement>(null);
+  const offIconRef = useRef<HTMLSpanElement>(null);
+  const isFirstIconRender = useRef(true);
+
+  useEffect(() => {
+    const onIcon = onIconRef.current;
+    const offIcon = offIconRef.current;
+    if (!onIcon || !offIcon) return;
+
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const showOn = isPlaying;
+    const incoming = showOn ? onIcon : offIcon;
+    const outgoing = showOn ? offIcon : onIcon;
+
+    const ctx = gsap.context(() => {
+      gsap.killTweensOf([onIcon, offIcon]);
+
+      if (isFirstIconRender.current || reduceMotion) {
+        isFirstIconRender.current = false;
+        gsap.set(incoming, { opacity: 1, scale: 1 });
+        gsap.set(outgoing, { opacity: 0, scale: 0.85 });
+        if (showOn && !reduceMotion) {
+          gsap.to(onIcon, {
+            opacity: 0.72,
+            duration: 1.1,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+          });
+        }
+        return;
+      }
+
+      gsap
+        .timeline({
+          defaults: { duration: ICON_TOGGLE_DURATION, ease: "power2.out" },
+          onComplete: () => {
+            if (!showOn) return;
+            gsap.to(onIcon, {
+              opacity: 0.72,
+              duration: 1.1,
+              ease: "sine.inOut",
+              yoyo: true,
+              repeat: -1,
+            });
+          },
+        })
+        .to(outgoing, { opacity: 0, scale: 0.85 }, 0)
+        .fromTo(
+          incoming,
+          { opacity: 0, scale: 0.85 },
+          { opacity: 1, scale: 1 },
+          0,
+        );
+    }, iconSlotRef);
+
+    return () => ctx.revert();
+  }, [isPlaying]);
 
   return (
     <button
@@ -474,28 +568,24 @@ export function AmbientAudioButton({
         .filter(Boolean)
         .join(" ")}
     >
-      <span className="relative size-6 shrink-0 overflow-hidden" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={VARIANT_ICON[variant]}
-          alt=""
-          width={24}
-          height={24}
-          className="block size-full max-w-none"
-        />
-      </span>
-      {!isPlaying && (
+      <span
+        ref={iconSlotRef}
+        className={`relative size-6 shrink-0 ${VARIANT_ICON_COLOR[variant]}`}
+        aria-hidden
+      >
         <span
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
-          aria-hidden
+          ref={onIconRef}
+          className="absolute inset-0 flex origin-center items-center justify-center opacity-0 will-change-transform"
         >
-          <span className="flex-none rotate-45">
-            <span
-              className={`block h-[25px] w-[2.5px] ${VARIANT_SLASH[variant]}`}
-            />
-          </span>
+          <VolumeUpIcon className="size-6" />
         </span>
-      )}
+        <span
+          ref={offIconRef}
+          className="absolute inset-0 flex origin-center items-center justify-center will-change-transform"
+        >
+          <VolumeOffIcon className="size-6" />
+        </span>
+      </span>
     </button>
   );
 }
