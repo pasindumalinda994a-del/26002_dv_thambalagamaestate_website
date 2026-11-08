@@ -9,6 +9,10 @@ import { FooterSection } from "@/app/homepagesections/Footer Section";
 import { GalleryHero } from "./gallerysections/GalleryHero";
 import { buildPageMetadata } from "@/lib/seo";
 
+// Do not prerender. A build without Payload env vars would otherwise
+// freeze an empty CMS gallery into the static HTML.
+export const dynamic = "force-dynamic";
+
 export const metadata = buildPageMetadata({
   title: "Gallery — Sinharaja Rainforest & Estate",
   description:
