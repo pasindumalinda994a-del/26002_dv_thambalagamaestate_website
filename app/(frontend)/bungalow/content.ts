@@ -57,7 +57,7 @@ export const BUNGALOW_COMFORT = {
 export const BUNGALOW_SPECS = {
   headline: "Estate specifications.",
   rows: [
-    { label: "capacity", value: "Up to 18 Guests" },
+    { label: "capacity", value: "Up to 18 Guests · Minimum 8 required" },
     { label: "quarters", value: "4 Family Rooms with 2 Queen Beds Each, 1 King Double" },
     {
       label: "bathrooms",

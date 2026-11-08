@@ -18,7 +18,7 @@ const MOBILE_MQ = "(max-width: 767px)";
 const VILLA_FEATURES = [
   "Private bungalow",
   "Rainforest views",
-  "Up to 18 guests",
+  "8–18 guests",
   "Sri Lanka",
 ] as const;
 
