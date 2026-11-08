@@ -29,7 +29,7 @@ const MARKER_PULSE_EASE = "power2.out";
 const LOCATION_ROWS = [
   { place: "Sinharaja Border", distance: "Direct Access" },
   { place: "Lankagama Gate", distance: "7 km (15-min drive)" },
-  { place: "Colombo", distance: "X.X Hours" },
+  { place: "Colombo", distance: "2 hours 30 min" },
 ] as const;
 
 function createMarkerPinElement(): {
