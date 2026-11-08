@@ -56,7 +56,8 @@ export function SpecsSection() {
             onSplit(self) {
               if (!self.chars.length) return;
 
-              gsap.set(self.masks, { height: "1.15em", overflow: "clip" });
+              gsap.set(self.masks, { height: "2.5em", overflow: "clip" });
+
               gsap.set(self.chars, {
                 y: "1.1em",
                 opacity: 0.2,
