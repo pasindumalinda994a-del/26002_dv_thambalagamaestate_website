@@ -2,7 +2,7 @@
 
 import {
   createBooking,
-  listConfirmedUnavailableDates,
+  listUnavailableDates,
 } from "@/lib/bookings/repository";
 import { createBookingSchema } from "@/lib/bookings/schema";
 import { sendOwnerBookingEmail } from "@/lib/email/smtp";
@@ -15,7 +15,7 @@ export async function getUnavailableDatesAction(): Promise<
   ActionResult<string[]>
 > {
   try {
-    const dates = await listConfirmedUnavailableDates();
+    const dates = await listUnavailableDates();
     return { ok: true, data: dates };
   } catch (error) {
     console.error("getUnavailableDatesAction failed", error);

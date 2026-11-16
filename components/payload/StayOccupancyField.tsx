@@ -2,15 +2,18 @@
 
 import { useDocumentInfo, useFormFields } from "@payloadcms/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ConfirmedStay } from "@/lib/bookings/dates";
+import type { OccupancySource } from "@/lib/bookings/dates";
 import {
+  blockAsOccupancy,
   expandStayNights,
   nightCount,
-  nightsByStay,
+  nightsByOccupancy,
+  stayAsOccupancy,
 } from "@/lib/bookings/dates";
 import {
   addMonths,
   fetchConfirmedStays,
+  fetchDateBlocks,
   parseMonthFromIso,
 } from "./calendar-shared";
 import { MonthGrid } from "./MonthGrid";
@@ -27,7 +30,7 @@ export function StayOccupancyField() {
     ([fields]) => fields.status?.value as string | undefined,
   );
 
-  const [stays, setStays] = useState<ConfirmedStay[]>([]);
+  const [sources, setSources] = useState<OccupancySource[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +38,14 @@ export function StayOccupancyField() {
     setLoading(true);
     setError(null);
     try {
-      setStays(await fetchConfirmedStays());
+      const [stays, blocks] = await Promise.all([
+        fetchConfirmedStays(),
+        fetchDateBlocks(),
+      ]);
+      setSources([
+        ...stays.map(stayAsOccupancy),
+        ...blocks.map(blockAsOccupancy),
+      ]);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not load occupancy",
@@ -54,12 +64,17 @@ export function StayOccupancyField() {
     return new Set(expandStayNights(checkIn, checkOut));
   }, [checkIn, checkOut]);
 
-  const otherStays = useMemo(() => {
+  const otherSources = useMemo(() => {
     const currentId = id != null ? String(id) : null;
-    return stays.filter((s) => !currentId || s.id !== currentId);
-  }, [stays, id]);
+    return sources.filter(
+      (s) => s.kind === "manual" || !currentId || s.id !== currentId,
+    );
+  }, [sources, id]);
 
-  const nightMap = useMemo(() => nightsByStay(otherStays), [otherStays]);
+  const nightMap = useMemo(
+    () => nightsByOccupancy(otherSources),
+    [otherSources],
+  );
 
   const conflictNights = useMemo(() => {
     const conflicts = new Set<string>();
@@ -80,8 +95,8 @@ export function StayOccupancyField() {
       "Enter valid check-in and check-out dates to preview blocked nights.";
   } else if (hasConflict) {
     message = isConfirmed
-      ? `Warning: this confirmed stay overlaps ${conflictNights.size} night(s) already held by another confirmed booking.`
-      : `Warning: confirming would overlap ${conflictNights.size} night(s) already blocked by another confirmed stay.`;
+      ? `Warning: this confirmed stay overlaps ${conflictNights.size} night(s) already held by another confirmed booking or manual block.`
+      : `Warning: confirming would overlap ${conflictNights.size} night(s) already blocked by another confirmed stay or manual block.`;
   } else if (isConfirmed) {
     message = `These ${nights} night${nights === 1 ? "" : "s"} are blocked for website bookings.`;
   } else {
@@ -96,7 +111,9 @@ export function StayOccupancyField() {
       <div className="te-cal__header">
         <div>
           <h3 className="te-cal__title">Stay calendar</h3>
-          <p className="te-cal__caption">{message}</p>
+          <p className="te-cal__caption">
+            {loading ? "Loading…" : message}
+          </p>
         </div>
         <button
           type="button"
@@ -129,6 +146,10 @@ export function StayOccupancyField() {
         <span className="te-cal__legend-item">
           <span className="te-cal-swatch te-cal-swatch--blocked" />
           Other confirmed
+        </span>
+        <span className="te-cal__legend-item">
+          <span className="te-cal-swatch te-cal-swatch--manual" />
+          Manual block
         </span>
         <span className="te-cal__legend-item">
           <span className="te-cal-swatch te-cal-swatch--preview" />

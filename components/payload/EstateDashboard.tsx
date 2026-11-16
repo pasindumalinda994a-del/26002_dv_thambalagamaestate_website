@@ -2,9 +2,12 @@
 
 import { Gutter, Link } from "@payloadcms/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { DateBlock } from "@/lib/bookings/dates";
 import { expandStayNights } from "@/lib/bookings/dates";
 import type { BookingStatus } from "@/lib/bookings/types";
 import { BOOKING_STATUSES } from "@/lib/bookings/types";
+import { BlockedDatesCalendar } from "./BlockedDatesCalendar";
+import { fetchDateBlocks } from "./calendar-shared";
 import {
   isBookingStatus,
   STATUS_LABELS,
@@ -39,6 +42,7 @@ function filteredInquiriesHref(status?: BookingStatus): string {
 
 export function EstateDashboard() {
   const [docs, setDocs] = useState<InquiryDoc[]>([]);
+  const [blocks, setBlocks] = useState<DateBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,15 +61,19 @@ export function EstateDashboard() {
       params.set("select[status]", "true");
       params.set("select[createdAt]", "true");
 
-      const res = await fetch(`/api/bookings?${params.toString()}`, {
-        credentials: "include",
-        headers: { Accept: "application/json" },
-      });
+      const [res, nextBlocks] = await Promise.all([
+        fetch(`/api/bookings?${params.toString()}`, {
+          credentials: "include",
+          headers: { Accept: "application/json" },
+        }),
+        fetchDateBlocks(),
+      ]);
       if (!res.ok) {
         throw new Error(`Could not load inquiries (${res.status})`);
       }
       const json = (await res.json()) as { docs?: InquiryDoc[] };
       setDocs(json.docs ?? []);
+      setBlocks(nextBlocks);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load dashboard");
     } finally {
@@ -93,8 +101,13 @@ export function EstateDashboard() {
         keys.add(night);
       }
     }
+    for (const block of blocks) {
+      for (const night of expandStayNights(block.start, block.end)) {
+        keys.add(night);
+      }
+    }
     return keys.size;
-  }, [docs]);
+  }, [docs, blocks]);
 
   const recent = docs.slice(0, 8);
   const newCount = counts.new;
@@ -214,17 +227,14 @@ export function EstateDashboard() {
             </span>
           </p>
           <p className="te-dash__section-copy">
-            Confirmed stays lock nights on the public booking calendar.
+            Confirmed stays and manual blocks lock nights on the public booking
+            calendar. Tap a night to block or unblock. Use Block range for
+            multiple nights — no inquiry needed.
           </p>
-          <Link
-            className="te-dash__text-link"
-            href="/admin/collections/bookings"
-            prefetch={false}
-          >
-            Open occupancy calendar
-          </Link>
         </section>
       </div>
+
+      <BlockedDatesCalendar onBlocksChanged={() => void load()} />
 
       <section className="te-dash__actions" aria-label="Quick links">
         <Link

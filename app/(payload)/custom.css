@@ -41,10 +41,60 @@
   color: var(--theme-elevation-800, #4a4a4a);
 }
 
+.te-cal__caption--success {
+  color: #283618;
+  font-weight: 600;
+}
+
 .te-cal__error {
   margin: 0 0 0.75rem;
   font-size: 0.8125rem;
   color: var(--theme-error-500, #c40000);
+}
+
+.te-cal__note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
+  margin: 0 0 0.85rem;
+}
+
+.te-cal__note-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--theme-text, #1a1a1a);
+}
+
+.te-cal__note-optional {
+  font-weight: 400;
+  color: var(--theme-elevation-600, #666);
+}
+
+.te-cal__note-input {
+  flex: 1 1 14rem;
+  min-width: 12rem;
+  max-width: 28rem;
+  appearance: none;
+  border: 1px solid var(--theme-elevation-250, #ccc);
+  border-radius: 4px;
+  background: var(--theme-elevation-0, #fff);
+  color: var(--theme-text, #1a1a1a);
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  padding: 0.4rem 0.55rem;
+}
+
+.te-cal__note-input:focus {
+  outline: 2px solid color-mix(in srgb, #283618 40%, transparent);
+  outline-offset: 1px;
+  border-color: #606c38;
+}
+
+.te-cal__note-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .te-cal__nav {
@@ -75,10 +125,28 @@
   cursor: not-allowed;
 }
 
+.te-cal__nav-btn--active {
+  background: color-mix(in srgb, #283618 88%, #fff);
+  border-color: #283618;
+  color: #fefae0;
+}
+
+.te-cal__mode {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-right: 0.25rem;
+}
+
 .te-cal__months {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem 1.25rem;
+}
+
+.te-cal__months--busy {
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 @media (max-width: 860px) {
@@ -113,11 +181,16 @@
 }
 
 .te-cal-day {
+  appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  font: inherit;
   font-size: 0.75rem;
   color: var(--theme-text, #1a1a1a);
   background: var(--theme-elevation-50, #f7f7f7);
@@ -133,6 +206,12 @@
   font-weight: 600;
 }
 
+.te-cal-day--manual {
+  background: color-mix(in srgb, #606c38 72%, #fff);
+  color: #fefae0;
+  font-weight: 600;
+}
+
 .te-cal-day--preview {
   background: color-mix(in srgb, #606c38 55%, #fff);
   color: #18200e;
@@ -140,11 +219,40 @@
   box-shadow: inset 0 0 0 1px #606c38;
 }
 
+.te-cal-day--range {
+  background: color-mix(in srgb, #dda15e 55%, #fff);
+  color: #18200e;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #bc6c25;
+}
+
 .te-cal-day--conflict {
   background: color-mix(in srgb, #bc6c25 70%, #fff);
   color: #18200e;
   font-weight: 700;
   box-shadow: inset 0 0 0 1px #bc6c25;
+}
+
+.te-cal-day--clickable {
+  cursor: pointer;
+}
+
+.te-cal-day--clickable:hover:not(:disabled) {
+  outline: 2px solid color-mix(in srgb, #283618 55%, transparent);
+  outline-offset: -1px;
+}
+
+.te-cal-day--clickable:hover:not(:disabled):not(.te-cal-day--manual):not(.te-cal-day--range):not(.te-cal-day--preview):not(.te-cal-day--conflict) {
+  background: color-mix(in srgb, #606c38 18%, #fff);
+}
+
+.te-cal-day--pending {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.te-cal-day--locked {
+  cursor: default;
 }
 
 .te-cal__legend {
@@ -171,6 +279,15 @@
 
 .te-cal-swatch--blocked {
   background: #283618;
+}
+
+.te-cal-swatch--manual {
+  background: color-mix(in srgb, #606c38 72%, #fff);
+}
+
+.te-cal-swatch--range {
+  background: color-mix(in srgb, #dda15e 55%, #fff);
+  box-shadow: inset 0 0 0 1px #bc6c25;
 }
 
 .te-cal-swatch--preview {
@@ -554,11 +671,17 @@
 
 .te-dash__actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 1100px) {
+  .te-dash__actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
   .te-dash__actions {
     grid-template-columns: 1fr;
   }
