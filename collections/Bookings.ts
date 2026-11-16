@@ -41,22 +41,35 @@ const warnOnConfirmOverlap: CollectionBeforeChangeHook = async ({
   if (expandStayNights(checkIn, checkOut).length === 0) return data;
 
   try {
-    const result = await req.payload.find({
-      collection: "bookings",
-      where: { status: { equals: "confirmed" } },
-      limit: 500,
-      depth: 0,
-      overrideAccess: true,
-      select: {
-        fullName: true,
-        checkIn: true,
-        checkOut: true,
-      },
-    });
+    const [stayResult, blockResult] = await Promise.all([
+      req.payload.find({
+        collection: "bookings",
+        where: { status: { equals: "confirmed" } },
+        limit: 500,
+        depth: 0,
+        overrideAccess: true,
+        select: {
+          fullName: true,
+          checkIn: true,
+          checkOut: true,
+        },
+      }),
+      req.payload.find({
+        collection: "date-blocks",
+        limit: 500,
+        depth: 0,
+        overrideAccess: true,
+        select: {
+          start: true,
+          end: true,
+          note: true,
+        },
+      }),
+    ]);
 
     const excludeId =
       originalDoc?.id != null ? String(originalDoc.id) : undefined;
-    const overlaps = result.docs.filter((doc) => {
+    const stayOverlaps = stayResult.docs.filter((doc) => {
       if (excludeId && String(doc.id) === excludeId) return false;
       if (typeof doc.checkIn !== "string" || typeof doc.checkOut !== "string") {
         return false;
@@ -67,14 +80,29 @@ const warnOnConfirmOverlap: CollectionBeforeChangeHook = async ({
       );
     });
 
-    if (overlaps.length > 0) {
-      const names = overlaps
-        .map((doc) =>
-          typeof doc.fullName === "string" ? doc.fullName : "Guest",
-        )
-        .join(", ");
+    const blockOverlaps = blockResult.docs.filter((doc) => {
+      if (typeof doc.start !== "string" || typeof doc.end !== "string") {
+        return false;
+      }
+      return staysOverlap(
+        { checkIn, checkOut },
+        { checkIn: doc.start, checkOut: doc.end },
+      );
+    });
+
+    const conflictLabels = [
+      ...stayOverlaps.map((doc) =>
+        typeof doc.fullName === "string" ? doc.fullName : "Guest",
+      ),
+      ...blockOverlaps.map((doc) => {
+        const note = typeof doc.note === "string" ? doc.note.trim() : "";
+        return note || "Manual block";
+      }),
+    ];
+
+    if (conflictLabels.length > 0) {
       req.payload.logger.warn(
-        `Inquiry confirmed with overlapping nights (${checkIn} → ${checkOut}). Conflicts: ${names}`,
+        `Inquiry confirmed with overlapping nights (${checkIn} → ${checkOut}). Conflicts: ${conflictLabels.join(", ")}`,
       );
     }
   } catch (error) {
@@ -108,11 +136,10 @@ export const Bookings: CollectionConfig = {
     ],
     listSearchableFields: ["fullName", "email", "whatsapp"],
     description:
-      "Use status filters to triage requests. Confirming blocks nights on the website calendar (see occupancy calendar below).",
+      "Use status filters to triage requests. Confirming blocks nights on the website calendar. Manual closures are managed on the Estate dashboard calendar.",
     components: {
       beforeListTable: [
         "/components/payload/InquiryQuickFilters#InquiryQuickFilters",
-        "/components/payload/BlockedDatesCalendar#BlockedDatesCalendar",
       ],
     },
   },
@@ -225,7 +252,7 @@ export const Bookings: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Confirmed blocks nights on the website calendar. Use the Stay calendar panel to preview conflicts before saving.",
+          "Confirmed blocks nights on the website calendar (alongside any manual date blocks). Use the Stay calendar panel to preview conflicts before saving.",
         components: {
           Cell: "/components/payload/StatusCell#StatusCell",
         },

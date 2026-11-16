@@ -26,6 +26,8 @@ Copy `.env.example` to `.env.local` and fill in values:
 | `MONGODB_URI` | MongoDB connection string (same DB as before) |
 | `MONGODB_DB` | Database name (default: `thambalagama_estate`) |
 | `PAYLOAD_SECRET` | Long random string for Payload CMS |
+| `DEV_ADMIN_EMAIL` | Local-only admin email (development seed + login prefill) |
+| `DEV_ADMIN_PASSWORD` | Local-only admin password (development only) |
 | `RESEND_API_KEY` | Resend API key for booking notification emails |
 | `EMAIL_FROM` | Sender on your verified Resend domain |
 | `OWNER_EMAIL` | Inbox that receives new booking notifications |
@@ -34,7 +36,7 @@ Copy `.env.example` to `.env.local` and fill in values:
 ### Payload CMS (inquiries + gallery)
 
 - Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
-- On first visit, create your Payload admin user (email + password).
+- **Local development login:** `DEV_ADMIN_EMAIL` / `DEV_ADMIN_PASSWORD` only seed/prefill when `MONGODB_URI` is localhost. If `.env.local` points at Atlas (shared/prod DB), use your existing Users login instead — seed/prefill are blocked. Never set `DEV_ADMIN_*` on Vercel. Restart `npm run dev` after changing env.
 - **Inquiries** collection manages booking requests (status updates block calendar dates when set to Confirmed).
 - **Gallery Images** collection manages extra `/gallery` photos (files stored under `media/gallery`).
 

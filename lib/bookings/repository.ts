@@ -3,8 +3,16 @@ import type { Booking, BookingStatus } from "./types";
 import {
   expandStayNights,
   type ConfirmedStay,
+  type DateBlock,
 } from "./dates";
 import { getPayloadClient } from "@/lib/payload";
+
+type DateBlockDoc = {
+  id: string | number;
+  start: string;
+  end: string;
+  note?: string | null;
+};
 
 type BookingDoc = {
   id: string | number;
@@ -149,6 +157,88 @@ export async function listConfirmedStays(): Promise<ConfirmedStay[]> {
   );
 }
 
+function toDateBlock(doc: DateBlockDoc): DateBlock {
+  return {
+    id: String(doc.id),
+    start: doc.start,
+    end: doc.end,
+    note: typeof doc.note === "string" ? doc.note : "",
+  };
+}
+
+export async function listDateBlocks(): Promise<DateBlock[]> {
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: "date-blocks",
+    limit: 500,
+    depth: 0,
+    overrideAccess: true,
+    sort: "start",
+    select: {
+      start: true,
+      end: true,
+      note: true,
+    },
+  });
+
+  return (result.docs as DateBlockDoc[]).map(toDateBlock);
+}
+
+export async function createDateBlock(input: {
+  start: string;
+  end: string;
+  note?: string;
+}): Promise<DateBlock> {
+  const payload = await getPayloadClient();
+  const doc = (await payload.create({
+    collection: "date-blocks",
+    data: {
+      start: input.start,
+      end: input.end,
+      note: input.note?.trim() || "",
+    },
+    overrideAccess: true,
+  })) as DateBlockDoc;
+
+  return toDateBlock(doc);
+}
+
+export async function deleteDateBlock(id: string): Promise<boolean> {
+  const payload = await getPayloadClient();
+  try {
+    await payload.delete({
+      collection: "date-blocks",
+      id,
+      overrideAccess: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateDateBlock(
+  id: string,
+  data: { start: string; end: string; note?: string },
+): Promise<DateBlock | null> {
+  const payload = await getPayloadClient();
+  try {
+    const doc = (await payload.update({
+      collection: "date-blocks",
+      id,
+      data: {
+        start: data.start,
+        end: data.end,
+        ...(data.note !== undefined ? { note: data.note } : {}),
+      },
+      overrideAccess: true,
+    })) as DateBlockDoc;
+    return toDateBlock(doc);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Confirmed stay nights as YYYY-MM-DD keys (check-in inclusive, check-out exclusive).
  */
@@ -157,6 +247,28 @@ export async function listConfirmedUnavailableDates(): Promise<string[]> {
   const keys = new Set<string>();
   for (const stay of stays) {
     for (const night of expandStayNights(stay.checkIn, stay.checkOut)) {
+      keys.add(night);
+    }
+  }
+  return Array.from(keys).sort();
+}
+
+/**
+ * All unavailable nights: confirmed stays + manual date blocks.
+ */
+export async function listUnavailableDates(): Promise<string[]> {
+  const [stays, blocks] = await Promise.all([
+    listConfirmedStays(),
+    listDateBlocks(),
+  ]);
+  const keys = new Set<string>();
+  for (const stay of stays) {
+    for (const night of expandStayNights(stay.checkIn, stay.checkOut)) {
+      keys.add(night);
+    }
+  }
+  for (const block of blocks) {
+    for (const night of expandStayNights(block.start, block.end)) {
       keys.add(night);
     }
   }
@@ -178,4 +290,17 @@ export async function findOverlappingConfirmedStays(input: {
       nights.has(n),
     );
   });
+}
+
+export async function findOverlappingDateBlocks(input: {
+  checkIn: string;
+  checkOut: string;
+}): Promise<DateBlock[]> {
+  const blocks = await listDateBlocks();
+  const nights = new Set(expandStayNights(input.checkIn, input.checkOut));
+  if (nights.size === 0) return [];
+
+  return blocks.filter((block) =>
+    expandStayNights(block.start, block.end).some((n) => nights.has(n)),
+  );
 }
